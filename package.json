@@ -1,0 +1,24 @@
+{
+  "name": "pave",
+  "version": "0.0.1",
+  "author": "Casey Foster <c@sey.me>",
+  "license": "MIT",
+  "main": "pave.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/orgsync/pave"
+  },
+  "devDependencies": {
+    "babel-preset-es2015": "6",
+    "babel-preset-stage-0": "6",
+    "chai": "3",
+    "cogs-transformer-babel": "2",
+    "cogs": "2",
+    "istanbul": "0.4",
+    "mocha": "2",
+    "watchy": "0.6"
+  },
+  "scripts": {
+    "test": "istanbul cover _mocha test.js"
+  }
+}
