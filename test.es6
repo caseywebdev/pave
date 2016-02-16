@@ -44,6 +44,22 @@ describe('SyncPromise', () => {
     expect(foo).to.equal('baz');
   });
 
+  it('can chain', done => {
+    Promise.resolve('foo')
+      .then(val => {
+        expect(val).to.equal('foo');
+        return 'bar';
+      })
+      .then(val => {
+        expect(val).to.equal('bar');
+        throw 'baz';
+      })
+      .catch(val => {
+        expect(val).to.equal('baz');
+        done();
+      });
+  });
+
   it('resolves in order', done => {
     SyncPromise.all([
       new SyncPromise(resolve => setTimeout(() => resolve('foo'))),

@@ -56,6 +56,19 @@ describe('SyncPromise', function () {
     (0, _chai.expect)(foo).to.equal('baz');
   });
 
+  it('can chain', function (done) {
+    Promise.resolve('foo').then(function (val) {
+      (0, _chai.expect)(val).to.equal('foo');
+      return 'bar';
+    }).then(function (val) {
+      (0, _chai.expect)(val).to.equal('bar');
+      throw 'baz';
+    }).catch(function (val) {
+      (0, _chai.expect)(val).to.equal('baz');
+      done();
+    });
+  });
+
   it('resolves in order', function (done) {
     _.SyncPromise.all([new _.SyncPromise(function (resolve) {
       return setTimeout(function () {

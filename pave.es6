@@ -144,26 +144,25 @@ export class SyncPromise {
     try { callback(resolve, reject); } catch (er) { reject(er); }
   }
 
-  then(cb) {
+  then(onFulfilled, onRejected) {
     return new SyncPromise((resolve, reject) => {
-      if (this.state === 'rejected') return reject(this.value);
-      const run =
-        () => { try { resolve(cb(this.value)); } catch (er) { reject(er); } };
-      if (this.state === 'fulfilled') return run();
-      this.callbacks.fulfilled.push(run);
-      this.callbacks.rejected.push(reject);
+      const {callbacks: {fulfilled, rejected}, state, value} = this;
+
+      const runFulfilled =
+        onFulfilled ? value => resolve(onFulfilled(value)) : resolve;
+
+      const runRejected =
+        onRejected ? value => resolve(onRejected(value)) : reject;
+
+      if (state === 'fulfilled') return runFulfilled(value);
+      if (state === 'rejected') return runRejected(value);
+      fulfilled.push(runFulfilled);
+      rejected.push(runRejected);
     });
   }
 
-  catch(cb) {
-    return new SyncPromise((resolve, reject) => {
-      if (this.state === 'fulfilled') return resolve(this.value);
-      const run =
-        () => { try { resolve(cb(this.value)); } catch (er) { reject(er); } };
-      if (this.state === 'rejected') return run();
-      this.callbacks.fulfilled.push(resolve);
-      this.callbacks.rejected.push(run);
-    });
+  catch(onRejected) {
+    return this.then(null, onRejected);
   }
 }
 

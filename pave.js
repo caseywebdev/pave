@@ -162,41 +162,35 @@ var SyncPromise = exports.SyncPromise = function () {
 
   _createClass(SyncPromise, [{
     key: 'then',
-    value: function then(cb) {
+    value: function then(onFulfilled, onRejected) {
       var _this2 = this;
 
       return new SyncPromise(function (resolve, reject) {
-        if (_this2.state === 'rejected') return reject(_this2.value);
-        var run = function run() {
-          try {
-            resolve(cb(_this2.value));
-          } catch (er) {
-            reject(er);
-          }
-        };
-        if (_this2.state === 'fulfilled') return run();
-        _this2.callbacks.fulfilled.push(run);
-        _this2.callbacks.rejected.push(reject);
+        var _callbacks = _this2.callbacks;
+        var fulfilled = _callbacks.fulfilled;
+        var rejected = _callbacks.rejected;
+        var state = _this2.state;
+        var value = _this2.value;
+
+
+        var runFulfilled = onFulfilled ? function (value) {
+          return resolve(onFulfilled(value));
+        } : resolve;
+
+        var runRejected = onRejected ? function (value) {
+          return resolve(onRejected(value));
+        } : reject;
+
+        if (state === 'fulfilled') return runFulfilled(value);
+        if (state === 'rejected') return runRejected(value);
+        fulfilled.push(runFulfilled);
+        rejected.push(runRejected);
       });
     }
   }, {
     key: 'catch',
-    value: function _catch(cb) {
-      var _this3 = this;
-
-      return new SyncPromise(function (resolve, reject) {
-        if (_this3.state === 'fulfilled') return resolve(_this3.value);
-        var run = function run() {
-          try {
-            resolve(cb(_this3.value));
-          } catch (er) {
-            reject(er);
-          }
-        };
-        if (_this3.state === 'rejected') return run();
-        _this3.callbacks.fulfilled.push(resolve);
-        _this3.callbacks.rejected.push(run);
-      });
+    value: function _catch(onRejected) {
+      return this.then(null, onRejected);
     }
   }]);
 
@@ -289,7 +283,7 @@ var Router = exports.Router = function () {
   }, {
     key: 'run',
     value: function run(_ref2) {
-      var _this4 = this;
+      var _this3 = this;
 
       var _ref2$query = _ref2.query;
       var query = _ref2$query === undefined ? [] : _ref2$query;
@@ -305,7 +299,7 @@ var Router = exports.Router = function () {
       var onlyUnresolved = _ref2$onlyUnresolved === undefined ? false : _ref2$onlyUnresolved;
 
       return SyncPromise.resolve().then(function () {
-        var limit = _this4.maxQueryCost;
+        var limit = _this3.maxQueryCost;
 
         if (limit && getQueryCost(query, limit) > limit) {
           throw EXPENSIVE_QUERY_ERROR;
@@ -329,7 +323,7 @@ var Router = exports.Router = function () {
         var unresolvedPaths = [];
         for (var i = 0, l = paths.length; i < l; ++i) {
           var path = paths[i];
-          var route = _this4.getRouteForPath(path);
+          var route = _this3.getRouteForPath(path);
           if (!route) continue;
           var fn = route.fn;
           var arity = route.arity;
@@ -379,7 +373,7 @@ var Router = exports.Router = function () {
         }
 
         var recurse = function recurse() {
-          return _this4.run({
+          return _this3.run({
             query: [unresolvedPaths],
             context: context,
             change: change,
