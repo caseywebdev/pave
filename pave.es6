@@ -90,6 +90,83 @@ export const toKey = obj =>
   isObject(obj) ? JSON.stringify(orderObj(obj)) :
   String(obj);
 
+const isPromise = obj => obj && typeof obj.then === 'function';
+
+export class SyncPromise {
+  static resolve = value => new SyncPromise(resolve => resolve(value));
+
+  static reject = reason => new SyncPromise((_, reject) => reject(reason));
+
+  static all = promises =>
+    new SyncPromise((resolve, reject) => {
+      let done = 0;
+      const values = [];
+      for (let i = 0, l = promises.length; i < l; ++i) {
+        promises[i].then(value => {
+          values[i] = value;
+          if (++done === l) resolve(values);
+        }).catch(reject);
+      }
+    });
+
+  static race = promises =>
+    new SyncPromise((resolve, reject) => {
+      for (let i = 0, l = promises.length; i < l; ++i) {
+        promises[i].then(resolve).catch(reject);
+      }
+    });
+
+  constructor(callback) {
+    let completed = false;
+
+    const complete = (state, value) => {
+      completed = true;
+      this.state = state;
+      this.value = value;
+      const callbacks = this.callbacks[state];
+      for (let i = 0, l = callbacks.length; i < l; ++i) callbacks[i](value);
+    };
+
+    const resolve = value => {
+      if (completed) return;
+      if (isPromise(value)) return value.then(resolve).catch(reject);
+      complete('fulfilled', value);
+    };
+
+    const reject = reason => {
+      if (completed) return;
+      if (isPromise(reason)) return reason.then(reject).catch(reject);
+      complete('rejected', reason);
+    };
+
+    this.state = 'pending';
+    this.callbacks = {fulfilled: [], rejected: []};
+    try { callback(resolve, reject); } catch (er) { reject(er); }
+  }
+
+  then(cb) {
+    return new SyncPromise((resolve, reject) => {
+      if (this.state === 'rejected') return reject(this.value);
+      const run =
+        () => { try { resolve(cb(this.value)); } catch (er) { reject(er); } };
+      if (this.state === 'fulfilled') return run();
+      this.callbacks.fulfilled.push(run);
+      this.callbacks.rejected.push(reject);
+    });
+  }
+
+  catch(cb) {
+    return new SyncPromise((resolve, reject) => {
+      if (this.state === 'fulfilled') return resolve(this.value);
+      const run =
+        () => { try { resolve(cb(this.value)); } catch (er) { reject(er); } };
+      if (this.state === 'rejected') return run();
+      this.callbacks.fulfilled.push(resolve);
+      this.callbacks.rejected.push(run);
+    });
+  }
+}
+
 let nextFnid = 1;
 const getFnid = fn => fn.__FNID__ || (fn.__FNID__ = nextFnid++);
 
@@ -129,7 +206,7 @@ export class Router {
     store = new Store(),
     onlyUnresolved = false
   }) {
-    return Promise.resolve().then(() => {
+    return SyncPromise.resolve().then(() => {
       const {maxQueryCost: limit} = this;
       if (limit && getQueryCost(query, limit) > limit) {
         throw EXPENSIVE_QUERY_ERROR;
@@ -188,7 +265,7 @@ export class Router {
       const work = [];
       for (let fnid in jobs) {
         const {fn, options} = jobs[fnid];
-        work.push(Promise.resolve(options).then(fn).then(newChange => {
+        work.push(SyncPromise.resolve(options).then(fn).then(newChange => {
           store.applyChange(newChange);
           change.push(newChange);
         }));
@@ -203,7 +280,7 @@ export class Router {
           onlyUnresolved: true
         });
 
-      return Promise.all(work).then(recurse);
+      return SyncPromise.all(work).then(recurse);
     });
   }
 }

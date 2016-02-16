@@ -36,3 +36,38 @@ describe('Store', function () {
     });
   });
 });
+
+describe('SyncPromise', function () {
+  it('can sync resolve', function () {
+    var foo = 'bar';
+    _.SyncPromise.resolve('baz').then(function (val) {
+      return foo = val;
+    });
+    (0, _chai.expect)(foo).to.equal('baz');
+  });
+
+  it('can sync reject', function () {
+    var foo = 'bar';
+    new _.SyncPromise(function () {
+      throw 'baz';
+    }).catch(function (val) {
+      return foo = val;
+    });
+    (0, _chai.expect)(foo).to.equal('baz');
+  });
+
+  it('resolves in order', function (done) {
+    _.SyncPromise.all([new _.SyncPromise(function (resolve) {
+      return setTimeout(function () {
+        return resolve('foo');
+      });
+    }), _.SyncPromise.resolve('bar'), new _.SyncPromise(function (resolve) {
+      return setTimeout(function () {
+        return resolve('baz');
+      });
+    })]).then(function (val) {
+      (0, _chai.expect)(val).to.deep.equal(['foo', 'bar', 'baz']);
+      done();
+    }).catch(done);
+  });
+});

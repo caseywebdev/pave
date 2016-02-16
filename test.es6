@@ -1,5 +1,5 @@
 import {expect} from 'chai';
-import {Store} from '.';
+import {Store, SyncPromise} from '.';
 
 const {describe, it} = global;
 
@@ -28,5 +28,30 @@ describe('Store', () => {
       expect(er).to.be.an.instanceOf(Error);
       done();
     });
+  });
+});
+
+describe('SyncPromise', () => {
+  it('can sync resolve', () => {
+    let foo = 'bar';
+    SyncPromise.resolve('baz').then(val => foo = val);
+    expect(foo).to.equal('baz');
+  });
+
+  it('can sync reject', () => {
+    let foo = 'bar';
+    new SyncPromise(() => { throw 'baz'; }).catch(val => foo = val);
+    expect(foo).to.equal('baz');
+  });
+
+  it('resolves in order', done => {
+    SyncPromise.all([
+      new SyncPromise(resolve => setTimeout(() => resolve('foo'))),
+      SyncPromise.resolve('bar'),
+      new SyncPromise(resolve => setTimeout(() => resolve('baz')))
+    ]).then(val => {
+      expect(val).to.deep.equal(['foo', 'bar', 'baz']);
+      done();
+    }).catch(done);
   });
 });
