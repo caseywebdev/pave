@@ -278,7 +278,7 @@ export class Router {
             if (!isArray(path) || !('value' in change)) continue;
 
             store.set(path, value);
-            changes.push([path, value]);
+            changes.push({path, value});
           }
         }));
       }
