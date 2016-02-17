@@ -2,7 +2,16 @@ const isObject = obj => typeof obj === 'object' && obj !== null;
 
 const isArray = Array.isArray;
 
-export const queryToPaths = (query, path = []) => {
+const flatten = (obj, flattened = []) => {
+  if (isArray(obj)) {
+    for (let i = 0, l = obj.length; i < l; ++i) flatten(obj[i], flattened);
+  } else {
+    flattened.push(obj);
+  }
+  return flattened;
+};
+
+const queryToPaths = (query, path = []) => {
   let i = 0;
   const l = query.length;
   while (i < l && !isArray(query[i])) ++i;
@@ -20,7 +29,7 @@ export const queryToPaths = (query, path = []) => {
   return paths;
 };
 
-export const getQueryCost = (query, limit = Infinity, cost = 0, total = 0) => {
+const getQueryCost = (query, limit = Infinity, cost = 0, total = 0) => {
   let i = 0;
   const l = query.length;
   while (i < l && total + cost + i <= limit && !isArray(query[i])) ++i;
@@ -37,30 +46,12 @@ export const getQueryCost = (query, limit = Infinity, cost = 0, total = 0) => {
   return total;
 };
 
-const routeToQuery = route => {
-  const path = route.split('.');
-  for (let i = 0, l = path.length; i < l; ++i) path[i] = path[i].split('|');
-  return path;
-};
+const routeToParams = route => route.split('.');
 
 const pathToRoute = path => path.join('.');
 
 const pathSegmentToRouteQuerySegment = segment =>
-  isObject(segment) ? '$params' : [segment, '$key'];
-
-const flattenRoutes = routes => {
-  const flattened = {};
-  for (let route in routes) {
-    const fn = routes[route];
-    const paths = queryToPaths(routeToQuery(route));
-    for (let i = 0, l = paths.length; i < l; ++i) {
-      const path = paths[i];
-      const route = pathToRoute(path);
-      flattened[route] = {fn, arity: route === '*' ? 0 : path.length};
-    }
-  }
-  return flattened;
-};
+  isObject(segment) ? ['$obj', '$objs', '*'] : [segment, '$key', '$keys', '*'];
 
 const orderObj = obj => {
   if (!isObject(obj)) return obj;
@@ -89,6 +80,20 @@ export const toKey = obj =>
   isArray(obj) ? JSON.stringify(toKeys(obj)) :
   isObject(obj) ? JSON.stringify(orderObj(obj)) :
   String(obj);
+
+const isPluralParam = param =>
+  param === '$objs' || param === '$keys' || param === '*';
+
+const getJobKey = (params, path) => {
+  let segments = [];
+  for (let i = 0; i < params.length; ++i) {
+    const param = params[i];
+    segments.push(isPluralParam(param) ? param : path[i]);
+  }
+  return toKey(segments);
+};
+
+const EXPENSIVE_QUERY_ERROR = new Error('Query is too expensive');
 
 const isPromise = obj => obj && typeof obj.then === 'function';
 
@@ -166,17 +171,10 @@ export class SyncPromise {
   }
 }
 
-let nextFnid = 1;
-const getFnid = fn => fn.__FNID__ || (fn.__FNID__ = nextFnid++);
-
-const ROUTE_NOT_FOUND_ERROR = new Error('Route not found');
-const EXPENSIVE_QUERY_ERROR = new Error('Query is too expensive');
-const DEFAULT_ROUTES = {'*': () => { throw ROUTE_NOT_FOUND_ERROR; }};
-
 export class Router {
-  constructor({maxQueryCost, routes = DEFAULT_ROUTES} = {}) {
-    this.routes = flattenRoutes(routes);
-    if (maxQueryCost) this.maxQueryCost = maxQueryCost;
+  constructor({maxQueryCost, routes = {}} = {}) {
+    this.maxQueryCost = maxQueryCost;
+    this.routes = routes;
   }
 
   getRouteForPath(path) {
@@ -189,19 +187,20 @@ export class Router {
     for (let i = query.length; i > 0; --i) {
       const paths = queryToPaths(query.slice(0, i));
       for (let j = 0, l = paths.length; j < l; ++j) {
-        const route = routes[pathToRoute(paths[j])];
-        if (route) return route;
+        const route = pathToRoute(paths[j]);
+        const fn = routes[route];
+        if (fn) return {route, fn};
       }
     }
 
-    return routes['*'];
+    throw new Error(`No route matches ${JSON.stringify(path)}`);
   }
 
   run({
     query = [],
     context = {},
     force = false,
-    change = [],
+    changes = [],
     store = new Store(),
     onlyUnresolved = false
   }) {
@@ -223,71 +222,83 @@ export class Router {
         paths = undefPaths;
       }
 
-      if (!paths.length) return change;
+      if (!paths.length) return changes;
 
       const jobs = {};
       const unresolvedPaths = [];
       for (let i = 0, l = paths.length; i < l; ++i) {
         const path = paths[i];
-        let route = this.getRouteForPath(path);
-        if (!route) continue;
-        const {fn, arity} = route;
+        const {route, fn} = this.getRouteForPath(path);
+        const params = routeToParams(route);
 
-        if (path.length > arity && arity > 0) unresolvedPaths.push(path);
+        if (path.length > params.length && route !== '*') {
+          unresolvedPaths.push(path);
+        }
 
-        const fnid = getFnid(fn);
-        let job = jobs[fnid];
+        const jobKey = getJobKey(params, path);
+
+        let job = jobs[jobKey];
         if (!job) {
-          job = jobs[fnid] = {
+          job = jobs[jobKey] = {
             fn,
-            options: {context, store, paths: []},
-            keys: []
+            args: {context, store, paths: []},
+            keys: {}
           };
         }
 
-        const {keys, options} = job;
-        options.paths.push(path);
+        const {keys, args} = job;
+        args.paths.push(path);
 
-        for (let i = 0; i < arity; ++i) {
-          if (!options[i]) {
-            options[i] = [];
-            keys[i] = {};
-          }
-          const segment = path[i];
-          const key = toKey(segment);
-          if (keys[i][key]) continue;
-          options[i].push(segment);
-          keys[i][key] = true;
+        for (let i = 0; i < params.length; ++i) {
+          const param = params[i];
+          const arg = path[i];
+          if (isPluralParam(param)) {
+            if (!args[i]) {
+              args[i] = [];
+              keys[i] = {};
+            }
+            const key = toKey(arg);
+            if (keys[i][key]) continue;
+            args[i].push(arg);
+            keys[i][key] = true;
+          } else args[i] = arg;
         }
       }
 
       const work = [];
-      for (let fnid in jobs) {
-        const {fn, options} = jobs[fnid];
-        work.push(SyncPromise.resolve(options).then(fn).then(newChange => {
-          store.applyChange(newChange);
-          change.push(newChange);
+      for (let key in jobs) {
+        const {fn, args} = jobs[key];
+        work.push(SyncPromise.resolve(args).then(fn).then(obj => {
+          const flattened = flatten(obj);
+          for (let i = 0, l = flattened.length; i < l; ++i) {
+            const change = flattened[i];
+            if (!change) continue;
+
+            const {path, value} = change;
+            if (!isArray(path) || !('value' in change)) continue;
+
+            store.set(path, value);
+            changes.push([path, value]);
+          }
         }));
       }
 
-      const recurse = () =>
+      const runUnresolved = () =>
         this.run({
           query: [unresolvedPaths],
           context,
-          change,
+          changes,
           store,
           onlyUnresolved: true
         });
 
-      return SyncPromise.all(work).then(recurse);
+      return SyncPromise.all(work).then(runUnresolved);
     });
   }
 }
 
-const DEFAULT_ROUTER = new Router();
-
 export class Store {
-  constructor({cache = {}, router = DEFAULT_ROUTER, maxRefDepth = 3} = {}) {
+  constructor({cache = {}, router = new Router(), maxRefDepth = 3} = {}) {
     this.cache = cache;
     this.router = router;
     this.listeners = {};
@@ -351,13 +362,6 @@ export class Store {
       }
     }
     return path;
-  }
-
-  applyChange(change) {
-    if (!change) return;
-    if (!isArray(change)) return this.set(change.path, change.value);
-    for (let i = 0, l = change.length; i < l; ++i) this.applyChange(change[i]);
-    return this;
   }
 
   run(options) {

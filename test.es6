@@ -1,5 +1,5 @@
 import {expect} from 'chai';
-import {Store, SyncPromise} from '.';
+import {Router, Store, SyncPromise} from '.';
 
 const {describe, it} = global;
 
@@ -67,6 +67,62 @@ describe('SyncPromise', () => {
       new SyncPromise(resolve => setTimeout(() => resolve('baz')))
     ]).then(val => {
       expect(val).to.deep.equal(['foo', 'bar', 'baz']);
+      done();
+    }).catch(done);
+  });
+});
+
+describe('Router', () => {
+  it('groups plural args', done => {
+    let objs, keys, wildcard;
+    new Router({
+      routes: {
+        'foo.$objs': ({1: _keys}) => objs = _keys,
+        'foo.$keys': ({1: _keys}) => keys = _keys,
+        'etc.*': ({1: _keys}) => wildcard = _keys
+      }
+    }).run({
+      query: [[
+        ['foo', [1, {1: true}, '1', {2: true}, 2, {3: true}]],
+        ['foo', [1, 1, '1', '1', 2, 3, {3: true}]],
+        ['etc', [1, 2, 3, 3, {7: true}, {7: true}, {8: false}, {9: true}]]
+      ]]
+    }).then(() => {
+      expect(objs).to.deep.equal([{1: true}, {2: true}, {3: true}]);
+      expect(keys).to.deep.equal([1, 2, 3]);
+      expect(wildcard).to.deep.equal([1, 2, 3, {7: true}, {8: false}, {9: true}]);
+      done();
+    }).catch(done);
+  });
+
+  it('spans singular args', done => {
+    let objCalls = 0;
+    let keyCalls = 0;
+    let oneCalls = 0;
+    let twoCalls = 0;
+    new Router({
+      routes: {
+        'foo.$obj': () => ++objCalls,
+        'foo.$key': () => ++keyCalls,
+        1: () => ++oneCalls,
+        2: () => ++twoCalls
+      }
+    }).run({
+      query: [[
+        ['foo', [1, {1: true}, '1', {2: true}, 2, {3: true}]],
+        ['foo', [1, 1, '1', '1', 2, 3, {3: true}]],
+        [1],
+        [1],
+        [2],
+        ['2'],
+        [['1', 2]],
+        ['foo', [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]]
+      ]]
+    }).then(() => {
+      expect(objCalls).to.equal(3);
+      expect(keyCalls).to.equal(10);
+      expect(oneCalls).to.equal(1);
+      expect(twoCalls).to.equal(1);
       done();
     }).catch(done);
   });

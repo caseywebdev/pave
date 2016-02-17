@@ -18,6 +18,19 @@ var isObject = function isObject(obj) {
 
 var isArray = Array.isArray;
 
+var flatten = function flatten(obj) {
+  var flattened = arguments.length <= 1 || arguments[1] === undefined ? [] : arguments[1];
+
+  if (isArray(obj)) {
+    for (var i = 0, l = obj.length; i < l; ++i) {
+      flatten(obj[i], flattened);
+    }
+  } else {
+    flattened.push(obj);
+  }
+  return flattened;
+};
+
 var queryToPaths = exports.queryToPaths = function queryToPaths(query) {
   var path = arguments.length <= 1 || arguments[1] === undefined ? [] : arguments[1];
 
@@ -59,11 +72,8 @@ var getQueryCost = exports.getQueryCost = function getQueryCost(query) {
   return total;
 };
 
-var routeToQuery = function routeToQuery(route) {
-  var path = route.split('.');
-  for (var i = 0, l = path.length; i < l; ++i) {
-    path[i] = path[i].split('|');
-  }return path;
+var routeToParams = function routeToParams(route) {
+  return route.split('.');
 };
 
 var pathToRoute = function pathToRoute(path) {
@@ -71,21 +81,7 @@ var pathToRoute = function pathToRoute(path) {
 };
 
 var pathSegmentToRouteQuerySegment = function pathSegmentToRouteQuerySegment(segment) {
-  return isObject(segment) ? '$params' : [segment, '$key'];
-};
-
-var flattenRoutes = function flattenRoutes(routes) {
-  var flattened = {};
-  for (var route in routes) {
-    var fn = routes[route];
-    var paths = queryToPaths(routeToQuery(route));
-    for (var i = 0, l = paths.length; i < l; ++i) {
-      var path = paths[i];
-      var _route = pathToRoute(path);
-      flattened[_route] = { fn: fn, arity: _route === '*' ? 0 : path.length };
-    }
-  }
-  return flattened;
+  return isObject(segment) ? ['$obj', '$objs', '*'] : [segment, '$key', '$keys', '*'];
 };
 
 var orderObj = function orderObj(obj) {
@@ -235,16 +231,20 @@ SyncPromise.race = function (promises) {
   });
 };
 
-var nextFnid = 1;
-var getFnid = function getFnid(fn) {
-  return fn.__FNID__ || (fn.__FNID__ = nextFnid++);
+var EXPENSIVE_QUERY_ERROR = new Error('Query is too expensive');
+
+var isPluralParam = function isPluralParam(param) {
+  return param === '$objs' || param === '$keys' || param === '*';
 };
 
-var ROUTE_NOT_FOUND_ERROR = new Error('Route not found');
-var EXPENSIVE_QUERY_ERROR = new Error('Query is too expensive');
-var DEFAULT_ROUTES = { '*': function _() {
-    throw ROUTE_NOT_FOUND_ERROR;
-  } };
+var getJobKey = function getJobKey(params, path) {
+  var segments = [];
+  for (var i = 0; i < params.length; ++i) {
+    var param = params[i];
+    segments.push(isPluralParam(param) ? param : path[i]);
+  }
+  return toKey(segments);
+};
 
 var Router = exports.Router = function () {
   function Router() {
@@ -252,12 +252,12 @@ var Router = exports.Router = function () {
 
     var maxQueryCost = _ref.maxQueryCost;
     var _ref$routes = _ref.routes;
-    var routes = _ref$routes === undefined ? DEFAULT_ROUTES : _ref$routes;
+    var routes = _ref$routes === undefined ? {} : _ref$routes;
 
     _classCallCheck(this, Router);
 
-    this.routes = flattenRoutes(routes);
-    if (maxQueryCost) this.maxQueryCost = maxQueryCost;
+    this.maxQueryCost = maxQueryCost;
+    this.routes = routes;
   }
 
   _createClass(Router, [{
@@ -273,12 +273,13 @@ var Router = exports.Router = function () {
       for (var i = query.length; i > 0; --i) {
         var paths = queryToPaths(query.slice(0, i));
         for (var j = 0, l = paths.length; j < l; ++j) {
-          var route = routes[pathToRoute(paths[j])];
-          if (route) return route;
+          var route = pathToRoute(paths[j]);
+          var fn = routes[route];
+          if (fn) return { route: route, fn: fn };
         }
       }
 
-      return routes['*'];
+      throw new Error('No route matches ' + JSON.stringify(path));
     }
   }, {
     key: 'run',
@@ -291,8 +292,8 @@ var Router = exports.Router = function () {
       var context = _ref2$context === undefined ? {} : _ref2$context;
       var _ref2$force = _ref2.force;
       var force = _ref2$force === undefined ? false : _ref2$force;
-      var _ref2$change = _ref2.change;
-      var change = _ref2$change === undefined ? [] : _ref2$change;
+      var _ref2$changes = _ref2.changes;
+      var changes = _ref2$changes === undefined ? [] : _ref2$changes;
       var _ref2$store = _ref2.store;
       var store = _ref2$store === undefined ? new Store() : _ref2$store;
       var _ref2$onlyUnresolved = _ref2.onlyUnresolved;
@@ -317,80 +318,97 @@ var Router = exports.Router = function () {
           paths = undefPaths;
         }
 
-        if (!paths.length) return change;
+        if (!paths.length) return changes;
 
         var jobs = {};
         var unresolvedPaths = [];
         for (var i = 0, l = paths.length; i < l; ++i) {
           var path = paths[i];
-          var route = _this3.getRouteForPath(path);
-          if (!route) continue;
-          var fn = route.fn;
-          var arity = route.arity;
 
+          var _getRouteForPath = _this3.getRouteForPath(path);
 
-          if (path.length > arity && arity > 0) unresolvedPaths.push(path);
+          var route = _getRouteForPath.route;
+          var fn = _getRouteForPath.fn;
 
-          var fnid = getFnid(fn);
-          var job = jobs[fnid];
+          var params = routeToParams(route);
+
+          if (path.length > params.length && route !== '*') {
+            unresolvedPaths.push(path);
+          }
+
+          var jobKey = getJobKey(params, path);
+
+          var job = jobs[jobKey];
           if (!job) {
-            job = jobs[fnid] = {
+            job = jobs[jobKey] = {
               fn: fn,
-              options: { context: context, store: store, paths: [] },
-              keys: []
+              args: { context: context, store: store, paths: [] },
+              keys: {}
             };
           }
 
           var _job = job;
           var keys = _job.keys;
-          var options = _job.options;
+          var args = _job.args;
 
-          options.paths.push(path);
+          args.paths.push(path);
 
-          for (var _i3 = 0; _i3 < arity; ++_i3) {
-            if (!options[_i3]) {
-              options[_i3] = [];
-              keys[_i3] = {};
-            }
-            var segment = path[_i3];
-            var key = toKey(segment);
-            if (keys[_i3][key]) continue;
-            options[_i3].push(segment);
-            keys[_i3][key] = true;
+          for (var _i3 = 0; _i3 < params.length; ++_i3) {
+            var param = params[_i3];
+            var arg = path[_i3];
+            if (isPluralParam(param)) {
+              if (!args[_i3]) {
+                args[_i3] = [];
+                keys[_i3] = {};
+              }
+              var key = toKey(arg);
+              if (keys[_i3][key]) continue;
+              args[_i3].push(arg);
+              keys[_i3][key] = true;
+            } else args[_i3] = arg;
           }
         }
 
         var work = [];
-        for (var fnid in jobs) {
-          var _jobs$fnid = jobs[fnid];
-          var fn = _jobs$fnid.fn;
-          var options = _jobs$fnid.options;
+        for (var key in jobs) {
+          var _jobs$key = jobs[key];
+          var fn = _jobs$key.fn;
+          var args = _jobs$key.args;
 
-          work.push(SyncPromise.resolve(options).then(fn).then(function (newChange) {
-            store.applyChange(newChange);
-            change.push(newChange);
+          work.push(SyncPromise.resolve(args).then(fn).then(function (obj) {
+            var flattened = flatten(obj);
+            for (var i = 0, l = flattened.length; i < l; ++i) {
+              var change = flattened[i];
+              if (!change) continue;
+
+              var path = change.path;
+              var value = change.value;
+
+              if (!isArray(path) || !('value' in change)) continue;
+
+              store.set(path, value);
+              changes.push([path, value]);
+            }
           }));
         }
 
-        var recurse = function recurse() {
+        var runUnresolved = function runUnresolved() {
           return _this3.run({
             query: [unresolvedPaths],
             context: context,
-            change: change,
+            changes: changes,
             store: store,
             onlyUnresolved: true
           });
         };
 
-        return SyncPromise.all(work).then(recurse);
+        return SyncPromise.all(work).then(runUnresolved);
       });
     }
   }]);
 
   return Router;
 }();
-
-var DEFAULT_ROUTER = new Router();
 
 var Store = exports.Store = function () {
   function Store() {
@@ -399,7 +417,7 @@ var Store = exports.Store = function () {
     var _ref3$cache = _ref3.cache;
     var cache = _ref3$cache === undefined ? {} : _ref3$cache;
     var _ref3$router = _ref3.router;
-    var router = _ref3$router === undefined ? DEFAULT_ROUTER : _ref3$router;
+    var router = _ref3$router === undefined ? new Router() : _ref3$router;
     var _ref3$maxRefDepth = _ref3.maxRefDepth;
     var maxRefDepth = _ref3$maxRefDepth === undefined ? 3 : _ref3$maxRefDepth;
 
@@ -483,15 +501,6 @@ var Store = exports.Store = function () {
         }
       }
       return path;
-    }
-  }, {
-    key: 'applyChange',
-    value: function applyChange(change) {
-      if (!change) return;
-      if (!isArray(change)) return this.set(change.path, change.value);
-      for (var i = 0, l = change.length; i < l; ++i) {
-        this.applyChange(change[i]);
-      }return this;
     }
   }, {
     key: 'run',
