@@ -31,7 +31,7 @@ var flatten = function flatten(obj) {
   return flattened;
 };
 
-var queryToPaths = exports.queryToPaths = function queryToPaths(query) {
+var queryToPaths = function queryToPaths(query) {
   var path = arguments.length <= 1 || arguments[1] === undefined ? [] : arguments[1];
 
   var i = 0;
@@ -51,7 +51,7 @@ var queryToPaths = exports.queryToPaths = function queryToPaths(query) {
   return paths;
 };
 
-var getQueryCost = exports.getQueryCost = function getQueryCost(query) {
+var getQueryCost = function getQueryCost(query) {
   var limit = arguments.length <= 1 || arguments[1] === undefined ? Infinity : arguments[1];
   var cost = arguments.length <= 2 || arguments[2] === undefined ? 0 : arguments[2];
   var total = arguments.length <= 3 || arguments[3] === undefined ? 0 : arguments[3];
@@ -112,6 +112,21 @@ var toKeys = function toKeys(arr) {
 var toKey = exports.toKey = function toKey(obj) {
   return isArray(obj) ? JSON.stringify(toKeys(obj)) : isObject(obj) ? JSON.stringify(orderObj(obj)) : String(obj);
 };
+
+var isPluralParam = function isPluralParam(param) {
+  return param === '$objs' || param === '$keys' || param === '*';
+};
+
+var getJobKey = function getJobKey(params, path) {
+  var segments = [];
+  for (var i = 0; i < params.length; ++i) {
+    var param = params[i];
+    segments.push(isPluralParam(param) ? param : path[i]);
+  }
+  return toKey(segments);
+};
+
+var EXPENSIVE_QUERY_ERROR = new Error('Query is too expensive');
 
 var isPromise = function isPromise(obj) {
   return obj && typeof obj.then === 'function';
@@ -229,21 +244,6 @@ SyncPromise.race = function (promises) {
       promises[i].then(resolve).catch(reject);
     }
   });
-};
-
-var EXPENSIVE_QUERY_ERROR = new Error('Query is too expensive');
-
-var isPluralParam = function isPluralParam(param) {
-  return param === '$objs' || param === '$keys' || param === '*';
-};
-
-var getJobKey = function getJobKey(params, path) {
-  var segments = [];
-  for (var i = 0; i < params.length; ++i) {
-    var param = params[i];
-    segments.push(isPluralParam(param) ? param : path[i]);
-  }
-  return toKey(segments);
 };
 
 var Router = exports.Router = function () {
@@ -387,7 +387,7 @@ var Router = exports.Router = function () {
               if (!isArray(path) || !('value' in change)) continue;
 
               store.set(path, value);
-              changes.push([path, value]);
+              changes.push({ path: path, value: value });
             }
           }));
         }
