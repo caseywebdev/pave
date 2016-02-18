@@ -22,6 +22,14 @@ describe('Store', () => {
     store.set(['baz'], 'buz');
   });
 
+  it('removes an event handler', done => {
+    const store = new Store();
+    const handler = () => { throw new Error('Should not be called!'); };
+    store.on('change', handler).off('change', handler).on('change', done);
+    store.set(['foo'], 'bar');
+    store.set(['baz'], 'buz');
+  });
+
   it('fails running a query with the default router', done => {
     const store = new Store();
     store.run({query: ['dne']}).catch(er => {

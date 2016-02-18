@@ -28,6 +28,16 @@ describe('Store', function () {
     store.set(['baz'], 'buz');
   });
 
+  it('removes an event handler', function (done) {
+    var store = new _2.Store();
+    var handler = function handler() {
+      throw new Error('Should not be called!');
+    };
+    store.on('change', handler).off('change', handler).on('change', done);
+    store.set(['foo'], 'bar');
+    store.set(['baz'], 'buz');
+  });
+
   it('fails running a query with the default router', function (done) {
     var store = new _2.Store();
     store.run({ query: ['dne'] }).catch(function (er) {
