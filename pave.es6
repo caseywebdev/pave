@@ -70,16 +70,8 @@ const orderObj = obj => {
   return val;
 };
 
-const toKeys = arr => {
-  const keys = [];
-  for (let i = 0, l = arr.length; i < l; ++i) keys.push(toKey(arr[i]));
-  return keys;
-};
-
 export const toKey = obj =>
-  isArray(obj) ? JSON.stringify(toKeys(obj)) :
-  isObject(obj) ? JSON.stringify(orderObj(obj)) :
-  String(obj);
+  isObject(obj) ? JSON.stringify(orderObj(obj)) : String(obj);
 
 const isPluralParam = param =>
   param === '$objs' || param === '$keys' || param === '*';
@@ -88,7 +80,7 @@ const getJobKey = (params, path) => {
   let segments = [];
   for (let i = 0; i < params.length; ++i) {
     const param = params[i];
-    segments.push(isPluralParam(param) ? param : path[i]);
+    segments.push(toKey(isPluralParam(param) ? param : path[i]));
   }
   return toKey(segments);
 };

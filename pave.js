@@ -102,15 +102,8 @@ var orderObj = function orderObj(obj) {
   return val;
 };
 
-var toKeys = function toKeys(arr) {
-  var keys = [];
-  for (var i = 0, l = arr.length; i < l; ++i) {
-    keys.push(toKey(arr[i]));
-  }return keys;
-};
-
 var toKey = exports.toKey = function toKey(obj) {
-  return isArray(obj) ? JSON.stringify(toKeys(obj)) : isObject(obj) ? JSON.stringify(orderObj(obj)) : String(obj);
+  return isObject(obj) ? JSON.stringify(orderObj(obj)) : String(obj);
 };
 
 var isPluralParam = function isPluralParam(param) {
@@ -121,7 +114,7 @@ var getJobKey = function getJobKey(params, path) {
   var segments = [];
   for (var i = 0; i < params.length; ++i) {
     var param = params[i];
-    segments.push(isPluralParam(param) ? param : path[i]);
+    segments.push(toKey(isPluralParam(param) ? param : path[i]));
   }
   return toKey(segments);
 };
