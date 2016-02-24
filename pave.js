@@ -116,7 +116,7 @@ var getJobKey = function getJobKey(params, path) {
     var param = params[i];
     segments.push(toKey(isPluralParam(param) ? param : path[i]));
   }
-  return toKey(segments);
+  return JSON.stringify(segments);
 };
 
 var EXPENSIVE_QUERY_ERROR = new Error('Query is too expensive');

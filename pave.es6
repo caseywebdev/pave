@@ -82,7 +82,7 @@ const getJobKey = (params, path) => {
     const param = params[i];
     segments.push(toKey(isPluralParam(param) ? param : path[i]));
   }
-  return toKey(segments);
+  return JSON.stringify(segments);
 };
 
 const EXPENSIVE_QUERY_ERROR = new Error('Query is too expensive');
