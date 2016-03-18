@@ -15,6 +15,17 @@ describe('Store', function () {
     (0, _chai.expect)(store.get(['foo'])).to.equal('bar');
   });
 
+  it('getRaws', function () {
+    var store = new _2.Store({
+      cache: {
+        foo: { bar: { $ref: ['bar'] } },
+        bar: { baz: { $ref: ['baz'] } },
+        baz: 1
+      }
+    });
+    (0, _chai.expect)(store.getRaw(['foo', 'bar', 'baz'])).to.deep.equal({ $ref: ['baz'] });
+  });
+
   it('sets', function () {
     var store = new _2.Store();
     store.set(['foo'], 'bar');

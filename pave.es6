@@ -316,16 +316,20 @@ export class Store {
     return val;
   }
 
-  get(path, depth = 0) {
+  get(path, depth = 0, raw = false) {
     if (depth > this.maxRefDepth) return {$ref: path};
     let cursor = this.cache;
     for (let i = 0, l = path.length; i < l && cursor != null; ++i) {
       if (cursor = cursor[toKey(path[i])]) {
         const {$ref} = cursor;
-        if ($ref) cursor = this.get($ref, depth);
+        if ($ref && (!raw || i < l - 1)) cursor = this.get($ref, depth, raw);
       }
     }
-    return this.resolveRefs(cursor, depth);
+    return raw ? cursor : this.resolveRefs(cursor, depth);
+  }
+
+  getRaw(path) {
+    return this.get(path, 0, true);
   }
 
   set(path, value) {

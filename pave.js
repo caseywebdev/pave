@@ -450,6 +450,7 @@ var Store = exports.Store = function () {
     key: 'get',
     value: function get(path) {
       var depth = arguments.length <= 1 || arguments[1] === undefined ? 0 : arguments[1];
+      var raw = arguments.length <= 2 || arguments[2] === undefined ? false : arguments[2];
 
       if (depth > this.maxRefDepth) return { $ref: path };
       var cursor = this.cache;
@@ -458,10 +459,15 @@ var Store = exports.Store = function () {
           var _cursor = cursor;
           var $ref = _cursor.$ref;
 
-          if ($ref) cursor = this.get($ref, depth);
+          if ($ref && (!raw || i < l - 1)) cursor = this.get($ref, depth, raw);
         }
       }
-      return this.resolveRefs(cursor, depth);
+      return raw ? cursor : this.resolveRefs(cursor, depth);
+    }
+  }, {
+    key: 'getRaw',
+    value: function getRaw(path) {
+      return this.get(path, 0, true);
     }
   }, {
     key: 'set',

@@ -9,6 +9,17 @@ describe('Store', () => {
     expect(store.get(['foo'])).to.equal('bar');
   });
 
+  it('getRaws', () => {
+    const store = new Store({
+      cache: {
+        foo: {bar: {$ref: ['bar']}},
+        bar: {baz: {$ref: ['baz']}},
+        baz: 1
+      }
+    });
+    expect(store.getRaw(['foo', 'bar', 'baz'])).to.deep.equal({$ref: ['baz']});
+  });
+
   it('sets', () => {
     const store = new Store();
     store.set(['foo'], 'bar');
