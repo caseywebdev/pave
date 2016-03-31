@@ -1,9 +1,9 @@
 {
   "name": "pave",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "author": "Casey Foster <c@sey.me>",
   "license": "MIT",
-  "main": "pave.js",
+  "main": "build/index.js",
   "repository": {
     "type": "git",
     "url": "https://github.com/orgsync/pave"
@@ -19,6 +19,6 @@
     "watchy": "0.6"
   },
   "scripts": {
-    "test": "istanbul cover _mocha test.js"
+    "test": "istanbul cover _mocha build/test.js"
   }
 }

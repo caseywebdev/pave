@@ -2,12 +2,25 @@ BIN=node_modules/.bin/
 COGS=$(BIN)cogs
 WATCHY=$(BIN)watchy
 
-dev:
-	@npm install
+all: clean install build test
+
+dev: clean install
 	@make -j build-w test-w
 
+clean:
+	@rm -fr build
+
+install:
+	@npm install
+
+build:
+	@$(COGS)
+
 build-w:
-	@$(COGS) -w pave.es6,test.es6
+	@$(COGS) -w src
+
+test:
+	@npm test
 
 test-w:
-	@$(WATCHY) -w pave.js,test.js -- npm test
+	@$(WATCHY) -w build -- npm test
