@@ -2,7 +2,7 @@ BIN=node_modules/.bin/
 COGS=$(BIN)cogs
 WATCHY=$(BIN)watchy
 
-all: clean install build test
+all: install clean test
 
 dev: clean install
 	@make -j build-w test-w
@@ -19,7 +19,7 @@ build:
 build-w:
 	@$(COGS) -w src
 
-test:
+test: build
 	@npm test
 
 test-w:
