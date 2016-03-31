@@ -19,6 +19,6 @@
     "watchy": "0.6"
   },
   "scripts": {
-    "test": "istanbul cover _mocha build/test.js"
+    "test": "make test"
   }
 }

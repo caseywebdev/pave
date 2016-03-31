@@ -1,6 +1,7 @@
 BIN=node_modules/.bin/
 COGS=$(BIN)cogs
 WATCHY=$(BIN)watchy
+TEST=$(BIN)istanbul cover $(BIN)_mocha build/test.js
 
 all: install clean test
 
@@ -20,7 +21,7 @@ build-w:
 	@$(COGS) -w src
 
 test: build
-	@npm test
+	@$(TEST)
 
 test-w:
-	@$(WATCHY) -w build -- npm test
+	@$(WATCHY) -w build -- $(TEST)
