@@ -122,6 +122,32 @@ describe('Store', () => {
     expect(store.get(['foo'])).to.equal('bar');
   });
 
+  it('gets circular', () => {
+    const store = new Store({
+      cache: {
+        foo: {
+          name: 'foo',
+          friends: [
+            {$ref: ['bar']},
+            {$ref: ['baz']}
+          ]
+        },
+        bar: {
+          name: 'bar',
+          friends: [
+            {$ref: ['foo']}
+          ]
+        }
+      }
+    });
+    const foo = store.get(['foo']);
+    expect(foo.name).to.equal('foo');
+    expect(foo.friends[0].name).to.equal('bar');
+    expect(foo.friends[1]).to.equal(undefined);
+    expect(foo.friends[0].friends[0]).to.equal(foo);
+    expect(foo.friends[0].friends[0].friends[0]).to.equal(foo.friends[0]);
+  });
+
   it('getRaws', () => {
     const store = new Store({
       cache: {

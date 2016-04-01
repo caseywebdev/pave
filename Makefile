@@ -5,7 +5,7 @@ TEST=$(BIN)istanbul cover $(BIN)_mocha build/test.js
 
 all: install clean test
 
-dev: clean install
+dev: install clean build
 	@make -j build-w test-w
 
 clean:

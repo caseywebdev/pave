@@ -6,15 +6,14 @@ import Router from './router';
 import triggerWatchers from './trigger-watchers';
 
 export default class Store {
-  constructor({cache = {}, router = new Router(), maxDepth = 3} = {}) {
+  constructor({cache = {}, router = new Router()} = {}) {
     this.cache = cache;
     this.router = router;
     this.watchers = [];
-    this.maxDepth = maxDepth;
   }
 
-  get(path, maxDepth = this.maxDepth) {
-    return get(this.cache, path, maxDepth);
+  get(path) {
+    return get(this.cache, path);
   }
 
   getRaw(path) {
