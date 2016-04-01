@@ -68,18 +68,11 @@ export default class Router {
       if (!paths.length) return deltas;
 
       const jobs = {};
-      const unresolvedPaths = [];
       for (let i = 0, l = paths.length; i < l; ++i) {
         const path = paths[i];
         const {route, fn} = this.getRouteForPath(path);
         const params = routeToParams(route);
-
-        if (path.length > params.length && route !== '*') {
-          unresolvedPaths.push(path);
-        }
-
         const jobKey = getJobKey(params, path);
-
         let job = jobs[jobKey];
         if (!job) {
           job = jobs[jobKey] = {
@@ -119,7 +112,7 @@ export default class Router {
 
       const runUnresolved = () =>
         this.run({
-          query: [unresolvedPaths],
+          query: [paths],
           context,
           deltas,
           store,
