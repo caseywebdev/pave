@@ -113,7 +113,7 @@ export default class Router {
         const {fn, args} = jobs[key];
         work.push(SyncPromise.resolve(args).then(fn).then(newDeltas => {
           store.update(newDeltas);
-          deltas.push.apply(deltas, flatten(newDeltas));
+          deltas.push(newDeltas);
         }));
       }
 
