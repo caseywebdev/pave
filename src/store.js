@@ -2,6 +2,7 @@ import applyDelta from './apply-delta';
 import get from './get';
 import getRaw from './get-raw';
 import queryToPaths from './query-to-paths';
+import resolvePath from './resolve-path';
 import Router from './router';
 import triggerWatchers from './trigger-watchers';
 
@@ -18,6 +19,10 @@ export default class Store {
 
   getRaw(path) {
     return getRaw(this.cache, path);
+  }
+
+  resolve(path) {
+    return resolvePath(this.cache, path);
   }
 
   update(delta) {

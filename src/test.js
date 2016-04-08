@@ -5,12 +5,19 @@ const {describe, it} = global;
 import applyDelta from './apply-delta';
 describe('applyDelta', () => {
   it('updates immutably', () => {
-    const a = {foo: {bar: {$ref: ['bar']}}, bar: 1};
-    const b = applyDelta(a, {foo: {bar: {$set: 2}}});
+    const a = {foo: {bar: {$ref: ['bar']}}, bar: 1, baz: 2};
+    const b = applyDelta(a, {
+      foo: {bar: {$set: {$ref: ['baz']}}},
+      bar: {$set: 2},
+      baz: {$set: 3}
+    });
     expect(a).to.not.equal(b);
-    expect(a.foo).to.equal(b.foo);
+    expect(a.foo).to.not.equal(b.foo);
+    expect(b.foo.bar).to.deep.equal({$ref: ['baz']});
     expect(a.bar).to.equal(1);
     expect(b.bar).to.equal(2);
+    expect(a.baz).to.equal(2);
+    expect(b.baz).to.equal(3);
   });
 });
 
@@ -163,6 +170,26 @@ describe('Store', () => {
     const store = new Store();
     store.update({foo: {$set: 'bar'}});
     expect(store.get(['foo'])).to.equal('bar');
+  });
+
+  it('updates $refs correctly', () => {
+    const store = new Store({cache: {foo: {$ref: ['bar']}, bar: 1}});
+    store.update({foo: {$set: {$ref: ['baz']}}});
+    expect(store.cache.foo).to.deep.equal({$ref: ['baz']});
+  });
+
+  it('resolves', () => {
+    const store = new Store({
+      cache: {
+        foo: {$ref: ['bar']},
+        bar: {$ref: ['baz']},
+        baz: 1,
+        buz: {$ref: ['dne']}
+      }
+    });
+    expect(store.resolve(['foo'])).to.deep.equal(['baz']);
+    expect(store.resolve(['buz'])).to.deep.equal(['dne']);
+    expect(store.resolve(['buz', 'bang'])).to.deep.equal(['dne', 'bang']);
   });
 
   it('watches', done => {

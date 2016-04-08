@@ -30,7 +30,7 @@ const resolveDelta = (cache, delta, path = []) => {
   for (let key in delta) {
     deltas.push.apply(
       deltas,
-      resolveDelta(cache, delta[key], resolvePath(cache, path.concat(key)))
+      resolveDelta(cache, delta[key], resolvePath(cache, path).concat(key))
     );
   }
 
