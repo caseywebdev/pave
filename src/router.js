@@ -1,4 +1,3 @@
-import flatten from './flatten';
 import getJobKey from './get-job-key';
 import getQueryCost from './get-query-cost';
 import isPluralParam from './is-plural-param';
@@ -12,9 +11,9 @@ import Store from './store';
 import SyncPromise from './sync-promise';
 import toKey from './to-key';
 
-const EXPENSIVE_QUERY_ERROR = new Error('Query is too expensive');
-
 export default class Router {
+  static EXPENSIVE_QUERY_ERROR = new Error('Query is too expensive');
+
   constructor({maxQueryCost, routes = {}} = {}) {
     this.maxQueryCost = maxQueryCost;
     this.routes = routes;
@@ -50,7 +49,7 @@ export default class Router {
     return SyncPromise.resolve().then(() => {
       const {maxQueryCost: limit} = this;
       if (limit && getQueryCost(query, limit) > limit) {
-        throw EXPENSIVE_QUERY_ERROR;
+        throw Router.EXPENSIVE_QUERY_ERROR;
       }
 
       let paths = queryToPaths(query);

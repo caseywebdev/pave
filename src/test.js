@@ -289,6 +289,30 @@ describe('SyncPromise', () => {
 });
 
 describe('Router', () => {
+  it('limits expensive queries', done => {
+    new Router({
+      maxQueryCost: 2
+    }).run({query: ['foo', 'bar', 'baz']})
+      .then(
+        () => { throw new Error('Expected an expensive query error'); },
+        er => {
+          expect(er).to.equal(Router.EXPENSIVE_QUERY_ERROR);
+          done();
+        }
+      ).catch(done);
+  });
+
+  it('has a default no route matches error', done => {
+    new Router().run({query: ['foo', 'bar', 'baz']})
+      .then(
+        () => { throw new Error('Expected a no route matches error'); },
+        er => {
+          expect(er.message).to.contain('No route matches');
+          done();
+        }
+      ).catch(done);
+  });
+
   it('groups plural args', done => {
     let objs, keys, wildcard;
     new Router({
