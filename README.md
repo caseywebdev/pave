@@ -256,6 +256,18 @@ toKey({a: 1, b: 2}); // => '{"a":1,"b":2}'
 toKey({b: 2, a: 1}); // => '{"a":1,"b":2}'
 ```
 
+### update(`Any`, `Object`) => `Any`
+
+This is same update function used in `store.update` exposed for convenience.
+
+```js
+import {update} from 'pave';
+
+const fooObj = {foo: 'bar'};
+const newFooObj = update(fooObj, {foo: {$set: 'baz'}}); // => {foo: 'baz'}
+fooObj === newFooObj; // => false
+```
+
 [Falcor]: https://github.com/netflix/falcor
 [GraphQL]: https://github.com/facebook/graphql
 [Om (next)]: https://github.com/omcljs/om
