@@ -254,18 +254,8 @@ toKey('foo'); // => 'foo'
 toKey(123); // => '123'
 toKey({a: 1, b: 2}); // => '{"a":1,"b":2}'
 toKey({b: 2, a: 1}); // => '{"a":1,"b":2}'
-```
 
-### update(`Any`, `Object`) => `Any`
-
-This is same update function used in `store.update` exposed for convenience.
-
-```js
-import {update} from 'pave';
-
-const fooObj = {foo: 'bar'};
-const newFooObj = update(fooObj, {foo: {$set: 'baz'}}); // => {foo: 'baz'}
-fooObj === newFooObj; // => false
+store.update({foo: {[toKey({bar: 'baz'})]: {$set: 123}}});
 ```
 
 [Falcor]: https://github.com/netflix/falcor
