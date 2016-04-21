@@ -184,37 +184,6 @@ store.resolve(['foo', 'bar', 'name']); // => ['baz', 'name']
 store.resolve(['doesNotExist']); // => ['doesNotExist']
 ```
 
-#### store.update(`Array` or `Object`) => `Store`
-
-Immutably updates the cache based on the delta directives given. Available
-directives are `$set`, `$merge`, `$apply`, `$splice`, `$push`, `$pop`, `$shift`
-and `$unshift`. The array methods also work on array-like objects.
-
-```js
-import {Store} from 'pave';
-
-const store = new Store({
-  cache: {
-    foo: {bar: {$ref: ['baz']}},
-    baz: {name: 'Mr. Baz'}
-  }
-});
-
-const {cache} = store;
-store.update({baz: {name: {$set: 'Dr. Baz'}}});
-
-// The original cache value is untouched. Store previous cache values to create
-// an undo/redo stack.
-cache === store.cache; // => false
-store.get(['baz', 'name']); // => 'Dr. Baz'
-
-store.update({whos: {$set: ['Cindy Lou', 'Augustus May']}});
-store.get(['whos']); // => ['Cindy Lou', 'Augustus May']
-
-store.update({whos: {$splice: [[0, 1, 'Martha May'], [2, 0, 'Betty Lou']]}});
-store.get(['whos']); // => ['Martha May', 'Augustus May', 'Betty Lou']
-```
-
 #### store.run(`router.run options`) => `SyncPromise`
 
 Passes the options to `store.router.run` and uses `store` to cache results. See
