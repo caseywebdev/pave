@@ -1,8 +1,10 @@
 import getJobKey from './get-job-key';
 import getQueryCost from './get-query-cost';
+import isInTree from './is-in-tree';
 import isPluralParam from './is-plural-param';
 import pathSegmentToRouteQuerySegment
   from './path-segment-to-route-query-segment';
+import pathsToTree from './paths-to-tree';
 import pathToRoute from './path-to-route';
 import queryToPaths from './query-to-paths';
 import resolvePath from './resolve-path';
@@ -10,6 +12,7 @@ import routeToParams from './route-to-params';
 import Store from './store';
 import SyncPromise from './sync-promise';
 import toKey from './to-key';
+import treeToQuery from './tree-to-query';
 
 export default class Router {
   static EXPENSIVE_QUERY_ERROR = new Error('Query is too expensive');
@@ -40,8 +43,7 @@ export default class Router {
 
   run({
     query = [],
-    context = {},
-    force = false,
+    force,
     deltas = [],
     store = new Store(),
     onlyUnresolved = false
@@ -53,13 +55,16 @@ export default class Router {
       }
 
       let paths = queryToPaths(query);
-      if (!force) {
+      if (force !== true) {
+        const forceTree = pathsToTree(force ? queryToPaths(force) : []);
         const undefPaths = [];
         for (let i = 0, l = paths.length; i < l; ++i) {
           const path = paths[i];
           const resolved = resolvePath(store.cache, path);
           if (onlyUnresolved && path === resolved) continue;
-          if (store.get(resolved) === undefined) undefPaths.push(resolved);
+
+          const isUndef = store.get(resolved) === undefined;
+          if (isUndef || isInTree(path, forceTree)) undefPaths.push(resolved);
         }
         paths = undefPaths;
       }
@@ -74,16 +79,12 @@ export default class Router {
         const jobKey = getJobKey(params, path);
         let job = jobs[jobKey];
         if (!job) {
-          job = jobs[jobKey] = {
-            fn,
-            args: {context, store, paths: []},
-            keys: {}
-          };
+          job = jobs[jobKey] = {fn, paths: [], args: {store}, keys: {}};
         }
 
-        const {keys, args} = job;
-        args.paths.push(path);
+        job.paths.push(path);
 
+        const {keys, args} = job;
         for (let i = 0; i < params.length; ++i) {
           const param = params[i];
           const arg = path[i];
@@ -102,7 +103,8 @@ export default class Router {
 
       const work = [];
       for (let key in jobs) {
-        const {fn, args} = jobs[key];
+        const {fn, paths, args} = jobs[key];
+        args.query = treeToQuery(pathsToTree(paths))
         work.push(SyncPromise.resolve(args).then(fn).then(newDeltas => {
           store.update(newDeltas);
           deltas.push(newDeltas);
@@ -110,13 +112,7 @@ export default class Router {
       }
 
       const runUnresolved = () =>
-        this.run({
-          query: [paths],
-          context,
-          deltas,
-          store,
-          onlyUnresolved: true
-        });
+        this.run({query: [paths], deltas, store, onlyUnresolved: true});
 
       return SyncPromise.all(work).then(runUnresolved);
     });

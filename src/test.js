@@ -367,3 +367,35 @@ describe('Router', () => {
     }).catch(done);
   });
 });
+
+import queryToPaths from './query-to-paths';
+import treeToQuery from './tree-to-query';
+import pathsToTree from './paths-to-tree';
+describe('treeToQuery', () => {
+  it('works', () => {
+    [
+      [],
+      [[]],
+      [['a']],
+      [['a', 'b', 'c']],
+      [['a', 'b'], ['a', 'c']],
+      [
+        ['a', 'b'],
+        ['a', 'c'],
+        ['a', 'c', 'd'],
+        ['a', 'c', 'e']
+      ],
+      [
+        ['search', '0', 'id'],
+        ['search', '0', 'name'],
+        ['search', '1', 'id'],
+        ['search', '1', 'name'],
+        ['search', '2', 'id'],
+        ['search', '2', 'name']
+      ]
+    ].forEach(paths =>
+      expect(queryToPaths(treeToQuery(pathsToTree(paths))))
+        .to.deep.equal(paths)
+    );
+  });
+});
