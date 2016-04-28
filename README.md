@@ -83,7 +83,7 @@ npm install pave
       // for listing these posts (in the example below, sort order). The $keys
       // argument will contain the indices of the items to return.
       'blogPosts.$obj.$keys':
-      ({1: options, 2: range, store: {context: {userId}}}) =>
+      ({1: options, 2: range, store: {cache: {userId}}}) =>
         db('blogPosts')
           .select('*')
           .where({creatorId: userId})
@@ -117,7 +117,7 @@ npm install pave
 
   router.run({
     query: ['blogPosts', {order: 'asc'}, [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]],
-    store: new Store({context: {userId: 123}})
+    store: new Store({cache: {userId: 123}})
   }).then(...);
   ```
 
@@ -128,16 +128,13 @@ handler.
 
 ### Store
 
-#### new Store({batchDelay: `Number`, cache: `Object`, context: `Object`, router: `Router`})
+#### new Store({batchDelay: `Number`, cache: `Object`, router: `Router`})
 
 - `batchDelay` (optional) is the amount of time to batch queries before sending
  them through the router. Defaults to `0`, meaning disable batching and run
  each query through the router immediately.
 
 - `cache` (optional) is the initial value of the cache. Defaults to `{}`.
-
-- `context` (optional) is a convenience object that should be used to store
-  contextual information required by routes. Defaults to `{}`.
 
 - `router` (optional) is the router to be used when invoking `run`.
 

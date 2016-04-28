@@ -14,15 +14,9 @@ const runBatch = store => {
 };
 
 export default class Store {
-  constructor({
-    batchDelay = 0,
-    cache = {},
-    context = {},
-    router = new Router()
-  } = {}) {
+  constructor({batchDelay = 0, cache = {}, router = new Router()} = {}) {
     this.batchDelay = batchDelay;
     this.cache = cache;
-    this.context = context;
     this.router = router;
     this.watchers = [];
   }
