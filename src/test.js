@@ -386,12 +386,13 @@ describe('treeToQuery', () => {
         ['a', 'c', 'e']
       ],
       [
-        ['search', '0', 'id'],
-        ['search', '0', 'name'],
-        ['search', '1', 'id'],
-        ['search', '1', 'name'],
-        ['search', '2', 'id'],
-        ['search', '2', 'name']
+        ['search', 0, 'id'],
+        ['search', 0, 'name'],
+        ['search', 1, 'id'],
+        ['search', 1, 'name'],
+        ['search', 2, 'id'],
+        ['search', 2, 'name'],
+        ['search', 3, {obj: true}, 'bar']
       ]
     ].forEach(paths =>
       expect(queryToPaths(treeToQuery(pathsToTree(paths))))
