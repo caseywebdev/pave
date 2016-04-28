@@ -8,8 +8,8 @@ import Router from './router';
 import triggerWatchers from './trigger-watchers';
 
 const runBatch = store => {
-  const {deferred: {resolve, reject}, force, query} = this.batch;
-  delete this.batch;
+  const {deferred: {resolve, reject}, force, query} = store.batch;
+  delete store.batch;
   store.router.run({query, force, store}).then(resolve, reject);
 };
 
