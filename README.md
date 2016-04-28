@@ -112,10 +112,13 @@ npm install pave
       // ...proxy the unmatched portion of the query to another
       // router.
       '*': ({query}) => myOtherRouter.run({query})
-    },
-
-    store: new Store({context: {userId: 123}})
+    }
   });
+
+  router.run({
+    query: ['blogPosts', {order: 'asc'}, [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]],
+    store: new Store({context: {userId: 123}})
+  }).then(...);
   ```
 
 #### router.run({query: `Array`, store: `Store`}) => `SyncPromise`
