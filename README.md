@@ -123,8 +123,18 @@ npm install pave
 
 #### router.run({query: `Array`, store: `Store`}) => `SyncPromise`
 
-Run the specified query and pass the given store through to each route
-handler.
+Run the specified query and pass the given store through to each route handler.
+Generally, this method should not be called directly but rather proxied through
+a `Store` instance. When called through a store, the store will maintain a
+reference to the router and routes called through that router can re-use the
+given store to be used as an in-memory cache for potentially complicated
+queries.
+
+```js
+(new Store({cache: {currentUserId: 123}, router}))
+  .run({query})
+  .then(...);
+```
 
 ### Store
 
