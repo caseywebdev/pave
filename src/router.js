@@ -2,8 +2,7 @@ import getJobKey from './get-job-key';
 import getQueryCost from './get-query-cost';
 import isInTree from './is-in-tree';
 import isPluralParam from './is-plural-param';
-import pathSegmentToRouteQuerySegment
-  from './path-segment-to-route-query-segment';
+import pathKeyToRouteQueryKey from './path-key-to-route-query-key';
 import pathsToTree from './paths-to-tree';
 import pathToRoute from './path-to-route';
 import queryToPaths from './query-to-paths';
@@ -13,6 +12,21 @@ import Store from './store';
 import SyncPromise from './sync-promise';
 import toKey from './to-key';
 import treeToQuery from './tree-to-query';
+
+const partitionPaths = paths => {
+  const mutations = [];
+  const reads = [];
+  for (let i = 0, l = paths.length; i < l; ++i) {
+    const path = paths[i];
+    const key = path[0];
+    if (typeof key === 'string' && key[key.length - 1] === '!') {
+      mutations.push(path);
+    } else {
+      reads.push(path);
+    }
+  }
+  return {mutations, reads};
+};
 
 export default class Router {
   static EXPENSIVE_QUERY_ERROR = new Error('Query is too expensive');
@@ -26,7 +40,7 @@ export default class Router {
     const {routes} = this;
     const query = [];
     for (let i = 0, l = path.length; i < l; ++i) {
-      query[i] = pathSegmentToRouteQuerySegment(path[i]);
+      query[i] = pathKeyToRouteQueryKey(path[i]);
     }
 
     for (let i = query.length; i > 0; --i) {
@@ -41,13 +55,7 @@ export default class Router {
     throw new Error(`No route matches ${JSON.stringify(path)}`);
   }
 
-  run({
-    query = [],
-    force,
-    deltas = [],
-    store = new Store(),
-    onlyUnresolved = false
-  }) {
+  run({query = [], force, deltas = [], store = new Store(), onlyUnresolved}) {
     return SyncPromise.resolve().then(() => {
       const {maxQueryCost: limit} = this;
       if (limit && getQueryCost(query, limit) > limit) {
@@ -71,6 +79,17 @@ export default class Router {
 
       if (!paths.length) return deltas;
 
+      const {mutations, reads} = partitionPaths(paths);
+      if (mutations.length) {
+        paths = mutations;
+        query = [reads];
+        onlyUnresolved = false;
+      } else {
+        query = [paths];
+        force = false;
+        onlyUnresolved = true;
+      }
+
       const jobs = {};
       for (let i = 0, l = paths.length; i < l; ++i) {
         const path = paths[i];
@@ -78,9 +97,7 @@ export default class Router {
         const params = routeToParams(route);
         const jobKey = getJobKey(params, path);
         let job = jobs[jobKey];
-        if (!job) {
-          job = jobs[jobKey] = {fn, paths: [], args: {store}, keys: {}};
-        }
+        if (!job) job = jobs[jobKey] = {fn, paths: [], args: {store}, keys: {}};
 
         job.paths.push(path);
 
@@ -104,17 +121,16 @@ export default class Router {
       const work = [];
       for (let key in jobs) {
         const {fn, paths, args} = jobs[key];
-        args.query = treeToQuery(pathsToTree(paths))
+        args.query = treeToQuery(pathsToTree(paths));
         work.push(SyncPromise.resolve(args).then(fn).then(newDeltas => {
           store.update(newDeltas);
           deltas.push(newDeltas);
         }));
       }
 
-      const runUnresolved = () =>
-        this.run({query: [paths], deltas, store, onlyUnresolved: true});
-
-      return SyncPromise.all(work).then(runUnresolved);
+      return SyncPromise.all(work).then(() =>
+        this.run({query, force, deltas, store, onlyUnresolved})
+      );
     });
   }
 }

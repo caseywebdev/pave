@@ -366,6 +366,27 @@ describe('Router', () => {
       done();
     }).catch(done);
   });
+
+  it('runs bangs before reads', done => {
+    new Store({
+      cache: {foo: 0},
+      router: new Router({
+        routes: {
+          'addToFoo!.$key': ({1: n}) => ({foo: {$apply: m => m + n}}),
+          foo: ({store}) => expect(store.get(['foo'])).to.equal(10)
+        }
+      })
+    }).run({
+      force: true,
+      query: [[
+        ['foo'],
+        ['addToFoo!', 2],
+        ['addToFoo!', 3],
+        ['foo'],
+        ['addToFoo!', 5]
+      ]]
+    }).then(() => done()).catch(done);
+  });
 });
 
 import queryToPaths from './query-to-paths';
