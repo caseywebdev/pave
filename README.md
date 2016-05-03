@@ -6,26 +6,36 @@ Paving the way to better state management.
 
 ## Why?
 
-Pave is inspired by [Relay], [GraphQL], [Falcor] and [Om (next)]. Pave attempts
-to take the best pieces of each (subjectively) and expose a simple API that
-makes managing app state much easier.
+Pave is a data layer inspired by [Relay], [GraphQL], [Falcor] and [Om (next)].
+Pave attempts to take the best pieces of each (subjectively) and expose a simple
+API that makes managing app state much easier.
 
 ## Goals
 
-- Performance: The core of any data layer will have many hot paths and should
-  run efficiently.
+- **Performance**<br>
+  The core of any data layer will have many hot paths and should run
+  efficiently.
 
-- Schema-less: Unlike GraphQL, there is no requirement that your data is
-  strictly typed.
+- **Schema-less**<br>
+  There is no requirement that your data is strictly typed.
 
-- POJO: All data is represented as JSON-friendly Plain Ol' JavaScript Objects so
-  there is no need to worry about how to serialize `X` and how to deserialize
-  `Y`.
+- **POJO**<br>
+  All data is represented as JSON-friendly Plain Ol' JavaScript Objects so there
+  is no need to worry about how to serialize `X` and how to deserialize `Y`.
 
-- Multiple Remotes: Create a client side router to use Pave with an existing
-  REST API, implement a Pave router on the server or mix and match. Allowing
-  multiple remotes both on the client and server makes integrating Pave into an
-  existing project manageable.
+- **Multiple Remotes**<br>
+  Create a client side router to use Pave with an existing REST API, implement a
+  Pave router on the server or mix and match. Allowing multiple remotes both on
+  the client and server makes integrating Pave into an existing project
+  manageable.
+
+- **Immutable**<br>
+  The store should accept updates without mutating previous states. This makes
+  history tracking trivial.
+
+- **Small/Dependency-less**<br>
+  At 24KB minified (at the time of writing) and no dependencies, Pave can be
+  considered a lighter-weight solution.
 
 ## Install
 
