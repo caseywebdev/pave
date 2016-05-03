@@ -5,11 +5,12 @@ const {describe, it} = global;
 import applyDelta from './apply-delta';
 describe('applyDelta', () => {
   it('updates immutably', () => {
-    const a = {foo: {bar: {$ref: ['bar']}}, bar: 1, baz: 2};
+    const a = {foo: {bar: {$ref: ['bar']}}, bar: 1, baz: 2, bang: []};
     const b = applyDelta(a, {
       foo: {bar: {$set: {$ref: ['baz']}}},
       bar: {$set: 2},
-      baz: {$set: 3}
+      baz: {$set: 3},
+      bang: {$push: 1}
     });
     expect(a).to.not.equal(b);
     expect(a.foo).to.not.equal(b.foo);
@@ -18,6 +19,7 @@ describe('applyDelta', () => {
     expect(b.bar).to.equal(2);
     expect(a.baz).to.equal(2);
     expect(b.baz).to.equal(3);
+    expect(a.bang).to.not.equal(b.bang);
   });
 });
 
