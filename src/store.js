@@ -74,10 +74,12 @@ export default class Store {
   unwatch(cb) {
     const {watchers} = this;
 
-    if (!cb) watchers.length = 0;
+    this.watchers = [];
 
-    for (let i = watchers.length - 1; i >= 0; --i) {
-      if (watchers[i].cb === cb) watchers.splice(i, 1);
+    if (!cb) return this;
+
+    for (let i = 0, l = watchers.length; i < l; ++i) {
+      if (watchers[i].cb !== cb) this.watchers.push(watchers[i]);
     }
 
     return this;

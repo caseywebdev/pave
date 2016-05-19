@@ -240,6 +240,15 @@ describe('Store', () => {
       .update({foo: {$set: 'bar'}});
   });
 
+  it('can remove a handler in a trigger', done => {
+    const store = new Store();
+    const handler = () => store.unwatch(handler);
+    store
+      .watch(['foo'], handler)
+      .watch(['foo'], () => done())
+      .update({foo: {$set: 'bar'}});
+  });
+
   it('fails running a query with the default router', done => {
     const store = new Store();
     store.run({query: ['dne']}).catch(er => {
