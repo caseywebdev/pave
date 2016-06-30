@@ -196,8 +196,9 @@ describe('Store', () => {
 
   it('watches', done => {
     (new Store({cache: {foo: 'foo'}}))
-      .watch(['baz'], prev => {
+      .watch(['baz'], (prev, delta) => {
         expect(prev).to.deep.equal({foo: 'bar'});
+        expect(delta).to.deep.equal({baz: {$set: 'buz'}});
         done();
       })
       .update({foo: {$set: 'bar'}})

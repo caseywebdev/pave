@@ -39,7 +39,7 @@ export default class Store {
     if (next === prev) return this;
 
     this.cache = next;
-    triggerWatchers(this.watchers, prev, next);
+    triggerWatchers(this.watchers, prev, next, delta);
     return this;
   }
 

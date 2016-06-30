@@ -263,9 +263,10 @@ import {Store} from 'pave';
 
 const store = new Store({cache: {foo: 123}});
 
-const handler = prev => {
+const handler = (prev, delta) => {
   // The first argument, `prev` in this case, is the previous state of the
-  // cache.
+  // cache. The second argument, `delta`, is the change that was applied to
+  // `prev` to acheive the current cache state.
   console.log('foo changed!');
 };
 
