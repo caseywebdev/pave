@@ -226,8 +226,8 @@ Passes the options to `store.router.run` and uses `store` to cache results. See
 #### store.update(`Array` or `Object`) => `Store`
 
 Immutably updates the cache based on the delta directives given. Available
-directives are `$set`, `$merge`, `$apply`, `$splice`, `$push`, `$pop`, `$shift`
-and `$unshift`. The array methods also work on array-like objects.
+directives are `$set`, `$unset`, `$merge`, `$apply`, `$splice`, `$push`, `$pop`,
+`$shift` and `$unshift`. The array methods also work on array-like objects.
 
 ```js
 import {Store} from 'pave';
@@ -252,7 +252,17 @@ store.get(['whos']); // => ['Cindy Lou', 'Augustus May']
 
 store.update({whos: {$splice: [[0, 1, 'Martha May'], [2, 0, 'Betty Lou']]}});
 store.get(['whos']); // => ['Martha May', 'Augustus May', 'Betty Lou']
+
+store.update({whos: {$unset: true}});
+store.get(['whos']); // => undefined
 ```
+
+**Note:** `{foo: {$set: undefined}}` is not exactly equivalent to `{foo:
+{$unset: true}}`. While they will both set `foo` to `undefined` locally,
+serializing the former as JSON, a common practice when sending deltas over a
+network, will result in `{"foo":{}}`, while the latter is the correct
+`{"foo":{"$unset":true}}`. An easy rule to remember is to always use `$unset`
+when removing a value.
 
 #### store.watch(`Array`, `Function`) => `Store`
 
