@@ -4,6 +4,8 @@ import splice from './splice';
 export default {
   $set: (obj, val) => val,
 
+  $unset: () => undefined,
+
   $merge: (obj, val) => extend(obj, val),
 
   $apply: (obj, val) => val(obj),

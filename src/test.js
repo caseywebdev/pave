@@ -54,6 +54,11 @@ describe('deltaDirectives', () => {
     expect(deltaDirectives.$set(obj, val)).to.equal(val);
   });
 
+  it('has $unset', () => {
+    const obj = {foo: 'bar'};
+    expect(deltaDirectives.$unset(obj)).to.equal(undefined);
+  });
+
   it('has $merge', () => {
     const obj = {foo: 'bar'};
     const val = {buz: 'baz'};
