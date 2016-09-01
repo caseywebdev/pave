@@ -25,36 +25,29 @@ export default class SyncPromise {
     });
 
   constructor(callback) {
-    let completed = false;
-
     const complete = (state, value) => {
-      completed = true;
+      const {handlers, handlers: {length: l}} = this;
       this.state = state;
       this.value = value;
-      const callbacks = this.callbacks[state];
-      for (let i = 0, l = callbacks.length; i < l; ++i) callbacks[i](value);
+      for (let i = 0; i < l; ++i) handlers[i][state](value);
+      handlers.length = 0;
     };
 
     const resolve = value => {
-      if (completed) return;
-      if (isPromise(value)) return value.then(resolve).catch(reject);
-      complete('fulfilled', value);
+      if (isPromise(value)) return value.then(resolve, reject);
+      try { complete('fulfilled', value); } catch (er) { reject(er); }
     };
 
-    const reject = reason => {
-      if (completed) return;
-      if (isPromise(reason)) return reason.then(reject).catch(reject);
-      complete('rejected', reason);
-    };
+    const reject = reason => complete('rejected', reason);
 
     this.state = 'pending';
-    this.callbacks = {fulfilled: [], rejected: []};
+    this.handlers = [];
     try { callback(resolve, reject); } catch (er) { reject(er); }
   }
 
   then(onFulfilled, onRejected) {
     return new SyncPromise((resolve, reject) => {
-      const {callbacks: {fulfilled, rejected}, state, value} = this;
+      const {handlers, state, value} = this;
 
       const runFulfilled =
         onFulfilled ? value => resolve(onFulfilled(value)) : resolve;
@@ -63,9 +56,10 @@ export default class SyncPromise {
         onRejected ? value => resolve(onRejected(value)) : reject;
 
       if (state === 'fulfilled') return runFulfilled(value);
+
       if (state === 'rejected') return runRejected(value);
-      fulfilled.push(runFulfilled);
-      rejected.push(runRejected);
+
+      handlers.push({fulfilled: runFulfilled, rejected: runRejected});
     });
   }
 

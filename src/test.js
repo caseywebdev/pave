@@ -262,6 +262,29 @@ describe('Store', () => {
       done();
     });
   });
+
+  it('catches nested exceptions in router', done => {
+    const error = new Error('foo');
+    new Store({
+      batchDelay: 1,
+      router: new Router({
+        routes: {
+          foo: ({store}) =>
+            store.run({query: ['bar']}).then(() => { throw error; }),
+
+          bar: () => ({bar: {$set: 'bar'}})
+        }
+      })
+    }).run({query: ['foo']})
+      .then(
+        () => { throw new Error('Expected an error!'); },
+        er => {
+          expect(er).to.equal(error);
+          done();
+        }
+      )
+      .catch(done);
+  });
 });
 
 describe('SyncPromise', () => {
