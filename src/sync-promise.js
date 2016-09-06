@@ -13,14 +13,14 @@ export default class SyncPromise {
         promises[i].then(value => {
           values[i] = value;
           if (++done === l) resolve(values);
-        }).catch(reject);
+        }, reject);
       }
     });
 
   static race = promises =>
     new SyncPromise((resolve, reject) => {
       for (let i = 0, l = promises.length; i < l; ++i) {
-        promises[i].then(resolve).catch(reject);
+        promises[i].then(resolve, reject);
       }
     });
 
