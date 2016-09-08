@@ -336,7 +336,7 @@ describe('Router', () => {
       .then(
         () => { throw new Error('Expected an expensive query error'); },
         er => {
-          expect(er).to.equal(Router.EXPENSIVE_QUERY_ERROR);
+          expect(er.message).to.contain('Query is too expensive');
           done();
         }
       ).catch(done);
