@@ -1,6 +1,15 @@
-import Deferred from './deferred';
+import Promise from 'better-promise';
 import Router from './router';
 import Store from './store';
+
+const createDeferred = () => {
+  const deferred = {};
+  deferred.promise = new Promise((resolve, reject) => {
+    deferred.resolve = resolve;
+    deferred.reject = reject;
+  });
+  return deferred;
+};
 
 export default class Batcher {
   constructor({delay = 0, router = new Router(), store = new Store()} = {}) {
@@ -14,7 +23,7 @@ export default class Batcher {
 
     if (!this.batch) {
       this.batch = {
-        deferred: new Deferred(),
+        deferred: createDeferred(),
         force: [[]],
         query: [[]],
         timeoutId: setTimeout(::this.flush, this.delay)
