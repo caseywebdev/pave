@@ -1,8 +1,8 @@
-import SyncPromise from './sync-promise';
+import Promise from 'better-promise';
 
 export default class Deferred {
   constructor() {
-    this.promise = new SyncPromise((resolve, reject) => {
+    this.promise = new Promise((resolve, reject) => {
       this.resolve = resolve;
       this.reject = reject;
     });

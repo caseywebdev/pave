@@ -9,7 +9,7 @@ import queryToPaths from './query-to-paths';
 import resolvePath from './resolve-path';
 import routeToParams from './route-to-params';
 import Store from './store';
-import SyncPromise from './sync-promise';
+import Promise from 'better-promise';
 import toKey from './to-key';
 import treeToQuery from './tree-to-query';
 
@@ -22,7 +22,7 @@ const runQuery = ({
   maxQueryCost = 0,
   routes = {}
 } = {}) =>
-  SyncPromise.resolve().then(() => {
+  Promise.resolve().then(() => {
     if (maxQueryCost && getQueryCost(query, maxQueryCost) > maxQueryCost) {
       throw new Error('Query is too expensive');
     }
@@ -87,13 +87,13 @@ const runQuery = ({
     for (let key in jobs) {
       const {fn, paths, args} = jobs[key];
       args.query = treeToQuery(pathsToTree(paths));
-      work.push(SyncPromise.resolve(args).then(fn).then(newDeltas => {
+      work.push(Promise.resolve(args).then(fn).then(newDeltas => {
         store.update(newDeltas);
         deltas.push(newDeltas);
       }));
     }
 
-    return SyncPromise.all(work).then(() =>
+    return Promise.all(work).then(() =>
       runQuery({
         deltas,
         force,

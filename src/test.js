@@ -129,7 +129,7 @@ describe('isEqual', () => {
   });
 });
 
-import {Router, Store, SyncPromise, toKey} from '.';
+import {Router, Store, toKey} from '.';
 describe('Store', () => {
   it('gets', () => {
     const store = new Store({cache: {foo: 'bar'}});
@@ -284,47 +284,6 @@ describe('Store', () => {
         }
       )
       .catch(done);
-  });
-});
-
-describe('SyncPromise', () => {
-  it('can sync resolve', () => {
-    let foo = 'bar';
-    SyncPromise.resolve('baz').then(val => foo = val);
-    expect(foo).to.equal('baz');
-  });
-
-  it('can sync reject', () => {
-    let foo = 'bar';
-    new SyncPromise(() => { throw 'baz'; }).catch(val => foo = val);
-    expect(foo).to.equal('baz');
-  });
-
-  it('can chain', done => {
-    Promise.resolve('foo')
-      .then(val => {
-        expect(val).to.equal('foo');
-        return 'bar';
-      })
-      .then(val => {
-        expect(val).to.equal('bar');
-        throw 'baz';
-      })
-      .catch(val => {
-        expect(val).to.equal('baz');
-        done();
-      });
-  });
-
-  it('resolves in order', done => {
-    SyncPromise.all([
-      new SyncPromise(resolve => setTimeout(() => resolve('foo'))),
-      SyncPromise.resolve('bar'),
-      new SyncPromise(resolve => setTimeout(() => resolve('baz')))
-    ]).then(val => {
-      expect(val).to.deep.equal(['foo', 'bar', 'baz']);
-      done();
-    }).catch(done);
   });
 });
 

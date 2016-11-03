@@ -25,3 +25,5 @@ test: build
 
 test-w:
 	@$(WATCHY) -w build -- $(TEST)
+
+.PHONY: build

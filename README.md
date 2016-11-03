@@ -33,9 +33,9 @@ API that makes managing app state much easier.
   The store should accept updates without mutating previous states. This makes
   history tracking trivial.
 
-- **Small/Dependency-less**<br>
-  At 24KB minified (at the time of writing) and no dependencies, Pave can be
-  considered a lighter-weight solution.
+- **Small**<br>
+  At 24KB minified (at the time of writing), Pave can be considered a
+  lighter-weight solution.
 
 ## Install
 
@@ -131,7 +131,7 @@ npm install pave
   }).then(...);
   ```
 
-#### router.run({query: `Array`, store: `Store`}) => `SyncPromise`
+#### router.run({query: `Array`, store: `Store`}) => `BetterPromise`
 
 Run the specified query and pass the given store through to each route handler.
 Generally, this method should not be called directly but rather proxied through
@@ -218,7 +218,7 @@ store.resolve(['foo', 'bar', 'name']); // => ['baz', 'name']
 store.resolve(['doesNotExist']); // => ['doesNotExist']
 ```
 
-#### store.run(`router.run options`) => `SyncPromise`
+#### store.run(`router.run options`) => `BetterPromise`
 
 Passes the options to `store.router.run` and uses `store` to cache results. See
 `router.run` for `run` information.

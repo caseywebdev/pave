@@ -1,12 +1,15 @@
 {
   "name": "pave",
-  "version": "0.3.11",
+  "version": "0.4.0",
   "author": "Casey Foster <c@sey.me>",
   "license": "MIT",
   "main": "build/index.js",
   "repository": {
     "type": "git",
     "url": "https://github.com/caseywebdev/pave"
+  },
+  "dependencies": {
+    "better-promise": "1"
   },
   "devDependencies": {
     "babel-preset-es2015": "6",
