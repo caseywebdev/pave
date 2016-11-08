@@ -288,6 +288,20 @@ store.update({foo: {$set: 456}}); // The handler above will fire.
 
 Stop watching a query for changes.
 
+### toDelta(`Array`, `Object`) => `Object`
+
+A helper function for converting a path and delta to a delta.
+
+```js
+import {toDelta} from 'pave';
+
+toDelta(['foo'], {$set: 1}); // => {foo: {$set: 1}}
+toDelta(['bar', {b: 2, a: 1}], {name: {$set: 'baz'}});
+  // => {bar: {'{"a":1,"b":2}': {name: {$set: 'baz'}}}}
+
+store.update(toDelta(['foo', {bar: 'baz'}], {$set: 123}));
+```
+
 ### toKey(`Any`) => `String`
 
 Primarily useful for consistently serializing objects, `toKey` will take any value and convert it to it's Pave path segment representation.

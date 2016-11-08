@@ -129,7 +129,7 @@ describe('isEqual', () => {
   });
 });
 
-import {Router, Store, toKey} from '.';
+import {Router, Store, toDelta, toKey} from '.';
 describe('Store', () => {
   it('gets', () => {
     const store = new Store({cache: {foo: 'bar'}});
@@ -385,6 +385,22 @@ describe('Router', () => {
         ['addToFoo!', 5]
       ]]
     }).then(() => done()).catch(done);
+  });
+});
+
+describe('toDelta', () => {
+  it('turns a path and delta into a delta', () => {
+    expect(toDelta(['a', {b: 'c'}, 'd'], {my: {$delta: true}})).to.deep.equal({
+      a: {
+        '{"b":"c"}': {
+          d: {
+            my: {
+              $delta: true
+            }
+          }
+        }
+      }
+    });
   });
 });
 
