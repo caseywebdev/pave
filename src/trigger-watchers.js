@@ -3,7 +3,7 @@ import toKey from './to-key';
 
 export default (watchers, prev, next, delta) => {
   const cache = {};
-  for (let i = 0, l = watchers.length; i < l; ++i) {
+  for (let i in watchers) {
     const {paths, cb} = watchers[i];
     for (let j = 0, m = paths.length; j < m; ++j) {
       const path = paths[j];

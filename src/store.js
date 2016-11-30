@@ -12,7 +12,8 @@ export default class Store {
     this.batcher = new Batcher({delay, router, store: this});
     this.cache = cache;
     this.router = router;
-    this.watchers = [];
+    this.watchers = {};
+    this.watcherIndex = 0;
   }
 
   get(path) {
@@ -43,19 +44,16 @@ export default class Store {
   }
 
   watch(query, cb) {
-    this.unwatch(cb).watchers.push({paths: queryToPaths(query), cb});
+    this.unwatch(cb);
+    this.watchers[++this.watcherIndex] = {paths: queryToPaths(query), cb};
     return this;
   }
 
   unwatch(cb) {
     const {watchers} = this;
 
-    this.watchers = [];
-
-    if (!cb) return this;
-
-    for (let i = 0, l = watchers.length; i < l; ++i) {
-      if (watchers[i].cb !== cb) this.watchers.push(watchers[i]);
+    for (let i in watchers) {
+      if (!cb || watchers[i].cb === cb) delete watchers[i];
     }
 
     return this;
