@@ -304,7 +304,8 @@ store.update(toDelta(['foo', {bar: 'baz'}], {$set: 123}));
 
 ### toKey(`Any`) => `String`
 
-Primarily useful for consistently serializing objects, `toKey` will take any value and convert it to it's Pave path segment representation.
+Primarily useful for consistently serializing objects, `toKey` will take any
+value and convert it to it's Pave path segment representation.
 
 ```js
 import {toKey} from 'pave';
@@ -316,6 +317,12 @@ toKey({b: 2, a: 1}); // => '{"a":1,"b":2}'
 
 store.update({foo: {[toKey({bar: 'baz'})]: {$set: 123}}});
 ```
+
+### update(`Any`, `Array` or `Object`) => `Any`
+
+This is the `update` function `Store` uses, exposed as a convenience for use in
+any situation that may require updating a value without mutating the original
+value.
 
 [Falcor]: https://github.com/netflix/falcor
 [GraphQL]: https://github.com/facebook/graphql
