@@ -72,15 +72,23 @@ describe('deltaDirectives', () => {
   });
 
   it('has $splice (array)', () => {
-    const obj = [1, 2, 3];
-    const val = [[0, 1, 0], [2, 1, 4]];
+    let obj = [1, 2, 3];
+    let val = [[0, 1, 0], [2, 1, 4]];
     expect(deltaDirectives.$splice(obj, val)).to.deep.equal([0, 2, 4]);
+    obj = [1, 2, 3];
+    val = [[0, 1], [0, 0, 1]];
+    expect(deltaDirectives.$splice(obj, [[0, 1], [1, 0, 1]]))
+      .to.deep.equal([2, 1, 3]);
   });
 
   it('has $splice (array-like object)', () => {
-    const obj = {0: 1, 1: 2, 2: 3, length: 3};
-    const val = [[0, 1, 0], [1, 2]];
+    let obj = {0: 1, 1: 2, 2: 3, length: 3};
+    let val = [[0, 1, 0], [1, 2]];
     expect(deltaDirectives.$splice(obj, val)).to.deep.equal({0: 0, length: 1});
+    obj = {0: 1, 1: 2, 2: 3, length: 3};
+    val = [[0, 1], [1, 0, 1]];
+    expect(deltaDirectives.$splice(obj, val))
+      .to.deep.equal({0: 2, 1: 1, 2: 3, length: 3});
   });
 
   it('has $push', () => {

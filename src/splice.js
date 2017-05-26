@@ -12,7 +12,7 @@ export default (obj, [start = 0, deleteCount = 0, ...items]) => {
     for (let i = 0; i < deleteCount; ++i) delete obj[start + i];
 
     // Shift.
-    for (let i = start + items.length; i < obj.length; ++i) {
+    for (let i = start + items.length; i < obj.length + offset; ++i) {
       obj[i] = obj[i - offset];
     }
 
