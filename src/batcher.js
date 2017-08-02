@@ -1,4 +1,3 @@
-import Promise from 'better-promise';
 import Router from './router';
 import Store from './store';
 

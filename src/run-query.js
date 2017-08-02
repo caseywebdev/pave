@@ -9,7 +9,6 @@ import queryToPaths from './query-to-paths';
 import resolvePath from './resolve-path';
 import routeToParams from './route-to-params';
 import Store from './store';
-import Promise from 'better-promise';
 import toKey from './to-key';
 import treeToQuery from './tree-to-query';
 

@@ -131,7 +131,7 @@ npm install pave
   }).then(...);
   ```
 
-#### router.run({query: `Array`, store: `Store`}) => `BetterPromise`
+#### router.run({query: `Array`, store: `Store`}) => `Promise`
 
 Run the specified query and pass the given store through to each route handler.
 Generally, this method should not be called directly but rather proxied through
@@ -218,7 +218,7 @@ store.resolve(['foo', 'bar', 'name']); // => ['baz', 'name']
 store.resolve(['doesNotExist']); // => ['doesNotExist']
 ```
 
-#### store.run(`router.run options`) => `BetterPromise`
+#### store.run(`router.run options`) => `Promise`
 
 Passes the options to `store.router.run` and uses `store` to cache results. See
 `router.run` for `run` information.
