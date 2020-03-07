@@ -12,5 +12,8 @@
   "devDependencies": {
     "watchy": "0.9",
     "kiss-test": "0.1"
+  },
+  "scripts": {
+    "test": "bin/test"
   }
 }
