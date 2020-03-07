@@ -1,7 +1,4 @@
-import Router from './router';
-import Store from './store';
-import toDelta from './to-delta';
-import toKey from './to-key';
-import update from './update';
+import createClient from './create-client.js';
+import execute from './execute.js';
 
-export {Router, Store, toDelta, toKey, update};
+export default { createClient, execute };

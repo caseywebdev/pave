@@ -80,7 +80,7 @@ npm install pave
 
     - `*` matches everything
 
-  Handlers should return either a delta to be applied to the store cache or a
+  Handlers should return either a delta to be applied to the store data or a
   promise.
 
   ```js
@@ -93,7 +93,7 @@ npm install pave
       // for listing these posts (in the example below, sort order). The $keys
       // argument will contain the indices of the items to return.
       'blogPosts.$obj.$keys':
-      ({1: options, 2: range, store: {cache: {userId}}}) =>
+      ({1: options, 2: range, store: {data: {userId}}}) =>
         db('blogPosts')
           .select('*')
           .where({creatorId: userId})
@@ -127,7 +127,7 @@ npm install pave
 
   router.run({
     query: ['blogPosts', {order: 'asc'}, [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]],
-    store: new Store({cache: {userId: 123}})
+    store: new Store({data: {userId: 123}})
   }).then(...);
   ```
 
@@ -137,24 +137,24 @@ Run the specified query and pass the given store through to each route handler.
 Generally, this method should not be called directly but rather proxied through
 a `Store` instance. When called through a store, the store will maintain a
 reference to the router and routes called through that router can re-use the
-given store to be used as an in-memory cache for potentially complicated
+given store to be used as an in-memory data for potentially complicated
 queries.
 
 ```js
-(new Store({cache: {currentUserId: 123}, router}))
+(new Store({data: {currentUserId: 123}, router}))
   .run({query})
   .then(...);
 ```
 
 ### Store
 
-#### new Store({batchDelay: `Number`, cache: `Object`, router: `Router`})
+#### new Store({batchDelay: `Number`, data: `Object`, router: `Router`})
 
 - `batchDelay` (optional) is the amount of time to batch queries before sending
  them through the router. Defaults to `0`, meaning disable batching and run
  each query through the router immediately.
 
-- `cache` (optional) is the initial value of the cache. Defaults to `{}`.
+- `data` (optional) is the initial value of the data. Defaults to `{}`.
 
 - `router` (optional) is the router to be used when invoking `run`.
 
@@ -166,7 +166,7 @@ Returns the fully-resolved graph starting at the given path.
 import {Store} from 'pave';
 
 const store = new Store({
-  cache: {
+  data: {
     foo: {bar: {$ref: ['baz']}},
     baz: {name: 'Mr. Baz'}
   }
@@ -186,7 +186,7 @@ Returns the unresolved graph starting at the given path.
 import {Store} from 'pave';
 
 const store = new Store({
-  cache: {
+  data: {
     foo: {bar: {$ref: ['baz']}},
     baz: {name: 'Mr. Baz'}
   }
@@ -206,7 +206,7 @@ Resolves a path in the graph to its simplest form.
 import {Store} from 'pave';
 
 const store = new Store({
-  cache: {
+  data: {
     foo: {bar: {$ref: ['baz']}},
     baz: {name: 'Mr. Baz'}
   }
@@ -220,12 +220,12 @@ store.resolve(['doesNotExist']); // => ['doesNotExist']
 
 #### store.run(`router.run options`) => `Promise`
 
-Passes the options to `store.router.run` and uses `store` to cache results. See
+Passes the options to `store.router.run` and uses `store` to data results. See
 `router.run` for `run` information.
 
 #### store.update(`Array` or `Object`) => `Store`
 
-Immutably updates the cache based on the delta directives given. Available
+Immutably updates the data based on the delta directives given. Available
 directives are `$set`, `$unset`, `$merge`, `$apply`, `$splice`, `$push`, `$pop`,
 `$shift` and `$unshift`. The array methods also work on array-like objects.
 
@@ -233,18 +233,18 @@ directives are `$set`, `$unset`, `$merge`, `$apply`, `$splice`, `$push`, `$pop`,
 import {Store} from 'pave';
 
 const store = new Store({
-  cache: {
+  data: {
     foo: {bar: {$ref: ['baz']}},
     baz: {name: 'Mr. Baz'}
   }
 });
 
-const {cache} = store;
+const {data} = store;
 store.update({baz: {name: {$set: 'Dr. Baz'}}});
 
-// The original cache value is untouched. Store previous cache values to create
+// The original data value is untouched. Store previous data values to create
 // an undo/redo stack.
-cache === store.cache; // => false
+data === store.data; // => false
 store.get(['baz', 'name']); // => 'Dr. Baz'
 
 store.update({whos: {$set: ['Cindy Lou', 'Augustus May']}});
@@ -271,12 +271,12 @@ Watch a query for changes.
 ```js
 import {Store} from 'pave';
 
-const store = new Store({cache: {foo: 123}});
+const store = new Store({data: {foo: 123}});
 
 const handler = (prev, delta) => {
   // The first argument, `prev` in this case, is the previous state of the
-  // cache. The second argument, `delta`, is the change that was applied to
-  // `prev` to acheive the current cache state.
+  // data. The second argument, `delta`, is the change that was applied to
+  // `prev` to acheive the current data state.
   console.log('foo changed!');
 };
 

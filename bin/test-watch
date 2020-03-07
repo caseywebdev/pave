@@ -1,0 +1,3 @@
+#!/bin/sh -e
+
+watchy -w src -- node src/test.js

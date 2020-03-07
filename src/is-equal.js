@@ -1,40 +1,26 @@
-import toKey from './to-key';
-import getRaw from './get-raw';
-import isObject from './is-object';
-import isArray from './is-array';
+import isArray from './is-array.js';
+import isObject from './is-object.js';
 
-const checkRefs = (raw, a, b, visited) => {
+const isEqual = (a, b) => {
+  if (a === b) return true;
 
-  // Values aren't refs.
-  if (!isObject(raw)) return true;
+  if (!isObject(a) || !isObject(b)) return a === b;
 
-  // Look for refs in an array.
-  if (isArray(raw)) {
-    for (let i = 0, l = raw.length; i < l; ++i) {
-      if (!checkRefs(raw[i], a, b, visited)) return false;
-    }
+  if (isArray(a)) {
+    if (!isArray(b) || a.length !== b.length) return false;
+
+    for (let i = 0; i < a.length; ++i) if (!isEqual(a[i], b[i])) return false;
 
     return true;
   }
 
-  // Found a ref.
-  if (raw.$ref) return isEqual(raw.$ref, a, b, visited);
+  if (isArray(b)) return false;
 
-  // Look for refs in an object.
-  for (let key in raw) if (!checkRefs(raw[key], a, b, visited)) return false;
+  if (Object.keys(a).length !== Object.keys(b).length) return false;
+
+  for (const key in a) if (!isEqual(a[key], b[key])) return false;
 
   return true;
-};
-
-const isEqual = (path, a, b, visited = {}) => {
-  const key = toKey(path);
-  if (visited[key]) return true;
-
-  const raw = getRaw(a, path);
-  if (raw !== getRaw(b, path)) return false;
-
-  visited[key] = true;
-  return checkRefs(raw, a, b, visited);
 };
 
 export default isEqual;

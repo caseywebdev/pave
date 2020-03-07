@@ -1,14 +1,10 @@
-import isArray from './is-array';
-import isObject from './is-object';
+import isArray from './is-array.js';
+import isObject from './is-object.js';
 
 const orderObject = obj => {
   if (!isObject(obj)) return obj;
 
-  if (isArray(obj)) {
-    const val = [];
-    for (let i = 0, l = obj.length; i < l; ++i) val.push(orderObject(obj[i]));
-    return val;
-  }
+  if (isArray(obj)) return obj.map(obj => orderObject(obj));
 
   const val = {};
   const keys = Object.keys(obj).sort();
@@ -18,4 +14,4 @@ const orderObject = obj => {
   return val;
 };
 
-export default orderObject;
+export default args => JSON.stringify(orderObject(args));
