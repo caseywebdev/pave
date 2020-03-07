@@ -2,15 +2,19 @@ import cacheExecute from './cache-execute.js';
 import normalize from './normalize.js';
 
 const didChange = ({ data, next, prev }) => {
-  if (!Object.keys(data || {}).length && prev !== next) return true;
+  if (next === prev) return false;
+
+  if (!Object.keys(data || {}).length) return true;
 
   for (const k1 in data) {
-    const prevV1 = prev && prev[k1];
-    const nextV1 = next && next[k1];
-    if (!Object.keys(data[k1] || {}).length && prevV1 !== nextV1) return true;
+    const pv1 = prev && prev[k1];
+    const nv1 = next && next[k1];
+    if (pv1 === nv1) return false;
+
+    if (!Object.keys(data[k1] || {}).length) return true;
 
     for (const k2 in data[k1]) {
-      if ((prevV1 && prevV1[k2]) !== (nextV1 && nextV1[k2])) return true;
+      if ((pv1 && pv1[k2]) !== (nv1 && nv1[k2])) return true;
     }
   }
 
