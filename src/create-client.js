@@ -1,18 +1,28 @@
 import cacheExecute from './cache-execute.js';
+import ensureObject from './ensure-object.js';
 import inject from './inject.js';
 import merge from './merge.js';
 import normalize from './normalize.js';
 import triggerWatchers from './trigger-watchers.js';
 
-export default ({ data, getKey, injection } = {}) => {
+export default ({ data, fetch, getKey, injection } = {}) => {
   const watchers = new Set();
-  const cache = {
+  const client = {
     data: data || { _root: {} },
+
+    fetch: async ({ context, query }) => {
+      if (!fetch) return;
+
+      if (injection) query = inject({ injection, query });
+      const data = await fetch({ context: ensureObject(context), query });
+      client.update({ query, data });
+      return data;
+    },
 
     execute: ({ allowPartial = false, key, query }) => {
       if (injection) query = inject({ injection, query });
       const { isPartial, data } = cacheExecute({
-        data: cache.data,
+        data: client.data,
         key,
         query
       });
@@ -24,20 +34,20 @@ export default ({ data, getKey, injection } = {}) => {
         if (injection) query = inject({ injection, query });
         data = normalize({ data, getKey, key, query });
       }
-      const next = merge(cache.data, data);
-      if (next === cache.data) return cache;
+      const next = merge(client.data, data);
+      if (next === client.data) return client;
 
-      const prev = cache.data;
-      cache.data = next;
+      const prev = client.data;
+      client.data = next;
       triggerWatchers({ getKey, next, prev, watchers });
-      return cache;
+      return client;
     },
 
     watch: ({ allowPartial = false, key, onChange, query }) => {
       let watcher = { onChange };
       if (query) {
         query = inject({ injection, query });
-        data = cache.execute({ allowPartial: true, key, query });
+        let data = client.execute({ allowPartial: true, key, query });
         data = normalize({ data, getKey, key, query });
         watcher = { allowPartial, data, key, onChange, query };
       }
@@ -45,5 +55,5 @@ export default ({ data, getKey, injection } = {}) => {
       return () => watchers.delete(watcher);
     }
   };
-  return cache;
+  return client;
 };
