@@ -8,12 +8,14 @@ export default {
     const events = [];
     const onChange = data => events.push(data);
     client.watch({ onChange });
-    client.watch({ query: {}, onChange });
     client.watch({ query: { foo: {} }, onChange });
-    client.watch({ query: { dne: {} }, onChange: () => assert.fail() });
+    client.watch({
+      query: { dne: {} },
+      onChange: () => assert.fail('Should not have been called')
+    });
     client.update({ data: { foo: 123 }, query: { foo: {} } });
     client.update({ data: { foo: 123 }, query: { foo: {} } });
-    assert.deepEqual(events, [{ _root: { foo: 123 } }, {}, { foo: 123 }]);
+    assert.deepEqual(events, [{ _root: { foo: 123 } }, { foo: 123 }]);
   },
 
   'cancel watching': () => {
@@ -36,30 +38,59 @@ export default {
     const onChange = data => events.push(data);
     client.watch({ query: { foo: { id: {} } }, onChange });
     client.watch({
-      key: 'Foo:1',
-      query: { id: {}, name: {} },
+      query: { _key: { _args: { $key: 'Foo:1' }, id: {}, name: {} } },
       onChange
     });
     client.update({
-      data: { foo: { $key: 'Foo:1', id: 1, name: 'foo' } },
-      query: { foo: { id: {}, name: {} } }
+      data: {
+        _key: { $key: 'Foo:1' },
+        foo: { $key: 'Foo:1', id: 1, name: 'foo' }
+      },
+      query: {
+        _key: { _args: { $key: 'Foo:1' } },
+        foo: { id: {}, name: {} }
+      }
     });
-    client.update({
-      data: { $key: 'Foo:1', id: 2 },
-      key: 'Foo:1',
-      query: { id: {} }
-    });
-    client.update({
-      data: { $key: 'Foo:1', name: 'FOO' },
-      key: 'Foo:1',
-      query: { name: {} }
-    });
+    client.cacheUpdate({ data: { 'Foo:1': { id: 2 } } });
+    client.cacheUpdate({ data: { 'Foo:1': { name: 'FOO' } } });
     assert.deepEqual(events, [
-      { $key: null, foo: { $key: 'Foo:1', id: 1 } },
-      { $key: 'Foo:1', id: 1, name: 'foo' },
-      { $key: null, foo: { $key: 'Foo:1', id: 2 } },
-      { $key: 'Foo:1', id: 2, name: 'foo' },
-      { $key: 'Foo:1', id: 2, name: 'FOO' }
+      { foo: { id: 1 } },
+      { _key: { id: 1, name: 'foo' } },
+      { foo: { id: 2 } },
+      { _key: { id: 2, name: 'foo' } },
+      { _key: { id: 2, name: 'FOO' } }
     ]);
+  },
+
+  'arg ref changes': () => {
+    const client = createClient({
+      getKey: ({ _type, id }) =>
+        _type === 'Root' ? 'Root' : _type && id ? `${_type}:${id}` : null,
+      injection: { _type: {}, id: {} }
+    });
+    const events = [];
+    const onChange = data => events.push(data);
+    client.watch({
+      query: { foo: { _args: { id: 1 }, _type: {}, id: {}, name: {} } },
+      onChange
+    });
+    client.update({
+      data: {
+        _type: 'Root',
+        id: null,
+        foo: { _type: 'Foo', id: 1, name: 'foo' }
+      },
+      query: {
+        _type: {},
+        id: {},
+        foo: {
+          _args: { id: 1 },
+          _type: {},
+          id: {},
+          name: { _type: {}, id: {} }
+        }
+      }
+    });
+    assert.deepEqual(events, [{ foo: { _type: 'Foo', id: 1, name: 'foo' } }]);
   }
 };

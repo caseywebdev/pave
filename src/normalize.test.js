@@ -93,7 +93,6 @@ export default {
             name: 'bar'
           }
         },
-        key: 'Foo:1',
         query: inject({
           injection: { _type: {}, id: {} },
           query: {
@@ -103,6 +102,7 @@ export default {
         })
       }),
       {
+        _root: { _ref: 'Foo:1' },
         'Foo:1': {
           _type: 'Foo',
           id: 1,

@@ -1,17 +1,27 @@
 import cacheExecute from './cache-execute.js';
 import ensureObject from './ensure-object.js';
 import inject from './inject.js';
-import merge from './merge.js';
+import mergeCaches from './merge-caches.js';
 import normalize from './normalize.js';
 import triggerWatchers from './trigger-watchers.js';
 
-export default ({ data, fetch, getKey, injection } = {}) => {
+export default ({ cache, execute, getKey, injection } = {}) => {
   const watchers = new Set();
-  const client = {
-    data: data || { _root: {} },
 
-    fetch: async ({ context, query }) => {
-      if (!fetch) return;
+  const client = {
+    cache: cache || { _root: {} },
+
+    cacheExecute: args => cacheExecute({ cache: client.cache, ...args }),
+
+    cacheUpdate: ({ data }) => {
+      const a = client.cache;
+      const b = (client.cache = mergeCaches(client.cache, data));
+      triggerWatchers({ a, b, watchers });
+      return client;
+    },
+
+    execute: async ({ context, query }) => {
+      if (!execute) return;
 
       if (injection) query = inject({ injection, query });
       const data = await fetch({ context: ensureObject(context), query });
@@ -19,41 +29,15 @@ export default ({ data, fetch, getKey, injection } = {}) => {
       return data;
     },
 
-    execute: ({ allowPartial = false, key, query }) => {
-      if (injection) query = inject({ injection, query });
-      const { isPartial, data } = cacheExecute({
-        data: client.data,
-        key,
-        query
-      });
-      return !isPartial || allowPartial ? data : null;
-    },
+    update: ({ data, query }) =>
+      client.cacheUpdate({ data: normalize({ data, getKey, query }) }),
 
-    update: ({ data, key, query }) => {
-      if (query) {
-        if (injection) query = inject({ injection, query });
-        data = normalize({ data, getKey, key, query });
-      }
-      const next = merge(client.data, data);
-      if (next === client.data) return client;
-
-      const prev = client.data;
-      client.data = next;
-      triggerWatchers({ getKey, next, prev, watchers });
-      return client;
-    },
-
-    watch: ({ allowPartial = false, key, onChange, query }) => {
-      let watcher = { onChange };
-      if (query) {
-        query = inject({ injection, query });
-        let data = client.execute({ allowPartial: true, key, query });
-        data = normalize({ data, getKey, key, query });
-        watcher = { allowPartial, data, key, onChange, query };
-      }
+    watch: ({ onChange, query }) => {
+      const watcher = { onChange, query };
       watchers.add(watcher);
       return () => watchers.delete(watcher);
     }
   };
+
   return client;
 };
