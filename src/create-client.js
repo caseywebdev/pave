@@ -24,7 +24,7 @@ export default ({ cache, execute, getKey, injection } = {}) => {
       if (!execute) return;
 
       if (injection) query = inject({ injection, query });
-      const data = await fetch({ context: ensureObject(context), query });
+      const data = await execute({ context: ensureObject(context), query });
       client.update({ query, data });
       return data;
     },
