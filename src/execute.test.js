@@ -12,7 +12,8 @@ export default async () => {
     constant: { always: 'the same' },
     version: '123',
     null: null,
-    undefined: undefined
+    undefined: undefined,
+    queryEcho: ({ query }) => ({ _literal: true, ...query })
   };
 
   const Foo = {
@@ -51,7 +52,8 @@ export default async () => {
     },
     null: {},
     undefined: {},
-    absent: {}
+    absent: {},
+    query: { _args: { doNotShow: true }, _from: 'queryEcho', foo: 1, bar: 2 }
   };
 
   const expected = {
@@ -75,7 +77,12 @@ export default async () => {
     },
     null: null,
     undefined: null,
-    absent: null
+    absent: null,
+    query: {
+      _literal: true,
+      foo: 1,
+      bar: 2
+    }
   };
 
   assert.deepEqual(await execute({ node: Root, query }), expected);

@@ -5,12 +5,15 @@ import isObject from './is-object.js';
 
 const execute = async ({ context, node, obj, query }) => {
   if (isFunction(node)) {
+    // eslint-disable-next-line no-unused-vars
+    const { _args, _from, ..._query } = ensureObject(query);
     return execute({
       context,
       node: await node({
-        args: ensureObject(ensureObject(query)._args),
+        args: ensureObject(_args),
         context: ensureObject(context),
-        obj: ensureObject(obj)
+        obj: ensureObject(obj),
+        query: _query
       }),
       obj,
       query
