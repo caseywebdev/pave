@@ -1,9 +1,9 @@
 import cacheExecute from './cache-execute.js';
 import ensureObject from './ensure-object.js';
 import inject from './inject.js';
+import isEqual from './is-equal.js';
 import mergeCaches from './merge-caches.js';
 import normalize from './normalize.js';
-import triggerWatchers from './trigger-watchers.js';
 
 export default ({ cache, execute, getKey, injection } = {}) => {
   const watchers = new Set();
@@ -14,9 +14,17 @@ export default ({ cache, execute, getKey, injection } = {}) => {
     cacheExecute: args => cacheExecute({ cache: client.cache, ...args }),
 
     cacheUpdate: ({ data }) => {
-      const a = client.cache;
-      const b = (client.cache = mergeCaches(client.cache, data));
-      triggerWatchers({ a, b, watchers });
+      const prev = client.cache;
+      client.cache = mergeCaches(client.cache, data);
+      if (client.cache === prev) return client;
+
+      watchers.forEach(watcher => {
+        const { data, onChange, query } = watcher;
+        if (!query) return onChange(client.cache);
+
+        const newData = client.cacheExecute({ query });
+        if (!isEqual(data, newData)) onChange((watcher.data = newData));
+      });
       return client;
     },
 
@@ -33,7 +41,8 @@ export default ({ cache, execute, getKey, injection } = {}) => {
       client.cacheUpdate({ data: normalize({ data, getKey, query }) }),
 
     watch: ({ onChange, query }) => {
-      const watcher = { onChange, query };
+      const data = query && client.cacheExecute({ query });
+      const watcher = { data, onChange, query };
       watchers.add(watcher);
       return () => watchers.delete(watcher);
     }
