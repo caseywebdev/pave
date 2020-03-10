@@ -1,7 +1,5 @@
 const inject = ({ injection, query }) => {
-  if (!injection) return query;
-
-  query = { ...injection, ...query };
+  query = { ...query, ...injection };
   for (const key in query) {
     query[key] =
       key === '_args' || key === '_from' || key in injection

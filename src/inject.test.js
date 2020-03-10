@@ -10,7 +10,7 @@ export default () => {
         _args: { a: 1 },
         _from: 'foo',
         a: {
-          id: { _from: 'noOverride' },
+          id: { _from: 'overridden' },
           name: {},
           b: {
             id: {}
@@ -25,7 +25,7 @@ export default () => {
       id: {},
       a: {
         _type: {},
-        id: { _from: 'noOverride' },
+        id: {},
         name: { _type: {}, id: {} },
         b: {
           _type: {},
