@@ -4,11 +4,12 @@ import execute from './execute.js';
 
 export default async () => {
   const Root = {
-    selfLink: () => ({ _link: Root }),
+    selfLink: () => Root,
     selfLinkWithAddition: () => ({
-      _link: { ...Root, addition: true }
+      ...Root,
+      addition: true
     }),
-    linkWithObj: () => ({ _link: Foo, obj: { id: 1 } }),
+    linkWithObj: () => ({ _obj: { id: 1 }, ...Foo }),
     constant: { always: 'the same' },
     version: '123',
     null: null,

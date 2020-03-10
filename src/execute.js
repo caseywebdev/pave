@@ -28,8 +28,9 @@ const execute = async ({ context, node, obj, query }) => {
 
   if (!isObject(node) || '_literal' in node) return node == null ? null : node;
 
-  if ('_link' in node) {
-    return execute({ context, node: node._link, obj: node.obj, query });
+  if ('_obj' in node) {
+    const { _obj, ..._node } = node;
+    return execute({ context, node: _node, obj: _obj, query });
   }
 
   // eslint-disable-next-line no-unused-vars
