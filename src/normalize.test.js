@@ -47,7 +47,7 @@ export default {
               list: { foo: { color: {} } }
             },
             bar: {
-              _from: 'foo',
+              _field: 'foo',
               _args: { id: 1 },
               id: {},
               name: {},

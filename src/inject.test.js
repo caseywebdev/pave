@@ -8,9 +8,9 @@ export default () => {
       injection: { _type: {}, id: {} },
       query: {
         _args: { a: 1 },
-        _from: 'foo',
+        _field: 'foo',
         a: {
-          id: { _from: 'overridden' },
+          id: { _field: 'overridden' },
           name: {},
           b: {
             id: {}
@@ -21,7 +21,7 @@ export default () => {
     {
       _type: {},
       _args: { a: 1 },
-      _from: 'foo',
+      _field: 'foo',
       id: {},
       a: {
         _type: {},

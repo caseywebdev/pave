@@ -25,7 +25,7 @@ export default {
     assert.deepEqual(
       cacheExecute({
         cache: { _root: { one: 1 } },
-        query: { uno: { _from: 'one' } }
+        query: { uno: { _field: 'one' } }
       }),
       { uno: 1 }
     );

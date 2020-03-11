@@ -1,34 +1,36 @@
 import ensureObject from './ensure-object.js';
 import isArray from './is-array.js';
 import isObject from './is-object.js';
-import normalizeFrom from './normalize-from.js';
+import normalizeField from './normalize-field.js';
 
-const walk = ({ _, cache, node, query }) => {
-  if (isArray(node)) return node.map(node => walk({ _, cache, query, node }));
+const walk = ({ _, cache, query, value }) => {
+  if (isArray(value)) {
+    return value.map(value => walk({ _, cache, query, value }));
+  }
 
-  if (!isObject(node) || '_literal' in node) return node;
+  if (!isObject(value) || '_literal' in value) return value;
 
-  if (node._ref) return walk({ _, cache, node: cache[node._ref], query });
+  if (value._ref) return walk({ _, cache, query, value: cache[value._ref] });
 
   // eslint-disable-next-line no-unused-vars
-  const { _args, _from, ..._query } = ensureObject(query);
-  const obj = {};
-  for (const alias in _query) {
-    const query = _query[alias];
-    const from = normalizeFrom({ alias, query });
-    if (from in node) {
-      obj[alias] = walk({ _, cache, node: node[from], query });
-    } else {
-      _.isPartial = true;
-    }
-  }
-  return obj;
+  const { _args, _field, ..._query } = ensureObject(query);
+  return Object.fromEntries(
+    Object.entries(_query).map(([alias, query]) => {
+      const field = normalizeField({ alias, query });
+      if (field in value) {
+        return [alias, walk({ _, cache, query, value: value[field] })];
+      } else {
+        _.isPartial = true;
+        return [alias, null];
+      }
+    })
+  );
 };
 
 export default args => {
   const { cache, query } = args;
   const _ = { isPartial: false };
-  const node = 'node' in args ? args.node : cache._root;
-  const result = walk({ _, cache, node, query });
+  const value = 'value' in args ? args.value : cache._root;
+  const result = walk({ _, cache, query, value });
   if (!_.isPartial) return result;
 };

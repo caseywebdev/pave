@@ -3,58 +3,102 @@ import { strict as assert } from 'assert';
 import execute from './execute.js';
 
 export default async () => {
-  const Root = {
-    selfLink: () => Root,
-    selfLinkWithAddition: () => ({
-      ...Root,
-      addition: true
-    }),
-    linkWithObj: () => ({ _obj: { id: 1 }, ...Foo }),
-    constant: { always: 'the same' },
-    version: '123',
-    null: null,
-    undefined: undefined,
-    queryEcho: ({ query }) => ({ _literal: true, ...query })
-  };
-
-  const Foo = {
-    id: ({ obj }) => obj.id,
-    sub: {
-      list: ({ obj: { id }, args: { prefix } }) => [
-        { ignore: true, name: `${prefix}a-${id}` },
-        { ignore: true, name: `${prefix}b-${id}` },
-        { ignore: true, name: `${prefix}c-${id}` }
-      ]
+  const schema = {
+    Root: {
+      fields: {
+        _type: { type: { nonNull: 'String' }, resolve: 'Root' },
+        addition: 'Boolean',
+        selfLink: 'Root',
+        selfLinkWithAddition: {
+          type: 'Root',
+          resolve: { addition: true }
+        },
+        things: {
+          type: { nonNull: { arrayOf: { nonNull: () => 'Foo' } } },
+          resolve: [{ id: 1 }, { id: '2', name: 'foo' }]
+        }
+      }
     },
-    literal: { _literal: true, return: 'this', as: { is: {} } }
+    Foo: {
+      fields: {
+        _type: { type: { nonNull: 'String' }, resolve: 'Foo' },
+        id: {
+          type: {
+            nonNull: value => (typeof value === 'number' ? 'Number' : 'String')
+          }
+        },
+        subFoo: {
+          type: 'Foo',
+          resolve: { id: 123 }
+        },
+        name: {
+          args: {
+            separator: {
+              nonNull: { type: 'String', typeArgs: { maxLength: 3 } }
+            }
+          },
+          type: 'String',
+          resolve: ({ args: { separator }, obj: { name } }) =>
+            name && `${name}${separator}${name}`
+        }
+      }
+    },
+    Boolean: {
+      resolve: ({ value }) => {
+        if (typeof value === 'boolean') return value;
+
+        throw new Error(
+          `Expected a "Boolean" but got ${JSON.stringify(value)}`
+        );
+      }
+    },
+    String: {
+      args: {
+        maxLength: { notNull: 'Number' }
+      },
+      resolve: ({ args: { maxLength }, path, value }) => {
+        if (typeof value !== 'string') {
+          throw new Error(
+            `Expected a "String" but got ${JSON.stringify(value)}`
+          );
+        }
+
+        if (maxLength != null && value.length > maxLength) {
+          throw new Error(`String cannot be more than ${maxLength} ${path}`);
+        }
+
+        return value;
+      }
+    },
+    Number: {
+      resolve: ({ value }) => {
+        if (typeof value === 'number') return value;
+
+        throw new Error(`Expected a "Number" but got ${JSON.stringify(value)}`);
+      }
+    }
   };
 
   const query = {
-    _from: 'dude',
     selfLink: {
       selfLinkWithAddition: {
         addition: {}
       }
     },
-    renamed: {
-      _from: 'constant',
-      always: {}
-    },
-    linkWithObj: {
-      id: {}
-    },
-    version: {},
-    node: {
-      _from: 'linkWithObj',
-      sub: {
-        list: { _args: { prefix: 'pre-' }, name: {} }
+    things: {
+      _type: {},
+      id: {},
+      dne: {},
+      name: {
+        _args: {
+          separator: ' '
+        }
       },
-      literal: { these: { do: { not: { matter: {} } } } }
-    },
-    null: {},
-    undefined: {},
-    absent: {},
-    query: { _args: { doNotShow: true }, _from: 'queryEcho', foo: 1, bar: 2 }
+      sub: {
+        _field: 'subFoo',
+        id: {}
+      }
+    }
   };
 
   const expected = {
@@ -63,28 +107,11 @@ export default async () => {
         addition: true
       }
     },
-    renamed: {
-      always: 'the same'
-    },
-    linkWithObj: {
-      id: 1
-    },
-    version: '123',
-    node: {
-      sub: {
-        list: [{ name: 'pre-a-1' }, { name: 'pre-b-1' }, { name: 'pre-c-1' }]
-      },
-      literal: { _literal: true, return: 'this', as: { is: {} } }
-    },
-    null: null,
-    undefined: null,
-    absent: null,
-    query: {
-      _literal: true,
-      foo: 1,
-      bar: 2
-    }
+    things: [
+      { _type: 'Foo', name: null, dne: null, id: 1, sub: { id: 123 } },
+      { _type: 'Foo', name: 'foo foo', dne: null, id: '2', sub: { id: 123 } }
+    ]
   };
 
-  assert.deepEqual(await execute({ node: Root, query }), expected);
+  assert.deepEqual(await execute({ query, schema, type: 'Root' }), expected);
 };
