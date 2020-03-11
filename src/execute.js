@@ -24,6 +24,10 @@ const execute = async o => {
     return execute({ ...o, type: _type });
   }
 
+  if (value === undefined && type.defaultValue !== undefined) {
+    return execute({ ...o, value: type.defaultValue });
+  }
+
   if (type.nonNull) {
     if (value == null) {
       throw new PaveError(`Expected non null value ${path.join('.')}`);

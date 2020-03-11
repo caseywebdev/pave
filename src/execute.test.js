@@ -32,14 +32,15 @@ export default async () => {
           resolve: { id: 123 }
         },
         name: {
+          defaultValue: 'Default name',
           args: {
             separator: {
               nonNull: { type: 'String', typeArgs: { maxLength: 3 } }
             }
           },
-          type: 'String',
-          resolve: ({ args: { separator }, obj: { name } }) =>
-            name && `${name}${separator}${name}`
+          type: { nonNull: 'String' },
+          resolve: ({ args: { separator }, value }) =>
+            `${value}${separator}${value}`
         }
       }
     },
@@ -108,7 +109,13 @@ export default async () => {
       }
     },
     things: [
-      { _type: 'Foo', name: null, dne: null, id: 1, sub: { id: 123 } },
+      {
+        _type: 'Foo',
+        name: 'Default name Default name',
+        dne: null,
+        id: 1,
+        sub: { id: 123 }
+      },
       { _type: 'Foo', name: 'foo foo', dne: null, id: '2', sub: { id: 123 } }
     ]
   };
