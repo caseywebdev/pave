@@ -54,7 +54,7 @@ export default async () => {
     },
     String: {
       args: {
-        maxLength: { notNull: 'Number' }
+        maxLength: 'Number'
       },
       resolve: ({ args: { maxLength }, path, value }) => {
         if (typeof value !== 'string') {
