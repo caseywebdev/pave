@@ -105,8 +105,7 @@ const execute = async o => {
       type: argsType,
       value: _args
     });
-    do _value = await _value({ ...o, args, query: _query });
-    while (isFunction(_value));
+    _value = await _value({ ...o, args, query: _query });
   }
 
   return execute({

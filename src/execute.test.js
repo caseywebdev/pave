@@ -69,7 +69,7 @@ export default async () => {
             }
           },
           type: { nonNull: 'String' },
-          resolve: () => () => ({ args: { separator }, value }) => () => () =>
+          resolve: ({ args: { separator }, value }) => () => () =>
             `${value}${separator}${value}`
         }
       }
