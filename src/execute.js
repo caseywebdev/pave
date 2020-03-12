@@ -89,26 +89,17 @@ const execute = async o => {
   if (typeof _value === 'function') {
     const argsType = { defaultValue: {}, fields: type.args };
     const args = await execute({
+      ...o,
       path: path.concat('_args'),
       query: mergeQueries(
         argsToQuery(_args),
         typeToQuery({ schema, type: argsType })
       ),
-      schema,
       type: argsType,
       value: _args
     });
-    do {
-      _value = await _value({
-        args,
-        context,
-        obj,
-        path,
-        query: _query,
-        type,
-        value
-      });
-    } while (typeof _value === 'function');
+    do _value = await _value({ ...o, args, query: _query });
+    while (typeof _value === 'function');
   }
 
   return execute({
