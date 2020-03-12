@@ -9,7 +9,7 @@ import tagObjLiterals from './tag-obj-literals.js';
 import typeToQuery from './type-to-query.js';
 
 const execute = async o => {
-  const { context, isDynamic, value, obj, path = [], schema, query, type } = o;
+  const { context, isDynamic, obj, path = [], query, schema, type, value } = o;
 
   if (type == null) return tagObjLiterals(value);
 
@@ -59,13 +59,12 @@ const execute = async o => {
             throw new PaveError(`Unknown field ${_path.join('.')}`);
           }
 
-          const _value = value == null ? null : value[_field];
           return [
             alias,
             await execute({
               ...o,
-              value: _value,
-              obj: value,
+              value: value == null ? null : value[_field],
+              obj: value == null ? {} : value,
               path: _path,
               query,
               type: _type
@@ -78,27 +77,29 @@ const execute = async o => {
 
   const { _args, ..._query } = ensureObject(query);
   let _value = 'resolve' in type ? type.resolve : value;
-  if (typeof _value === 'function' && value == null) _value = null;
-  while (typeof _value === 'function') {
+  if (typeof _value === 'function') {
     const argsType = { fields: type.args };
-    _value = await _value({
-      args: await execute({
-        path: path.concat('_args'),
-        query: mergeQueries(
-          argsToQuery(_args),
-          typeToQuery({ schema, type: argsType })
-        ),
-        schema,
-        type: argsType,
-        value: _args
-      }),
-      context,
-      obj,
-      path,
-      query: _query,
-      type,
-      value
+    const args = await execute({
+      path: path.concat('_args'),
+      query: mergeQueries(
+        argsToQuery(_args),
+        typeToQuery({ schema, type: argsType })
+      ),
+      schema,
+      type: argsType,
+      value: _args
     });
+    do {
+      _value = await _value({
+        args,
+        context,
+        obj,
+        path,
+        query: _query,
+        type,
+        value
+      });
+    } while (typeof _value === 'function');
   }
 
   return execute({
