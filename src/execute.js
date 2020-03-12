@@ -1,6 +1,7 @@
 import argsToQuery from './args-to-query.js';
 import ensureObject from './ensure-object.js';
 import isArray from './is-array.js';
+import isFunction from './is-function.js';
 import isObject from './is-object.js';
 import mergeQueries from './merge-queries.js';
 import PaveError from './pave-error.js';
@@ -9,6 +10,8 @@ import typeToQuery from './type-to-query.js';
 
 const execute = async o => {
   const { context, obj, path = [], query, schema, type, value } = o;
+
+  if (isFunction(value)) return execute({ ...o, value: await value() });
 
   if (type == null) return tagObjLiterals(value);
 
@@ -65,7 +68,11 @@ const execute = async o => {
           const _path = path.concat(alias);
           if (!_type) {
             if (_field === '_type') _type = { resolve: type.name };
-            else throw new PaveError(`Unknown field ${_path.join('.')}`);
+            else {
+              throw new PaveError(
+                `Unknown field ${_field} at ${_path.join('.')}`
+              );
+            }
           }
 
           return [
@@ -86,7 +93,7 @@ const execute = async o => {
 
   const { _args, ..._query } = ensureObject(query);
   let _value = 'resolve' in type ? type.resolve : value;
-  if (typeof _value === 'function') {
+  if (isFunction(_value)) {
     const argsType = { defaultValue: {}, fields: type.args };
     const args = await execute({
       ...o,
@@ -99,7 +106,7 @@ const execute = async o => {
       value: _args
     });
     do _value = await _value({ ...o, args, query: _query });
-    while (typeof _value === 'function');
+    while (isFunction(_value));
   }
 
   return execute({

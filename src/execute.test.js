@@ -41,8 +41,7 @@ export default async () => {
                 }
               }
             }
-          },
-          resolve: [{ id: 1 }, { id: '2', name: 'foo' }, { color: 'blue' }]
+          }
         }
       }
     },
@@ -166,5 +165,19 @@ export default async () => {
     ]
   };
 
-  assert.deepEqual(await execute({ query, schema, type: 'Root' }), expected);
+  assert.deepEqual(
+    await execute({
+      query,
+      schema,
+      type: 'Root',
+      value: () => ({
+        things: () => () => () => () => () => [
+          { id: 1 },
+          { id: '2', name: 'foo' },
+          { color: 'blue' }
+        ]
+      })
+    }),
+    expected
+  );
 };
