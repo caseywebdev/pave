@@ -45,7 +45,7 @@ const execute = async o => {
   }
 
   if (type.oneOf) {
-    const _type = await type.resolveType(value);
+    const _type = type.resolveType(value);
     const onKey = `_on${_type}`;
     const _query = {};
     for (const [key, value] of Object.entries(ensureObject(query))) {
