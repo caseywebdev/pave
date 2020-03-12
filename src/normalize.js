@@ -10,10 +10,12 @@ const walk = ({ normalized = {}, data, getKey, query }) => {
 
   if (!isObject(data) || '_literal' in data) return data;
 
-  // eslint-disable-next-line no-unused-vars
-  const { _args, _field, ..._query } = ensureObject(query);
   const _ref = getKey && getKey(data);
   const obj = _ref ? normalized[_ref] || (normalized[_ref] = {}) : {};
+
+  // eslint-disable-next-line no-unused-vars
+  const { _args, _field, ..._query } = ensureObject(query);
+  Object.assign(_query, _query[`_on${data._type}`]);
   for (const alias in _query) {
     if (!(alias in data)) continue;
 

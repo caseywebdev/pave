@@ -39,6 +39,30 @@ export default {
       { sum: 3 }
     );
   },
+  oneOf: () => {
+    assert.deepEqual(
+      cacheExecute({
+        cache: {
+          _root: { oneOfs: [{ _ref: 'Foo:1' }, { _ref: 'Bar:2' }] },
+          'Foo:1': { _type: 'Foo', shared: 'a', id: 1, name: 'John' },
+          'Bar:2': { _type: 'Bar', shared: 'b', id: 2, color: 'blue' }
+        },
+        query: {
+          oneOfs: {
+            shared: {},
+            _onFoo: { id: {}, name: {} },
+            _onBar: { id: {}, color: {} }
+          }
+        }
+      }),
+      {
+        oneOfs: [
+          { shared: 'a', id: 1, name: 'John' },
+          { shared: 'b', id: 2, color: 'blue' }
+        ]
+      }
+    );
+  },
   refs: () => {
     assert.deepEqual(
       cacheExecute({

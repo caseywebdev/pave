@@ -1,6 +1,6 @@
 import { strict as assert } from 'assert';
 
-import inject from './inject.js';
+import injectType from './inject-type.js';
 import normalize from './normalize.js';
 
 export default {
@@ -11,7 +11,6 @@ export default {
           _type === 'Root' ? 'Root' : _type && id ? `${_type}:${id}` : null,
         data: {
           _type: 'Root',
-          id: null,
           foo: {
             _type: 'Foo',
             id: 1,
@@ -27,33 +26,29 @@ export default {
             list: [
               {
                 _type: 'Root',
-                id: null,
                 foo: { _type: 'Foo', id: 1, color: 'red' }
               },
               {
                 _type: 'Root',
-                id: null,
                 foo: { _type: 'Foo', id: 1, color: 'blue' }
               }
             ]
           }
         },
-        query: inject({
-          injection: { _type: {}, id: {} },
-          query: {
-            foo: {
-              last: {},
-              nested: { a: {}, b: {} },
-              list: { foo: { color: {} } }
-            },
-            bar: {
-              _field: 'foo',
-              _args: { id: 1 },
-              id: {},
-              name: {},
-              nested: { a: {}, b: {} },
-              list: { foo: { color: {} } }
-            }
+        query: injectType({
+          foo: {
+            id: {},
+            last: {},
+            nested: { a: {}, b: {} },
+            list: { id: {}, foo: { id: {}, color: {} } }
+          },
+          bar: {
+            _field: 'foo',
+            _args: { id: 1 },
+            id: {},
+            name: {},
+            nested: { id: {}, a: {}, b: {} },
+            list: { id: {}, foo: { id: {}, color: {} } }
           }
         })
       }),
@@ -61,7 +56,6 @@ export default {
         _root: { _ref: 'Root' },
         Root: {
           _type: 'Root',
-          id: null,
           'foo({"id":1})': { _ref: 'Foo:1' },
           foo: { _ref: 'Foo:1' }
         },
@@ -93,12 +87,10 @@ export default {
             name: 'bar'
           }
         },
-        query: inject({
-          injection: { _type: {}, id: {} },
-          query: {
-            name: {},
-            bar: { name: {} }
-          }
+        query: injectType({
+          id: {},
+          name: {},
+          bar: { id: {}, name: {} }
         })
       }),
       {
@@ -114,6 +106,33 @@ export default {
           id: 2,
           name: 'bar'
         }
+      }
+    );
+  },
+
+  'one of': () => {
+    assert.deepEqual(
+      normalize({
+        getKey: ({ _type, id }) =>
+          _type === 'Root' ? 'Root' : _type && id ? `${_type}:${id}` : null,
+        data: {
+          oneOfs: [
+            { _type: 'Foo', shared: 'a', id: 1, name: 'John' },
+            { _type: 'Bar', shared: 'b', id: 2, color: 'blue' }
+          ]
+        },
+        query: injectType({
+          oneOfs: {
+            shared: {},
+            _onFoo: { id: {}, name: {} },
+            _onBar: { id: {}, color: {} }
+          }
+        })
+      }),
+      {
+        _root: { oneOfs: [{ _ref: 'Foo:1' }, { _ref: 'Bar:2' }] },
+        'Foo:1': { _type: 'Foo', shared: 'a', id: 1, name: 'John' },
+        'Bar:2': { _type: 'Bar', shared: 'b', id: 2, color: 'blue' }
       }
     );
   }

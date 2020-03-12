@@ -14,17 +14,18 @@ const walk = ({ _, cache, query, value }) => {
 
   // eslint-disable-next-line no-unused-vars
   const { _args, _field, ..._query } = ensureObject(query);
-  return Object.fromEntries(
-    Object.entries(_query).map(([alias, query]) => {
-      const field = normalizeField({ alias, query });
-      if (field in value) {
-        return [alias, walk({ _, cache, query, value: value[field] })];
-      } else {
-        _.isPartial = true;
-        return [alias, null];
-      }
-    })
-  );
+  Object.assign(_query, _query[`_on${value._type}`]);
+  const data = {};
+  for (const alias in _query) {
+    if (alias.startsWith('_on')) continue;
+
+    const query = ensureObject(_query[alias]);
+    const field = normalizeField({ alias, query });
+    if (field in value) {
+      data[alias] = walk({ _, cache, query, value: value[field] });
+    } else _.isPartial = true;
+  }
+  return data;
 };
 
 export default args => {

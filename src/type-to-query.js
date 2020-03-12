@@ -1,8 +1,7 @@
-import isFunction from './is-function.js';
 import isObject from './is-object.js';
 
 const typeToQuery = ({ schema, seen = new Set(), type }) => {
-  if (seen.has(type) || !type || isFunction(type)) return {};
+  if (seen.has(type) || !type) return {};
 
   seen = new Set(seen).add(type);
 
@@ -16,6 +15,15 @@ const typeToQuery = ({ schema, seen = new Set(), type }) => {
 
   if (type.arrayOf) {
     return typeToQuery({ schema, seen, type: type.arrayOf });
+  }
+
+  if (type.oneOf) {
+    return Object.fromEntries(
+      type.oneOf.map(type => [
+        `_on${type}`,
+        typeToQuery({ schema, seen, type })
+      ])
+    );
   }
 
   if (type.fields) {

@@ -1,11 +1,11 @@
 import cacheExecute from './cache-execute.js';
 import ensureObject from './ensure-object.js';
-import inject from './inject.js';
+import injectType from './inject-type.js';
 import isEqual from './is-equal.js';
 import mergeCaches from './merge-caches.js';
 import normalize from './normalize.js';
 
-export default ({ cache, execute, getKey, injection } = {}) => {
+export default ({ cache, execute, getKey } = {}) => {
   const watchers = new Set();
 
   const client = {
@@ -31,7 +31,7 @@ export default ({ cache, execute, getKey, injection } = {}) => {
     execute: async ({ context, query }) => {
       if (!execute) return;
 
-      if (injection) query = inject({ injection, query });
+      query = injectType(query);
       const data = await execute({ context: ensureObject(context), query });
       client.update({ query, data });
       return data;
