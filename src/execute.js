@@ -79,7 +79,7 @@ const execute = async o => {
   const { _args, ..._query } = ensureObject(query);
   let _value = 'resolve' in type ? type.resolve : value;
   if (typeof _value === 'function' && value == null) _value = null;
-  if (typeof _value === 'function') {
+  while (typeof _value === 'function') {
     const argsType = { fields: type.args };
     _value = await _value({
       args: await execute({
