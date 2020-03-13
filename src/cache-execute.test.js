@@ -6,7 +6,7 @@ export default {
   missing: () => {
     assert.deepEqual(
       cacheExecute({
-        cache: { _root: {} },
+        cache: {},
         query: { dne: {} }
       }),
       undefined
@@ -15,7 +15,7 @@ export default {
   simple: () => {
     assert.deepEqual(
       cacheExecute({
-        cache: { _root: { one: 1 } },
+        cache: { _root: { _type: null, one: 1 } },
         query: { one: {} }
       }),
       { one: 1 }
@@ -24,7 +24,7 @@ export default {
   renamed: () => {
     assert.deepEqual(
       cacheExecute({
-        cache: { _root: { one: 1 } },
+        cache: { _root: { _type: null, one: 1 } },
         query: { uno: { _field: 'one' } }
       }),
       { uno: 1 }
@@ -33,7 +33,7 @@ export default {
   args: () => {
     assert.deepEqual(
       cacheExecute({
-        cache: { _root: { 'sum({"a":1,"b":2})': 3 } },
+        cache: { _root: { _type: null, 'sum({"a":1,"b":2})': 3 } },
         query: { sum: { _args: { b: 2, a: 1 } } }
       }),
       { sum: 3 }
@@ -43,7 +43,13 @@ export default {
     assert.deepEqual(
       cacheExecute({
         cache: {
-          _root: { oneOfs: [{ _ref: 'Foo:1' }, { _ref: 'Bar:2' }] },
+          _root: {
+            _type: null,
+            oneOfs: [
+              { _type: '_ref', key: 'Foo:1' },
+              { _type: '_ref', key: 'Bar:2' }
+            ]
+          },
           'Foo:1': { _type: 'Foo', shared: 'a', id: 1, name: 'John' },
           'Bar:2': { _type: 'Bar', shared: 'b', id: 2, color: 'blue' }
         },
@@ -67,9 +73,14 @@ export default {
     assert.deepEqual(
       cacheExecute({
         cache: {
-          _root: { _ref: 'Root' },
-          Root: { foo: { _ref: 'Foo:1' } },
-          'Foo:1': { _type: 'Foo', id: 1, name: 'foo', root: { _ref: 'Root' } }
+          _root: { _type: '_ref', key: 'Root' },
+          Root: { _type: null, foo: { _type: '_ref', key: 'Foo:1' } },
+          'Foo:1': {
+            _type: 'Foo',
+            id: 1,
+            name: 'foo',
+            root: { _type: '_ref', key: 'Root' }
+          }
         },
         query: {
           foo: {

@@ -9,7 +9,7 @@ export default ({ cache, execute, getKey } = {}) => {
   const watchers = new Set();
 
   const client = {
-    cache: cache || { _root: {} },
+    cache: cache || {},
 
     cacheExecute: args => cacheExecute({ cache: client.cache, ...args }),
 

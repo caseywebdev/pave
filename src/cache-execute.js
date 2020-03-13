@@ -8,9 +8,11 @@ const walk = ({ _, cache, query, value }) => {
     return value.map(value => walk({ _, cache, query, value }));
   }
 
-  if (!isObject(value) || '_literal' in value) return value;
+  if (!isObject(value) || !('_type' in value)) return value;
 
-  if (value._ref) return walk({ _, cache, query, value: cache[value._ref] });
+  if (value._type === '_ref') {
+    return walk({ _, cache, query, value: cache[value.key] });
+  }
 
   // eslint-disable-next-line no-unused-vars
   const { _args, _field, ..._query } = ensureObject(query);

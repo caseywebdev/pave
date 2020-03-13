@@ -53,11 +53,11 @@ export default {
         })
       }),
       {
-        _root: { _ref: 'Root' },
+        _root: { _type: '_ref', key: 'Root' },
         Root: {
           _type: 'Root',
-          'foo({"id":1})': { _ref: 'Foo:1' },
-          foo: { _ref: 'Foo:1' }
+          'foo({"id":1})': { _type: '_ref', key: 'Foo:1' },
+          foo: { _type: '_ref', key: 'Foo:1' }
         },
         'Foo:1': {
           _type: 'Foo',
@@ -66,7 +66,10 @@ export default {
           last: 'Last',
           color: 'blue',
           nested: { _type: null, id: null, a: null, b: 2 },
-          list: [{ _ref: 'Root' }, { _ref: 'Root' }]
+          list: [
+            { _type: '_ref', key: 'Root' },
+            { _type: '_ref', key: 'Root' }
+          ]
         }
       }
     );
@@ -94,12 +97,12 @@ export default {
         })
       }),
       {
-        _root: { _ref: 'Foo:1' },
+        _root: { _type: '_ref', key: 'Foo:1' },
         'Foo:1': {
           _type: 'Foo',
           id: 1,
           name: 'foo',
-          bar: { _ref: 'Bar:2' }
+          bar: { _type: '_ref', key: 'Bar:2' }
         },
         'Bar:2': {
           _type: 'Bar',
@@ -116,6 +119,7 @@ export default {
         getKey: ({ _type, id }) =>
           _type === 'Root' ? 'Root' : _type && id ? `${_type}:${id}` : null,
         data: {
+          _type: null,
           oneOfs: [
             { _type: 'Foo', shared: 'a', id: 1, name: 'John' },
             { _type: 'Bar', shared: 'b', id: 2, color: 'blue' }
@@ -130,7 +134,13 @@ export default {
         })
       }),
       {
-        _root: { oneOfs: [{ _ref: 'Foo:1' }, { _ref: 'Bar:2' }] },
+        _root: {
+          _type: null,
+          oneOfs: [
+            { _type: '_ref', key: 'Foo:1' },
+            { _type: '_ref', key: 'Bar:2' }
+          ]
+        },
         'Foo:1': { _type: 'Foo', shared: 'a', id: 1, name: 'John' },
         'Bar:2': { _type: 'Bar', shared: 'b', id: 2, color: 'blue' }
       }

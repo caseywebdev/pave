@@ -8,10 +8,10 @@ const walk = ({ normalized = {}, data, getKey, query }) => {
     return data.map(data => walk({ normalized, data, getKey, query }));
   }
 
-  if (!isObject(data) || '_literal' in data) return data;
+  if (!isObject(data) || !('_type' in data)) return data;
 
-  const _ref = getKey && getKey(data);
-  const obj = _ref ? normalized[_ref] || (normalized[_ref] = {}) : {};
+  const key = getKey && getKey(data);
+  const obj = key ? normalized[key] || (normalized[key] = {}) : {};
 
   // eslint-disable-next-line no-unused-vars
   const { _args, _field, ..._query } = ensureObject(query);
@@ -24,7 +24,7 @@ const walk = ({ normalized = {}, data, getKey, query }) => {
     obj[field] = walk({ normalized, data: data[alias], getKey, query });
   }
 
-  return _ref ? { _ref } : obj;
+  return key ? { _type: '_ref', key } : obj;
 };
 
 export default ({ data, getKey, query }) => {
