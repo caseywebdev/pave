@@ -5,95 +5,124 @@ import isObject from './is-object.js';
 import PaveError from './pave-error.js';
 import validateArgs from './validate-args.js';
 
-const execute = async o => {
-  const { args, obj, path = [], query, schema, type, value } = o;
-
-  if (isFunction(value)) return execute({ ...o, value: await value() });
-
-  if (type == null) return value == null ? null : value;
-
-  if (!isObject(type)) {
-    const _type = schema[type];
-    if (!_type) throw new PaveError('unknownType', o);
-
-    return execute({ ...o, obj: null, type: _type });
-  }
-
-  if (value === undefined && type.defaultValue !== undefined) {
-    return execute({ ...o, value: type.defaultValue });
-  }
-
-  if (type.nonNull) {
-    if (value == null) throw new PaveError('expectedNonNull', o);
-
-    return execute({ ...o, type: type.nonNull });
-  }
-
-  if (type.arrayOf) {
-    if (!isArray(value)) throw new PaveError('expectedArray', o);
-
-    return Promise.all(
-      value.map(value => execute({ ...o, value, type: type.arrayOf }))
-    );
-  }
-
-  if (type.oneOf) {
-    const _type = await type.resolveType(value);
-    const onKey = `_on${_type}`;
-    const _query = {};
-    for (const [key, value] of Object.entries(ensureObject(query))) {
-      if (key === onKey) Object.assign(_query, value);
-      else if (!key.startsWith('_on')) _query[key] = value;
-    }
-    return execute({ ...o, query: _query, type: _type });
-  }
-
-  if (obj == null && value == null) return null;
-
-  if (type.fields) {
-    return Object.fromEntries(
-      await Promise.all(
-        Object.entries(ensureObject(query)).map(async ([alias, query]) => {
-          const { _args, _field, ..._query } = query;
-          const field = _field || alias;
-          let _type = type.fields[field];
-          if (!_type) {
-            if (field === '_type') _type = { resolve: type.name };
-            else throw new PaveError('unknownField', { ...o, alias, field });
-          }
-
-          return [
-            alias,
-            await execute({
-              ...o,
-              args: _args,
-              obj: value,
-              path: path.concat(alias),
-              query: _query,
-              type: _type,
-              value: value[field]
-            })
-          ];
-        })
-      )
-    );
-  }
-
-  let _value = 'resolve' in type ? type.resolve : value;
-  if (isFunction(type.resolve)) {
-    _value = await _value({
-      ...o,
-      args: validateArgs({
-        ...o,
-        path: path.concat('_args'),
-        type: { defaultValue: {}, fields: type.args },
-        value: args
-      }),
-      query: ensureObject(query)
+const execute = async ({
+  args,
+  context,
+  obj,
+  path = [],
+  query,
+  schema,
+  type,
+  value
+}) => {
+  const fail = (code, extra) => {
+    throw new PaveError(code, {
+      args,
+      context,
+      obj,
+      path,
+      query,
+      schema,
+      type,
+      value,
+      ...extra
     });
-  }
+  };
 
-  return execute({ ...o, args: type.typeArgs, type: type.type, value: _value });
+  do {
+    if (isFunction(value)) value = await value();
+    else if (type == null) return value == null ? null : value;
+    else if (!isObject(type)) {
+      if (schema[type]) {
+        obj = null;
+        type = schema[type];
+      } else fail('unknownType');
+    } else if (value === undefined && type.defaultValue !== undefined) {
+      value = type.defaultValue;
+    } else if (type.nonNull) {
+      if (value == null) fail('expectedNonNull');
+
+      type = type.nonNull;
+    } else if (type.arrayOf) {
+      if (!isArray(value)) fail('expectedArray');
+
+      return Promise.all(
+        value.map((value, i) =>
+          execute({
+            args,
+            context,
+            obj,
+            path: path[i],
+            query,
+            schema,
+            type: type.arrayOf,
+            value
+          })
+        )
+      );
+    } else if (type.oneOf) type = type.resolveType(value);
+    else if (obj == null && value == null) return null;
+    else if (type.fields) {
+      const onKey = `_on${type.name}`;
+      const _query = {};
+      for (const [key, value] of Object.entries(ensureObject(query))) {
+        if (key === onKey) Object.assign(_query, value);
+        else if (!key.startsWith('_on')) _query[key] = value;
+      }
+      query = _query;
+      return Object.fromEntries(
+        await Promise.all(
+          Object.entries(_query).map(async ([alias, query]) => {
+            const { _args, _field, ..._query } = query;
+            const field = _field || alias;
+            let _type = type.fields[field];
+            if (!_type) {
+              if (field === '_type') _type = { resolve: type.name };
+              else fail('unknownField', { alias, field });
+            }
+
+            return [
+              alias,
+              await execute({
+                args: _args,
+                context,
+                obj: value,
+                path: path.concat(alias),
+                query: _query,
+                schema,
+                type: _type,
+                value: value[field]
+              })
+            ];
+          })
+        )
+      );
+    } else {
+      let _value = 'resolve' in type ? type.resolve : value;
+      if (isFunction(_value)) {
+        _value = await _value({
+          args: validateArgs({
+            context,
+            path: path.concat('_args'),
+            schema,
+            type,
+            value: args
+          }),
+          context,
+          obj,
+          path,
+          query,
+          schema,
+          type,
+          value
+        });
+      }
+
+      args = type.typeArgs;
+      type = type.type;
+      value = _value;
+    }
+  } while (true);
 };
 
 export default execute;

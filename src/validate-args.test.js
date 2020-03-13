@@ -33,17 +33,17 @@ export default () => {
         b: 2,
         c: {
           d: 3,
-          e: 'foo'
+          e: ['foo', 'buz', null]
         }
       },
       type: {
-        fields: {
+        args: {
           a: { typeArgs: { min: 1 }, type: 'Int' },
           b: 'Int',
           c: {
             fields: {
               d: 'Int',
-              e: { nonNull: 'String' },
+              e: { nonNull: { arrayOf: 'String' } },
               f: { defaultValue: 'bar', type: { nonNull: 'String' } }
             }
           }
@@ -55,7 +55,7 @@ export default () => {
       b: 2,
       c: {
         d: 3,
-        e: 'foo',
+        e: ['foo', 'buz', null],
         f: 'bar'
       }
     }

@@ -2,5 +2,12 @@ import createClient from './create-client.js';
 import createReactHook from './create-react-hook.js';
 import execute from './execute.js';
 import PaveError from './pave-error.js';
+import validateQuery from './validate-query.js';
 
-export default { createReactHook, createClient, execute, PaveError };
+export default {
+  createReactHook,
+  createClient,
+  execute,
+  PaveError,
+  validateQuery
+};
