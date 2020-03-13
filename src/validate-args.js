@@ -42,17 +42,18 @@ const _validateArgs = ({ args, context, path = [], schema, type, value }) => {
         })
       );
     } else if (type.oneOf) type = type.resolveType(value);
-    else if (value == null) return null;
+    else if (value == null) return value;
     else if (type.fields) {
-      let _value = {};
-      for (const field in type.fields) _value[field] = undefined;
-      _value = { ..._value, ...value };
-      for (const field in _value) {
-        const value = _value[field];
+      let check = {};
+      for (const field in type.fields) check[field] = undefined;
+      check = { ...check, ...value };
+      const _value = {};
+      for (const field in check) {
+        let value = check[field];
         const _type = type.fields[field];
         if (!_type) fail('unknownField', { field });
 
-        _value[field] = _validateArgs({
+        value = _validateArgs({
           args,
           context,
           path: path.concat(field),
@@ -60,6 +61,7 @@ const _validateArgs = ({ args, context, path = [], schema, type, value }) => {
           type: _type,
           value
         });
+        if (value !== undefined) _value[field] = value;
       }
       return _value;
     } else {
@@ -94,7 +96,7 @@ const validateArgs = ({ args, context, path, schema, type, value }) =>
     context,
     path,
     schema,
-    type: { defaultValue: {}, fields: ensureObject(type.args) },
+    type: { defaultValue: {}, fields: type.args },
     value
   });
 

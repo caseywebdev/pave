@@ -16,7 +16,8 @@ const validateQuery = ({ context, path = [], query, schema, type }) => {
   };
 
   do {
-    if (!isObject(type)) {
+    if (type == null) return query;
+    else if (!isObject(type)) {
       if (schema[type]) type = schema[type];
       else fail('unknownType');
     } else if (type.nonNull) type = type.nonNull;
@@ -41,17 +42,18 @@ const validateQuery = ({ context, path = [], query, schema, type }) => {
         else if (!key.startsWith('_on')) _query[key] = value;
       }
       for (const alias in _query) {
+        if (alias === '_args' || alias === '_field') continue;
+
         const field = _query[alias]._field || alias;
         let _type = type.fields[field];
         if (!_type) {
           if (field === '_type') _type = {};
           else fail('unknownField', { alias, field });
         }
-
         _query[field] = validateQuery({
           context,
           path: path.concat(field),
-          query: query[alias],
+          query: _query[alias],
           schema,
           type: _type
         });
@@ -59,7 +61,6 @@ const validateQuery = ({ context, path = [], query, schema, type }) => {
       return _query;
     } else {
       let { _args, _field, ..._query } = ensureObject(query);
-      _query = {};
       if (_args || type.args) {
         _args = validateArgs({
           context,
@@ -72,6 +73,7 @@ const validateQuery = ({ context, path = [], query, schema, type }) => {
         if (type.args) _query._args = _args;
       }
       if (_field) _query._field = _field;
+
       return _query;
     }
   } while (true);

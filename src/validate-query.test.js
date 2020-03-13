@@ -20,15 +20,25 @@ export default () => {
               },
               type: { notNull: 'Int' }
             },
+            obj: {
+              type: 'Obj',
+              args: { id: 'Int' }
+            },
             oneOf: {
               oneOf: ['Foo', 'Bar']
             }
           }
         },
+        Obj: {
+          name: 'Obj',
+          fields: {
+            name: 'String'
+          }
+        },
         Foo: {
           name: 'Foo',
           fields: {
-            id: {},
+            id: { args: { name: 'String' } },
             fooField: {}
           }
         },
@@ -63,12 +73,18 @@ export default () => {
       },
       query: {
         _type: {},
+        obj: {
+          _args: { id: 3 },
+          name: {}
+        },
         sum: {
           _args: { a: 3 }
         },
         oneOf: {
           id: { _type: {} },
           _onFoo: {
+            _type: {},
+            id: { _args: { name: 'foo' }, _type: {} },
             fooField: {
               _args: {}
             }
@@ -79,6 +95,10 @@ export default () => {
     }),
     {
       _type: {},
+      obj: {
+        _args: { id: 3 },
+        name: {}
+      },
       sum: {
         _args: {
           a: 3,
@@ -86,8 +106,12 @@ export default () => {
         }
       },
       oneOf: {
-        _onBar: { id: {} },
-        _onFoo: { id: {}, fooField: {} }
+        _onBar: { id: { _type: {} } },
+        _onFoo: {
+          id: { _args: { name: 'foo' }, _type: {} },
+          _type: {},
+          fooField: {}
+        }
       }
     }
   );
