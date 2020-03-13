@@ -62,11 +62,12 @@ export default () => {
         }
       },
       query: {
+        _type: {},
         sum: {
           _args: { a: 3 }
         },
         oneOf: {
-          id: {},
+          id: { _type: {} },
           _onFoo: {
             fooField: {
               _args: {}
@@ -77,6 +78,7 @@ export default () => {
       type: 'Root'
     }),
     {
+      _type: {},
       sum: {
         _args: {
           a: 3,

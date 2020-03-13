@@ -42,8 +42,11 @@ const validateQuery = ({ context, path = [], query, schema, type }) => {
       }
       for (const alias in _query) {
         const field = _query[alias]._field || alias;
-        const _type = type.fields[field];
-        if (!_type && field !== '_type') fail('unknownField', { alias, field });
+        let _type = type.fields[field];
+        if (!_type) {
+          if (field === '_type') _type = {};
+          else fail('unknownField', { alias, field });
+        }
 
         _query[field] = validateQuery({
           context,
