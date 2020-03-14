@@ -29,17 +29,18 @@ const validateQuery = ({ context, path = [], query, schema, type }) => {
       return _query;
     } else if (type.fields) {
       let { _field, ..._query } = ensureObject(query);
+      const merged = {};
       const onKey = `_on${type.name}`;
-      const flattened = {};
-      for (const [key, value] of Object.entries(_query)) {
-        if (key === onKey) Object.assign(flattened, value);
-        else if (!key.startsWith('_on')) flattened[key] = value;
+      for (const key in _query) {
+        if (key === onKey) Object.assign(merged, query[key]);
+        else if (!key.startsWith('_on')) merged[key] = query[key];
       }
 
       _query = {};
+      if (_field) _query._field = _field;
 
-      for (let [alias, query] of Object.entries(flattened)) {
-        query = ensureObject(query);
+      for (const alias in merged) {
+        const query = ensureObject(merged[alias]);
         const field = query._field || alias;
         let _type = type.fields[field];
         if (!_type) {
@@ -56,21 +57,21 @@ const validateQuery = ({ context, path = [], query, schema, type }) => {
         });
       }
 
-      if (_field) _query._field = _field;
-
       return _query;
     } else {
-      const { _args, _field, ...rest } = ensureObject(query);
-      const _query = validateQuery({
+      let { _args, _field, ..._query } = ensureObject(query);
+      _query = validateQuery({
         context,
         path,
-        query: rest,
+        query: _query,
         schema,
         type: type.type
       });
 
+      if (_field) _query._field = _field;
+
       if (_args || type.args) {
-        const args = validateArgs({
+        _args = validateArgs({
           context,
           path,
           schema,
@@ -78,10 +79,8 @@ const validateQuery = ({ context, path = [], query, schema, type }) => {
           value: query._args
         });
 
-        if (type.args) _query._args = args;
+        if (type.args) _query._args = _args;
       }
-
-      if (_field) _query._field = _field;
 
       return _query;
     }

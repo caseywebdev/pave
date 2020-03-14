@@ -59,16 +59,15 @@ const execute = async ({
     } else if (type.oneOf) type = type.resolveType(value);
     else if (obj == null && value == null) return null;
     else if (type.fields) {
+      const merged = {};
       const onKey = `_on${type.name}`;
-      const _query = {};
-      for (const [key, value] of Object.entries(query)) {
-        if (key === onKey) Object.assign(_query, value);
-        else if (!key.startsWith('_on')) _query[key] = value;
+      for (const key in query) {
+        if (key === onKey) Object.assign(merged, query[key]);
+        else if (!key.startsWith('_on')) merged[key] = query[key];
       }
-      query = _query;
       return Object.fromEntries(
         await Promise.all(
-          Object.entries(_query).map(async ([alias, query]) => {
+          Object.entries(merged).map(async ([alias, query]) => {
             const { _field, ..._query } = query;
             const field = _field || alias;
             let _type = type.fields[field];
