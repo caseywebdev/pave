@@ -6,7 +6,6 @@ import PaveError from './pave-error.js';
 import validateArgs from './validate-args.js';
 
 const execute = async ({
-  args,
   context,
   obj,
   path = [],
@@ -17,7 +16,6 @@ const execute = async ({
 }) => {
   const fail = (code, extra) => {
     throw new PaveError(code, {
-      args,
       context,
       obj,
       path,
@@ -49,7 +47,6 @@ const execute = async ({
       return Promise.all(
         value.map((value, i) =>
           execute({
-            args,
             context,
             obj,
             path: path[i],
@@ -73,8 +70,8 @@ const execute = async ({
       return Object.fromEntries(
         await Promise.all(
           Object.entries(_query).map(async ([alias, query]) => {
-            const { _args, _field, ..._query } = query;
-            const field = _field || alias;
+            query = ensureObject(query);
+            const field = query._field || alias;
             let _type = type.fields[field];
             if (!_type) {
               if (field === '_type') _type = { resolve: type.name };
@@ -84,11 +81,10 @@ const execute = async ({
             return [
               alias,
               await execute({
-                args: _args,
                 context,
                 obj: value,
                 path: path.concat(alias),
-                query: _query,
+                query,
                 schema,
                 type: _type,
                 value: value[field]
@@ -98,27 +94,22 @@ const execute = async ({
         )
       );
     } else {
+      // eslint-disable-next-line no-unused-vars
+      const { _args, _field, ..._query } = query;
       let _value = 'resolve' in type ? type.resolve : value;
       if (isFunction(_value)) {
-        _value = await _value({
-          args: validateArgs({
-            context,
-            path: path.concat('_args'),
-            schema,
-            type,
-            value: args
-          }),
+        const args = validateArgs({
           context,
-          obj,
-          path,
-          query,
+          path: path.concat('_args'),
           schema,
           type,
-          value
+          value: _args
         });
+        _value = await _value({ args, context, obj, query, value });
       }
 
-      args = type.typeArgs;
+      if (type.typeArgs) _query._args = type.typeArgs;
+      query = _query;
       type = type.type;
       value = _value;
     }

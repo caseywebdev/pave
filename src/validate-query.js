@@ -5,18 +5,11 @@ import validateArgs from './validate-args.js';
 
 const validateQuery = ({ context, path = [], query, schema, type }) => {
   const fail = (code, extra) => {
-    throw new PaveError(code, {
-      context,
-      path,
-      query,
-      schema,
-      type,
-      ...extra
-    });
+    throw new PaveError(code, { context, path, query, schema, type, ...extra });
   };
 
   do {
-    if (type == null) return query;
+    if (type == null) type = { fields: {} };
     else if (!isObject(type)) {
       if (schema[type]) type = schema[type];
       else fail('unknownType');
@@ -36,42 +29,53 @@ const validateQuery = ({ context, path = [], query, schema, type }) => {
       return _query;
     } else if (type.fields) {
       const onKey = `_on${type.name}`;
-      const _query = {};
+      const _merged = {};
       for (const [key, value] of Object.entries(ensureObject(query))) {
-        if (key === onKey) Object.assign(_query, value);
-        else if (!key.startsWith('_on')) _query[key] = value;
+        if (key === onKey) Object.assign(_merged, value);
+        else if (!key.startsWith('_on')) _merged[key] = value;
       }
-      for (const alias in _query) {
-        if (alias === '_args' || alias === '_field') continue;
-
-        const field = _query[alias]._field || alias;
+      const next = {};
+      for (const [alias, query] of Object.entries(_merged)) {
+        const _query = ensureObject(query);
+        const field = _query._field || alias;
         let _type = type.fields[field];
         if (!_type) {
           if (field === '_type') _type = {};
           else fail('unknownField', { alias, field });
         }
-        _query[field] = validateQuery({
+
+        next[alias] = validateQuery({
           context,
-          path: path.concat(field),
-          query: _query[alias],
+          path: path.concat(alias),
+          query: _query,
           schema,
           type: _type
         });
       }
-      return _query;
+
+      return next;
     } else {
-      let { _args, _field, ..._query } = ensureObject(query);
+      const { _args, _field, ...rest } = query;
+      const _query = validateQuery({
+        context,
+        path,
+        query: rest,
+        schema,
+        type: type.type
+      });
+
       if (_args || type.args) {
-        _args = validateArgs({
+        const args = validateArgs({
           context,
-          path: path.concat('_args'),
-          query,
+          path,
           schema,
           type,
-          value: _args
+          value: query._args
         });
-        if (type.args) _query._args = _args;
+
+        if (type.args) _query._args = args;
       }
+
       if (_field) _query._field = _field;
 
       return _query;

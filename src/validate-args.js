@@ -1,4 +1,3 @@
-import ensureObject from './ensure-object.js';
 import isArray from './is-array.js';
 import isFunction from './is-function.js';
 import isObject from './is-object.js';
@@ -76,9 +75,6 @@ const _validateArgs = ({ args, context, path = [], schema, type, value }) => {
             value: args
           }),
           context,
-          path,
-          schema,
-          type,
           value
         });
       }

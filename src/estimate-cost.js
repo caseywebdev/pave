@@ -1,0 +1,44 @@
+import isFunction from './is-function.js';
+import isObject from './is-object.js';
+
+const estimateCost = ({ context, query, schema, type }) => {
+  do {
+    if (type == null) return 0;
+    else if (!isObject(type)) type = schema[type];
+    else if (type.nonNull) type = type.nonNull;
+    else if (type.arrayOf) type = type.arrayOf;
+    else if (type.oneOf) {
+      return Math.max(
+        ...type.oneOf.map(type =>
+          estimateCost({ context, query, schema, type })
+        )
+      );
+    } else {
+      // eslint-disable-next-line no-unused-vars
+      const { _args, _field, ..._query } = query;
+      let cost = 0;
+      if (type.fields) {
+        for (const alias in query) {
+          const _query = query[alias];
+          const _type = type.fields[_query._field || alias];
+          cost += estimateCost({ context, query: _query, schema, type: _type });
+        }
+      } else {
+        cost = estimateCost({
+          context,
+          query: _query,
+          schema,
+          type: type.type
+        });
+      }
+
+      if (isFunction(type.cost)) {
+        cost = type.cost({ args: _args, context, cost, query, schema, type });
+      } else if (type.cost) cost += type.cost;
+
+      return cost;
+    }
+  } while (true);
+};
+
+export default estimateCost;
