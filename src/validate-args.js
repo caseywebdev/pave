@@ -86,12 +86,12 @@ const _validateArgs = ({ args, context, path = [], schema, type, value }) => {
   } while (true);
 };
 
-const validateArgs = ({ args, context, path, schema, type, value }) =>
+const validateArgs = ({ context, path, schema, type, value }) =>
   _validateArgs({
     context,
     path,
     schema,
-    type: { defaultValue: {}, fields: args || type.args },
+    type: { defaultValue: {}, fields: type.args },
     value
   });
 
