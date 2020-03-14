@@ -1,4 +1,3 @@
-import ensureObject from './ensure-object.js';
 import isArray from './is-array.js';
 import isFunction from './is-function.js';
 import isObject from './is-object.js';
@@ -62,7 +61,7 @@ const execute = async ({
     else if (type.fields) {
       const onKey = `_on${type.name}`;
       const _query = {};
-      for (const [key, value] of Object.entries(ensureObject(query))) {
+      for (const [key, value] of Object.entries(query)) {
         if (key === onKey) Object.assign(_query, value);
         else if (!key.startsWith('_on')) _query[key] = value;
       }

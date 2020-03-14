@@ -28,10 +28,10 @@ const validateQuery = ({ context, path = [], query, schema, type }) => {
       }
       return _query;
     } else if (type.fields) {
-      let { _field, ..._query } = query;
+      let { _field, ..._query } = ensureObject(query);
       const onKey = `_on${type.name}`;
       const flattened = {};
-      for (const [key, value] of Object.entries(ensureObject(_query))) {
+      for (const [key, value] of Object.entries(_query)) {
         if (key === onKey) Object.assign(flattened, value);
         else if (!key.startsWith('_on')) flattened[key] = value;
       }
@@ -60,7 +60,7 @@ const validateQuery = ({ context, path = [], query, schema, type }) => {
 
       return _query;
     } else {
-      const { _args, _field, ...rest } = query;
+      const { _args, _field, ...rest } = ensureObject(query);
       const _query = validateQuery({
         context,
         path,
