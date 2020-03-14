@@ -28,32 +28,37 @@ const validateQuery = ({ context, path = [], query, schema, type }) => {
       }
       return _query;
     } else if (type.fields) {
+      let { _field, ..._query } = query;
       const onKey = `_on${type.name}`;
-      const _merged = {};
-      for (const [key, value] of Object.entries(ensureObject(query))) {
-        if (key === onKey) Object.assign(_merged, value);
-        else if (!key.startsWith('_on')) _merged[key] = value;
+      const flattened = {};
+      for (const [key, value] of Object.entries(ensureObject(_query))) {
+        if (key === onKey) Object.assign(flattened, value);
+        else if (!key.startsWith('_on')) flattened[key] = value;
       }
-      const next = {};
-      for (const [alias, query] of Object.entries(_merged)) {
-        const _query = ensureObject(query);
-        const field = _query._field || alias;
+
+      _query = {};
+
+      for (let [alias, query] of Object.entries(flattened)) {
+        query = ensureObject(query);
+        const field = query._field || alias;
         let _type = type.fields[field];
         if (!_type) {
           if (field === '_type') _type = {};
           else fail('unknownField', { alias, field });
         }
 
-        next[alias] = validateQuery({
+        _query[alias] = validateQuery({
           context,
           path: path.concat(alias),
-          query: _query,
+          query,
           schema,
           type: _type
         });
       }
 
-      return next;
+      if (_field) _query._field = _field;
+
+      return _query;
     } else {
       const { _args, _field, ...rest } = query;
       const _query = validateQuery({

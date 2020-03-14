@@ -144,7 +144,11 @@ export default async () => {
         },
         sub: {
           _field: 'subFoo',
-          id: {}
+          id: {},
+          subSub: {
+            _field: 'subFoo',
+            id: {}
+          }
         }
       },
       _onBar: {
@@ -164,9 +168,14 @@ export default async () => {
         _type: 'Foo',
         name: 'Default name Default name',
         id: 1,
-        sub: { id: 123 }
+        sub: { id: 123, subSub: { id: 123 } }
       },
-      { _type: 'Foo', name: 'foo foo', id: '2', sub: { id: 123 } },
+      {
+        _type: 'Foo',
+        name: 'foo foo',
+        id: '2',
+        sub: { id: 123, subSub: { id: 123 } }
+      },
       { _type: 'Bar', color: 'blue' }
     ]
   };

@@ -106,7 +106,7 @@ export default {
             _args: { id: 3 },
             _field: 'obj',
             name: 123,
-            obj: { name: {} }
+            objAlias2: { _field: 'obj', name: {} }
           },
           sum: { _args: { a: 3 } },
           oneOf: {
@@ -114,9 +114,7 @@ export default {
             _onFoo: {
               _type: {},
               id: { _args: { name: 'foo' }, _type: {} },
-              fooField: {
-                _args: {}
-              }
+              fooField: { _args: {} }
             }
           }
         },
@@ -128,7 +126,7 @@ export default {
           _args: { id: 3 },
           _field: 'obj',
           name: {},
-          obj: { name: {} }
+          objAlias2: { _field: 'obj', name: {} }
         },
         sum: { _args: { a: 3, b: 1 } },
         oneOf: {

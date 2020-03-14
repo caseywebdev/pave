@@ -70,8 +70,8 @@ const execute = async ({
       return Object.fromEntries(
         await Promise.all(
           Object.entries(_query).map(async ([alias, query]) => {
-            query = ensureObject(query);
-            const field = query._field || alias;
+            const { _field, ..._query } = query;
+            const field = _field || alias;
             let _type = type.fields[field];
             if (!_type) {
               if (field === '_type') _type = { resolve: type.name };
@@ -84,7 +84,7 @@ const execute = async ({
                 context,
                 obj: value,
                 path: path.concat(alias),
-                query,
+                query: _query,
                 schema,
                 type: _type,
                 value: value[field]
@@ -94,8 +94,7 @@ const execute = async ({
         )
       );
     } else {
-      // eslint-disable-next-line no-unused-vars
-      const { _args, _field, ..._query } = query;
+      const { _args, ..._query } = query;
       let _value = 'resolve' in type ? type.resolve : value;
       if (isFunction(_value)) {
         const args = validateArgs({
