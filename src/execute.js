@@ -40,7 +40,8 @@ const execute = async ({
       if (value == null) fail('expectedNonNull');
 
       type = type.nonNull;
-    } else if (type.arrayOf) {
+    } else if (obj == null && value == null) return null;
+    else if (type.arrayOf) {
       if (!isArray(value)) fail('expectedArray');
 
       return Promise.all(
@@ -57,7 +58,6 @@ const execute = async ({
         )
       );
     } else if (type.oneOf) type = type.resolveType(value);
-    else if (obj == null && value == null) return null;
     else if (type.fields) {
       const merged = {};
       const onKey = `_on${type.name}`;

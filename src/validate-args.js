@@ -27,7 +27,8 @@ const _validateArgs = ({ args, context, path = [], schema, type, value }) => {
       if (value == null) fail('expectedNonNull');
 
       type = type.nonNull;
-    } else if (type.arrayOf) {
+    } else if (value == null) return value;
+    else if (type.arrayOf) {
       if (!isArray(value)) fail('expectedArray');
 
       return value.map((value, i) =>
@@ -41,7 +42,6 @@ const _validateArgs = ({ args, context, path = [], schema, type, value }) => {
         })
       );
     } else if (type.oneOf) type = type.resolveType(value);
-    else if (value == null) return value;
     else if (type.fields) {
       let check = {};
       for (const field in type.fields) check[field] = undefined;
