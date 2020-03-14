@@ -88,11 +88,10 @@ const _validateArgs = ({ args, context, path = [], schema, type, value }) => {
 
 const validateArgs = ({ args, context, path, schema, type, value }) =>
   _validateArgs({
-    args,
     context,
     path,
     schema,
-    type: { defaultValue: {}, fields: type.args },
+    type: { defaultValue: {}, fields: args || type.args },
     value
   });
 

@@ -3,6 +3,7 @@ import createReactHook from './create-react-hook.js';
 import estimateCost from './estimate-cost.js';
 import execute from './execute.js';
 import PaveError from './pave-error.js';
+import validateArgs from './validate-args.js';
 import validateQuery from './validate-query.js';
 
 export default {
@@ -11,5 +12,6 @@ export default {
   estimateCost,
   execute,
   PaveError,
+  validateArgs,
   validateQuery
 };
