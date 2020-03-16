@@ -43,7 +43,7 @@ export default ({ cache, execute, getKey } = {}) => {
       const data = query && client.cacheExecute({ query });
       const watcher = { data, onChange, query };
       watchers.add(watcher);
-      return () => watchers.delete(watcher);
+      return { data, unwatch: () => watchers.delete(watcher) };
     }
   };
 

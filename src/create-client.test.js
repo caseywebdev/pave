@@ -31,9 +31,9 @@ export default {
     const client = createClient();
     const events = [];
     const onChange = data => events.push(data);
-    const cancel = client.watch({ onChange });
+    const { unwatch } = client.watch({ onChange });
     client.update({ data: { foo: 123 }, query: { foo: {} } });
-    cancel();
+    unwatch();
     client.update({ data: { foo: 456 }, query: { foo: {} } });
     assert.deepEqual(events, [{ _root: { foo: 123 } }]);
   },
