@@ -23,7 +23,7 @@ export default ({ client, useCallback, useEffect, useRef, useState }) => ({
     const id = ++executeId.current;
     setError(null);
     setIsLoading(true);
-    let error;
+    let error = null;
     try {
       await client.execute({ context, query });
     } catch (er) {
@@ -31,7 +31,7 @@ export default ({ client, useCallback, useEffect, useRef, useState }) => ({
     }
     if (id !== executeId.current) return;
 
-    if (error) setError(error);
+    setError(error);
     setIsLoading(false);
   }, [context, query]);
 
