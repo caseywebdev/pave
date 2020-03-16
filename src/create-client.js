@@ -1,5 +1,4 @@
 import cacheExecute from './cache-execute.js';
-import ensureObject from './ensure-object.js';
 import injectType from './inject-type.js';
 import isEqual from './is-equal.js';
 import mergeCaches from './merge-caches.js';
@@ -32,7 +31,7 @@ export default ({ cache, execute, getKey } = {}) => {
       if (!execute) return;
 
       query = injectType(query);
-      const data = await execute({ context: ensureObject(context), query });
+      const data = await execute({ context, query });
       client.update({ query, data });
       return data;
     },
