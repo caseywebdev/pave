@@ -31,12 +31,14 @@ export default ({ cache, execute, getKey } = {}) => {
     execute: async ({ context, query }) => {
       query = injectType(query);
       const data = await execute({ context, query });
-      client.update({ data: normalize({ data, getKey, query }) });
+      client.update({ data, query });
       return data;
     },
 
     update: ({ data, query }) => {
-      client.cacheUpdate({ data: normalize({ data, getKey, query }) });
+      query = injectType(query);
+      data = normalize({ data, getKey, query });
+      client.cacheUpdate({ data });
     },
 
     watch: ({ onChange, query }) => {
