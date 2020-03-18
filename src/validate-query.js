@@ -3,6 +3,8 @@ import isObject from './is-object.js';
 import PaveError from './pave-error.js';
 import validateArgs from './validate-args.js';
 
+const SKIP_ARGS = {};
+
 const validateQuery = ({ context, path = [], query, schema, type }) => {
   const fail = (code, extra) => {
     throw new PaveError(code, { context, path, query, schema, type, ...extra });
@@ -40,7 +42,9 @@ const validateQuery = ({ context, path = [], query, schema, type }) => {
       if (_field) _query._field = _field;
 
       for (const alias in merged) {
-        const { ...query } = ensureObject(merged[alias]);
+        const query = ensureObject(merged[alias]);
+        if (query === SKIP_ARGS) continue;
+
         const field = query._field || alias;
         let _type = type.fields[field];
         if (!_type) {
@@ -63,20 +67,23 @@ const validateQuery = ({ context, path = [], query, schema, type }) => {
       _query = validateQuery({
         context,
         path,
-        query: _query,
+        query: { _args: SKIP_ARGS, ..._query },
         schema,
         type: type.type
       });
 
       if (_field) _query._field = _field;
 
-      _query._args = validateArgs({
-        context,
-        path,
-        schema,
-        type,
-        value: _args
-      });
+      if (_args !== SKIP_ARGS) {
+        _query._args = validateArgs({
+          context,
+          path,
+          schema,
+          type,
+          value: _args
+        });
+      }
+
       if (!type.args) delete _query._args;
 
       return _query;
