@@ -26,7 +26,7 @@ export default {
           }
         }
       }),
-      { total: { _field: 'sum', _type: {}, _args: { a: 1, b: 2 } } }
+      { total: { _field: 'sum', _args: { a: 1, b: 2 } } }
     );
   },
 
@@ -43,10 +43,15 @@ export default {
                   },
                   b: {
                     defaultValue: 1,
-                    nonNull: { typeArgs: { min: 1 }, type: 'Int' }
+                    type: { nonNull: { typeArgs: { min: 1 }, type: 'Int' } }
                   }
                 },
                 type: { notNull: 'Int' }
+              },
+              def: {
+                args: {
+                  a: { defaultValue: 3, type: { nonNull: 'Int' } }
+                }
               },
               obj: {
                 type: 'Obj',
@@ -75,7 +80,8 @@ export default {
             name: 'Bar',
             fields: {
               id: {},
-              barField: {}
+              barField: {},
+              status: { nonNull: 'Status' }
             }
           },
           Int: {
@@ -98,6 +104,23 @@ export default {
 
               throw new Error(`Not a string: ${value}`);
             }
+          },
+          Enum: {
+            type: 'String',
+            args: { values: { noNull: { arrayOf: 'String' } } },
+            resolve: ({ args: { values }, value }) => {
+              if (values.includes(value)) return value;
+
+              throw new Error(
+                `Expected ${JSON.stringify(value)} to be one of ${values.join(
+                  ', '
+                )}`
+              );
+            }
+          },
+          Status: {
+            type: 'Enum',
+            typeArgs: { values: ['pending', 'complete', 'failed'] }
           }
         },
         query: {
@@ -109,8 +132,10 @@ export default {
             objAlias2: { _field: 'obj', name: {} }
           },
           sum: { _args: { a: 3 } },
+          def: {},
           oneOf: {
             id: { _type: {} },
+            _onBar: { status: {} },
             _onFoo: {
               _type: {},
               id: { _args: { name: 'foo' }, _type: {} },
@@ -129,10 +154,11 @@ export default {
           objAlias2: { _field: 'obj', name: {} }
         },
         sum: { _args: { a: 3, b: 1 } },
+        def: { _args: { a: 3 } },
         oneOf: {
-          _onBar: { id: { _type: {} } },
+          _onBar: { id: {}, status: {} },
           _onFoo: {
-            id: { _args: { name: 'foo' }, _type: {} },
+            id: { _args: { name: 'foo' } },
             _type: {},
             fooField: {}
           }
