@@ -28,9 +28,9 @@ const walk = ({ _, cache, query, value }) => {
   } while (true);
 };
 
-export default ({ cache, query, ...args }) => {
+export default ({ cache, key, query }) => {
   const _ = { isPartial: false };
-  const value = 'value' in args ? args.value : cache._root;
+  const value = cache[key || '_root'];
   const result = walk({ _, cache, query, value });
   if (!_.isPartial) return result;
 };

@@ -23,7 +23,7 @@ export default {
     });
     assert.deepEqual(events, [
       { _root: { _type: null, foo: 123 } },
-      { foo: 123 }
+      { _type: null, foo: 123 }
     ]);
   },
 
@@ -64,11 +64,11 @@ export default {
     client.cacheUpdate({ data: { 'Foo:1': { id: 2 } } });
     client.cacheUpdate({ data: { 'Foo:1': { name: 'FOO' } } });
     assert.deepEqual(events, [
-      { foo: { id: 1 } },
-      { _key: { id: 1, name: 'foo' } },
-      { foo: { id: 2 } },
-      { _key: { id: 2, name: 'foo' } },
-      { _key: { id: 2, name: 'FOO' } }
+      { _type: 'Root', foo: { _type: 'Foo:1', id: 1 } },
+      { _type: 'Root', _key: { _type: 'Foo:1', id: 1, name: 'foo' } },
+      { _type: 'Root', foo: { _type: 'Foo:1', id: 2 } },
+      { _type: 'Root', _key: { _type: 'Foo:1', id: 2, name: 'foo' } },
+      { _type: 'Root', _key: { _type: 'Foo:1', id: 2, name: 'FOO' } }
     ]);
   },
 
@@ -99,6 +99,8 @@ export default {
         }
       }
     });
-    assert.deepEqual(events, [{ foo: { _type: 'Foo', id: 1, name: 'foo' } }]);
+    assert.deepEqual(events, [
+      { _type: 'Root', foo: { _type: 'Foo', id: 1, name: 'foo' } }
+    ]);
   }
 };

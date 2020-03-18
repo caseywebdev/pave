@@ -10,7 +10,8 @@ export default ({ cache, execute, getKey } = {}) => {
   const client = {
     cache: cache || {},
 
-    cacheExecute: args => cacheExecute({ cache: client.cache, ...args }),
+    cacheExecute: ({ key, query }) =>
+      cacheExecute({ cache: client.cache, key, query: injectType(query) }),
 
     cacheUpdate: ({ data }) => {
       const prev = client.cache;
@@ -28,18 +29,18 @@ export default ({ cache, execute, getKey } = {}) => {
     },
 
     execute: async ({ context, query }) => {
-      if (!execute) return;
-
       query = injectType(query);
       const data = await execute({ context, query });
-      client.update({ query, data });
+      client.update({ data: normalize({ data, getKey, query }) });
       return data;
     },
 
-    update: ({ data, query }) =>
-      client.cacheUpdate({ data: normalize({ data, getKey, query }) }),
+    update: ({ data, query }) => {
+      client.cacheUpdate({ data: normalize({ data, getKey, query }) });
+    },
 
     watch: ({ onChange, query }) => {
+      query = query && injectType(query);
       const data = query && client.cacheExecute({ query });
       const watcher = { data, onChange, query };
       watchers.add(watcher);

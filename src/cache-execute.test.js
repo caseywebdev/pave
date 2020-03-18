@@ -69,6 +69,26 @@ export default {
       }
     );
   },
+  key: () => {
+    assert.deepEqual(
+      cacheExecute({
+        cache: {
+          _root: {
+            _type: null,
+            oneOfs: [
+              { _type: '_ref', key: 'Foo:1' },
+              { _type: '_ref', key: 'Bar:2' }
+            ]
+          },
+          'Foo:1': { _type: 'Foo', shared: 'a', id: 1, name: 'John' },
+          'Bar:2': { _type: 'Bar', shared: 'b', id: 2, color: 'blue' }
+        },
+        query: { id: {}, name: {} },
+        key: 'Foo:1'
+      }),
+      { id: 1, name: 'John' }
+    );
+  },
   refs: () => {
     assert.deepEqual(
       cacheExecute({
