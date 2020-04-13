@@ -27,6 +27,21 @@ export default async () => {
       fields: {
         _type: { type: { nonNull: 'String' }, resolve: 'Root' },
         addition: 'Boolean',
+        nullableString: {
+          args: { string: 'String' },
+          type: 'NullableString',
+          resolve: ({ args: { string } }) => string
+        },
+        nonNullableNullableString: {
+          args: { string: 'String' },
+          type: { nonNull: 'NullableString' },
+          resolve: ({ args: { string } }) => string
+        },
+        nullableStringArg: {
+          args: { string: 'NullableString' },
+          type: 'String',
+          resolve: ({ args: { string } }) => string
+        },
         selfLink: 'Root',
         selfLinkWithAddition: {
           type: 'Root',
@@ -115,6 +130,15 @@ export default async () => {
         return value;
       }
     },
+    NullableString: {
+      name: 'NullableString',
+      resolve: ({ isNullable, value }) => {
+        value = value.trim();
+        if (!value && isNullable) return null;
+
+        return value;
+      }
+    },
     Number: {
       name: 'Number',
       resolve: ({ value, path }) => {
@@ -128,6 +152,24 @@ export default async () => {
   };
 
   const query = {
+    nullableStringA: {
+      _field: 'nullableString',
+      _args: { string: 'not null' }
+    },
+    nullableStringB: { _field: 'nullableString', _args: { string: '   ' } },
+    nullableStringC: {
+      _field: 'nonNullableNullableString',
+      _args: { string: 'not null' }
+    },
+    nullableStringD: {
+      _field: 'nonNullableNullableString',
+      _args: { string: '   ' }
+    },
+    nullableStringE: {
+      _field: 'nullableStringArg',
+      _args: { string: 'not null' }
+    },
+    nullableStringF: { _field: 'nullableStringArg', _args: { string: '   ' } },
     selfLink: {
       selfLinkWithAddition: {
         addition: {}
@@ -158,6 +200,12 @@ export default async () => {
   };
 
   const expected = {
+    nullableStringA: 'not null',
+    nullableStringB: null,
+    nullableStringC: 'not null',
+    nullableStringD: '',
+    nullableStringE: 'not null',
+    nullableStringF: null,
     selfLink: {
       selfLinkWithAddition: {
         addition: true

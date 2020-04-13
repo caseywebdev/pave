@@ -16,6 +16,7 @@ const _validateArgs = ({ args, context, path = [], schema, type, value }) => {
     });
   };
 
+  let isNullable = true;
   do {
     if (type == null) return value;
     else if (!isObject(type)) {
@@ -27,6 +28,7 @@ const _validateArgs = ({ args, context, path = [], schema, type, value }) => {
       if (value == null) fail('expectedNonNull');
 
       type = type.nonNull;
+      isNullable = false;
     } else if (value == null) return value;
     else if (type.arrayOf) {
       if (!isArray(value)) fail('expectedArray');
@@ -75,6 +77,7 @@ const _validateArgs = ({ args, context, path = [], schema, type, value }) => {
             value: args
           }),
           context,
+          isNullable,
           value
         });
       }

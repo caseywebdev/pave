@@ -26,6 +26,7 @@ const execute = async ({
     });
   };
 
+  let isNullable = true;
   do {
     if (isFunction(value)) value = await value();
     else if (type == null) return value == null ? null : value;
@@ -40,6 +41,7 @@ const execute = async ({
       if (value == null) fail('expectedNonNull');
 
       type = type.nonNull;
+      isNullable = false;
     } else if (obj == null && value == null) return null;
     else if (type.arrayOf) {
       if (!isArray(value)) fail('expectedArray');
@@ -102,7 +104,7 @@ const execute = async ({
           type,
           value: _args
         });
-        _value = await _value({ args, context, obj, query, value });
+        _value = await _value({ args, context, isNullable, obj, query, value });
       }
 
       if (type.typeArgs) _query._args = type.typeArgs;
