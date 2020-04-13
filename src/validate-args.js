@@ -18,8 +18,11 @@ const _validateArgs = ({ args, context, path = [], schema, type, value }) => {
 
   let isNullable = true;
   do {
-    if (type == null) return value;
-    else if (!isObject(type)) {
+    if (type == null) {
+      if (value == null && !isNullable) fail('expectedNonNull');
+
+      return value;
+    } else if (!isObject(type)) {
       if (schema[type]) type = schema[type];
       else fail('unknownType');
     } else if (value === undefined && type.defaultValue !== undefined) {
@@ -77,7 +80,6 @@ const _validateArgs = ({ args, context, path = [], schema, type, value }) => {
             value: args
           }),
           context,
-          isNullable,
           value
         });
       }

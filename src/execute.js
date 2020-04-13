@@ -29,8 +29,13 @@ const execute = async ({
   let isNullable = true;
   do {
     if (isFunction(value)) value = await value();
-    else if (type == null) return value == null ? null : value;
-    else if (!isObject(type)) {
+    else if (type == null) {
+      if (value != null) return value;
+
+      if (!isNullable) fail('expectedNonNull');
+
+      return null;
+    } else if (!isObject(type)) {
       if (schema[type]) {
         obj = null;
         type = schema[type];
@@ -104,7 +109,7 @@ const execute = async ({
           type,
           value: _args
         });
-        _value = await _value({ args, context, isNullable, obj, query, value });
+        _value = await _value({ args, context, obj, query, value });
       }
 
       if (type.typeArgs) _query._args = type.typeArgs;

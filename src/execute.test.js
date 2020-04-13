@@ -132,12 +132,7 @@ export default async () => {
     },
     NullableString: {
       name: 'NullableString',
-      resolve: ({ isNullable, value }) => {
-        value = value.trim();
-        if (!value && isNullable) return null;
-
-        return value;
-      }
+      resolve: ({ value }) => value.trim() || null
     },
     Number: {
       name: 'Number',
@@ -163,7 +158,7 @@ export default async () => {
     },
     nullableStringD: {
       _field: 'nonNullableNullableString',
-      _args: { string: '   ' }
+      _args: { string: '  a  ' }
     },
     nullableStringE: {
       _field: 'nullableStringArg',
@@ -203,7 +198,7 @@ export default async () => {
     nullableStringA: 'not null',
     nullableStringB: null,
     nullableStringC: 'not null',
-    nullableStringD: '',
+    nullableStringD: 'a',
     nullableStringE: 'not null',
     nullableStringF: null,
     selfLink: {
