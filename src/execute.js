@@ -51,6 +51,15 @@ const execute = async ({
     else if (type.arrayOf) {
       if (!isArray(value)) fail('expectedArray');
 
+      const { minLength, maxLength } = type;
+      if (minLength != null && value.length < minLength) {
+        fail('expectedArrayMinLength');
+      }
+
+      if (maxLength != null && value.length > maxLength) {
+        fail('expectedArrayMaxLength');
+      }
+
       return Promise.all(
         value.map((value, i) =>
           execute({

@@ -43,7 +43,7 @@ export default () => {
           c: {
             fields: {
               d: 'Int',
-              e: { nonNull: { arrayOf: 'String' } },
+              e: { nonNull: { arrayOf: 'String', minLength: 3, maxLength: 3 } },
               f: { defaultValue: 'bar', type: { nonNull: 'String' } }
             }
           }

@@ -55,7 +55,9 @@ export default async () => {
                   oneOf: ['Bar', 'Foo'],
                   resolveType: ({ id }) => (id ? 'Foo' : 'Bar')
                 }
-              }
+              },
+              minLength: 1,
+              maxLength: 10
             }
           },
           resolve: () => () => () => () => () => [

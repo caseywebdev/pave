@@ -36,6 +36,15 @@ const _validateArgs = ({ args, context, path = [], schema, type, value }) => {
     else if (type.arrayOf) {
       if (!isArray(value)) fail('expectedArray');
 
+      const { minLength, maxLength } = type;
+      if (minLength != null && value.length < minLength) {
+        fail('expectedArrayMinLength');
+      }
+
+      if (maxLength != null && value.length > maxLength) {
+        fail('expectedArrayMaxLength');
+      }
+
       return value.map((value, i) =>
         _validateArgs({
           args,
