@@ -49,13 +49,8 @@ const execute = async ({
     } else if (type.nullable) {
       type = type.nullable;
       isNullable = true;
-    } else if (obj == null && value == null) {
-      if (value === undefined && !isOptional) fail('expectedRequired');
-
-      if (value === null && !isNullable) fail('expectedNonNull');
-
-      return value;
-    } else if (type.arrayOf) {
+    } else if (obj == null && value == null) type = null;
+    else if (type.arrayOf) {
       if (!isArray(value)) fail('expectedArray');
 
       const { minLength, maxLength } = type;
