@@ -71,7 +71,7 @@ const execute = async ({
           execute({
             context,
             obj,
-            path: path[i],
+            path: path.concat(i),
             query,
             schema,
             type: type.arrayOf,
@@ -94,8 +94,9 @@ const execute = async ({
             const field = _field || alias;
             let _type = type.fields[field];
             if (!_type) {
-              if (field === '_type') _type = { resolve: type.name };
-              else fail('unknownField', { alias, field });
+              if (field === '_type') {
+                _type = { type: { nullable: {} }, resolve: type.name };
+              } else fail('unknownField', { alias, field });
             }
 
             return [
