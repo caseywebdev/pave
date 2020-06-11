@@ -20,6 +20,10 @@ const _validateArgs = ({ args, context, path = [], schema, type, value }) => {
   let isOptional = false;
   do {
     if (type == null) {
+      if (value != null) return value;
+
+      if (!isOptional && isNullable) return null;
+
       if (value === undefined && !isOptional) fail('expectedRequired');
 
       if (value === null && !isNullable) fail('expectedNonNull');
