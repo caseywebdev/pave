@@ -7,7 +7,7 @@ export default () => {
     validateArgs({
       schema: {
         Int: {
-          args: { min: { defaultValue: 2 }, max: {} },
+          args: { min: { defaultValue: 2 }, max: { optional: {} } },
           resolve: ({ args: { min, max }, value }) => {
             if (!Number.isInteger(value)) {
               throw new Error(`Not an int: ${value}`);
@@ -43,8 +43,12 @@ export default () => {
           c: {
             fields: {
               d: 'Int',
-              e: { nonNull: { arrayOf: 'String', minLength: 3, maxLength: 3 } },
-              f: { defaultValue: 'bar', type: { nonNull: 'String' } }
+              e: {
+                arrayOf: { nullable: 'String' },
+                minLength: 3,
+                maxLength: 3
+              },
+              f: { defaultValue: 'bar', type: 'String' }
             }
           }
         }

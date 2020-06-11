@@ -15,7 +15,8 @@ const validateQuery = ({ context, path = [], query, schema, type }) => {
     else if (!isObject(type)) {
       if (schema[type]) type = schema[type];
       else fail('unknownType');
-    } else if (type.nonNull) type = type.nonNull;
+    } else if (type.optional) type = type.optional;
+    else if (type.nullable) type = type.nullable;
     else if (type.arrayOf) type = type.arrayOf;
     else if (type.oneOf) {
       const _query = {};

@@ -5,7 +5,8 @@ const estimateCost = ({ context, query, schema, type }) => {
   do {
     if (type == null) return 0;
     else if (!isObject(type)) type = schema[type];
-    else if (type.nonNull) type = type.nonNull;
+    else if (type.optional) type = type.optional;
+    else if (type.nullable) type = type.nullable;
     else if (type.arrayOf) type = type.arrayOf;
     else if (type.oneOf) {
       return Math.max(

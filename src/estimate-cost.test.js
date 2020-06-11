@@ -14,7 +14,7 @@ export default () => {
             },
             bar: { cost: 10 },
             baz: {
-              args: { nonNull: { size: {} } },
+              args: { size: {} },
               cost: ({ args: { size }, cost }) => size * cost,
               type: {
                 fields: {

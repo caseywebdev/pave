@@ -10,8 +10,8 @@ export default {
           Root: {
             fields: {
               sum: {
-                args: { a: { nonNull: 'Int' }, b: { nonNull: 'Int' } },
-                type: { notNull: 'Int' }
+                args: { a: 'Int', b: 'Int' },
+                type: 'Int'
               }
             }
           },
@@ -38,19 +38,17 @@ export default {
             fields: {
               sum: {
                 args: {
-                  a: {
-                    nonNull: 'Int'
-                  },
+                  a: 'Int',
                   b: {
                     defaultValue: 1,
-                    type: { nonNull: { typeArgs: { min: 1 }, type: 'Int' } }
+                    type: { typeArgs: { min: 1 }, type: 'Int' }
                   }
                 },
                 type: { notNull: 'Int' }
               },
               def: {
                 args: {
-                  a: { defaultValue: 3, type: { nonNull: 'Int' } }
+                  a: { defaultValue: 3, type: 'Int' }
                 }
               },
               obj: {
@@ -81,11 +79,11 @@ export default {
             fields: {
               id: {},
               barField: {},
-              status: { nonNull: 'Status' }
+              status: 'Status'
             }
           },
           Int: {
-            args: { min: { defaultValue: 2 }, max: 'Int' },
+            args: { min: { defaultValue: 2 }, max: { optional: 'Int' } },
             resolve: ({ args: { min, max }, value }) => {
               if (!Number.isInteger(value)) {
                 throw new Error(`Not an int: ${value}`);

@@ -16,10 +16,13 @@ const _validateArgs = ({ args, context, path = [], schema, type, value }) => {
     });
   };
 
-  let isNullable = true;
+  let isNullable = false;
+  let isOptional = false;
   do {
     if (type == null) {
-      if (value == null && !isNullable) fail('expectedNonNull');
+      if (value === undefined && !isOptional) fail('expectedRequired');
+
+      if (value === null && !isNullable) fail('expectedNonNull');
 
       return value;
     } else if (!isObject(type)) {
@@ -27,13 +30,19 @@ const _validateArgs = ({ args, context, path = [], schema, type, value }) => {
       else fail('unknownType');
     } else if (value === undefined && type.defaultValue !== undefined) {
       value = type.defaultValue;
-    } else if (type.nonNull) {
-      if (value == null) fail('expectedNonNull');
+    } else if (type.optional) {
+      type = type.optional;
+      isOptional = true;
+    } else if (type.nullable) {
+      type = type.nullable;
+      isNullable = true;
+    } else if (value == null) {
+      if (value === undefined && !isOptional) fail('expectedRequired');
 
-      type = type.nonNull;
-      isNullable = false;
-    } else if (value == null) return value;
-    else if (type.arrayOf) {
+      if (value === null && !isNullable) fail('expectedNonNull');
+
+      return value;
+    } else if (type.arrayOf) {
       if (!isArray(value)) fail('expectedArray');
 
       const { minLength, maxLength } = type;

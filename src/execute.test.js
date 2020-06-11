@@ -25,21 +25,21 @@ export default async () => {
       name: 'Root',
       defaultValue: {},
       fields: {
-        _type: { type: { nonNull: 'String' }, resolve: 'Root' },
+        _type: { type: 'String', resolve: 'Root' },
         addition: 'Boolean',
         nullableString: {
-          args: { string: 'String' },
-          type: 'NullableString',
+          args: { string: { nullable: 'String' } },
+          type: { nullable: 'NullableString' },
           resolve: ({ args: { string } }) => string
         },
         nonNullableNullableString: {
           args: { string: 'String' },
-          type: { nonNull: 'NullableString' },
+          type: 'NullableString',
           resolve: ({ args: { string } }) => string
         },
         nullableStringArg: {
-          args: { string: 'NullableString' },
-          type: 'String',
+          args: { string: { nullable: 'NullableString' } },
+          type: { nullable: 'String' },
           resolve: ({ args: { string } }) => string
         },
         selfLink: 'Root',
@@ -49,16 +49,12 @@ export default async () => {
         },
         things: {
           type: {
-            nonNull: {
-              arrayOf: {
-                nonNull: {
-                  oneOf: ['Bar', 'Foo'],
-                  resolveType: ({ id }) => (id ? 'Foo' : 'Bar')
-                }
-              },
-              minLength: 1,
-              maxLength: 10
-            }
+            arrayOf: {
+              oneOf: ['Bar', 'Foo'],
+              resolveType: ({ id }) => (id ? 'Foo' : 'Bar')
+            },
+            minLength: 1,
+            maxLength: 10
           },
           resolve: () => () => () => () => () => [
             { id: 1 },
@@ -73,11 +69,9 @@ export default async () => {
       fields: {
         id: {
           type: {
-            nonNull: {
-              oneOf: ['Number', 'String'],
-              resolveType: value =>
-                typeof value === 'number' ? 'Number' : 'String'
-            }
+            oneOf: ['Number', 'String'],
+            resolveType: value =>
+              typeof value === 'number' ? 'Number' : 'String'
           }
         },
         subFoo: {
@@ -87,11 +81,9 @@ export default async () => {
         name: {
           defaultValue: 'Default name',
           args: {
-            separator: {
-              nonNull: { type: 'String', typeArgs: { maxLength: 3 } }
-            }
+            separator: { type: 'String', typeArgs: { maxLength: 3 } }
           },
-          type: { nonNull: 'String' },
+          type: 'String',
           resolve: ({ args: { separator }, value }) => () => () =>
             `${value}${separator}${value}`
         }
@@ -100,23 +92,19 @@ export default async () => {
     Bar: {
       name: 'Bar',
       fields: {
-        color: { type: { nonNull: 'String' } }
+        color: { type: 'String' }
       }
     },
     Boolean: {
       name: 'Boolean',
-      resolve: ({ value, path }) => {
+      resolve: ({ value }) => {
         if (typeof value === 'boolean') return value;
-
-        throw new Error(
-          `Expected a "Boolean" but got ${JSON.stringify(value)} ${path}`
-        );
       }
     },
     String: {
       name: 'String',
       args: {
-        maxLength: 'Number'
+        maxLength: { optional: 'Number' }
       },
       resolve: ({ args: { maxLength }, path, value }) => {
         if (typeof value !== 'string') {
@@ -166,7 +154,10 @@ export default async () => {
       _field: 'nullableStringArg',
       _args: { string: 'not null' }
     },
-    nullableStringF: { _field: 'nullableStringArg', _args: { string: '   ' } },
+    nullableStringF: {
+      _field: 'nullableStringArg',
+      _args: { string: '   ' }
+    },
     selfLink: {
       selfLinkWithAddition: {
         addition: {}
