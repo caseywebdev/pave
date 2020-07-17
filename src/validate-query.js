@@ -21,7 +21,7 @@ const validateQuery = ({ context, path = [], query, schema, type }) => {
     else if (type.oneOf) {
       const _query = {};
       for (const _type of type.oneOf) {
-        _query[`_on${_type}`] = validateQuery({
+        _query[`_on${isObject(_type) ? _type.name : _type}`] = validateQuery({
           context,
           path,
           query,

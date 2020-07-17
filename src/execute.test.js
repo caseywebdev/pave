@@ -20,6 +20,22 @@ export default async () => {
     { a: 1 }
   );
 
+  const ThingA = {
+    name: 'ThingA',
+    fields: {
+      a: 'String',
+      a2: 'String'
+    }
+  };
+
+  const ThingB = {
+    name: 'ThingB',
+    fields: {
+      b: 'String',
+      b2: 'String'
+    }
+  };
+
   const schema = {
     Root: {
       name: 'Root',
@@ -61,6 +77,19 @@ export default async () => {
             { id: '2', name: 'foo' },
             { color: 'blue' }
           ]
+        },
+        oneOfArgs: {
+          args: {
+            thing: {
+              oneOf: [ThingA, ThingB],
+              resolveType: ({ a }) => (a ? ThingA : ThingB)
+            }
+          },
+          type: {
+            oneOf: [ThingA, ThingB],
+            resolveType: ({ a }) => (a ? ThingA : ThingB)
+          },
+          resolve: ({ args: { thing } }) => thing
         }
       }
     },
@@ -184,6 +213,20 @@ export default async () => {
       _onBar: {
         color: {}
       }
+    },
+    oneOfArgsA: {
+      _args: { thing: { a: 'A', a2: 'A2' } },
+      _field: 'oneOfArgs',
+      _onThingA: {
+        a: {}
+      }
+    },
+    oneOfArgsB: {
+      _args: { thing: { b: 'B', b2: 'B2' } },
+      _field: 'oneOfArgs',
+      _onThingB: {
+        b2: {}
+      }
     }
   };
 
@@ -213,7 +256,9 @@ export default async () => {
         sub: { id: 123, subSub: { id: 123 } }
       },
       { _type: 'Bar', color: 'blue' }
-    ]
+    ],
+    oneOfArgsA: { a: 'A' },
+    oneOfArgsB: { b2: 'B2' }
   };
 
   assert.deepEqual(
