@@ -81,13 +81,15 @@ export default async () => {
         oneOfArgs: {
           args: {
             thing: {
-              oneOf: [ThingA, ThingB],
-              resolveType: ({ a }) => (a ? ThingA : ThingB)
+              oneOf: ['String', ThingA, ThingB],
+              resolveType: val =>
+                typeof val === 'string' ? 'String' : val.a ? ThingA : ThingB
             }
           },
           type: {
-            oneOf: [ThingA, ThingB],
-            resolveType: ({ a }) => (a ? ThingA : ThingB)
+            oneOf: ['String', ThingA, ThingB],
+            resolveType: val =>
+              typeof val === 'string' ? 'String' : val.a ? ThingA : ThingB
           },
           resolve: ({ args: { thing } }) => thing
         }
@@ -214,6 +216,11 @@ export default async () => {
         color: {}
       }
     },
+    oneOfArgsString: {
+      _args: { thing: 'str' },
+      _field: 'oneOfArgs',
+      _onThingString: 'str'
+    },
     oneOfArgsA: {
       _args: { thing: { a: 'A', a2: 'A2' } },
       _field: 'oneOfArgs',
@@ -257,6 +264,7 @@ export default async () => {
       },
       { _type: 'Bar', color: 'blue' }
     ],
+    oneOfArgsString: 'str',
     oneOfArgsA: { a: 'A' },
     oneOfArgsB: { b2: 'B2' }
   };

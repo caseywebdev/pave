@@ -5,6 +5,22 @@ import validateArgs from './validate-args.js';
 
 const SKIP_ARGS = {};
 
+const getTypes = type => {
+  do {
+    if (type == null) return {};
+    else if (!isObject(type)) return { [type]: type };
+    else if (type.optional) type = type.optional;
+    else if (type.nullable) type = type.nullable;
+    else if (type.arrayOf) type = type.arrayOf;
+    else if (type.oneOf) {
+      const types = {};
+      for (const _type of type.oneOf) Object.assign(types, getTypes(_type));
+      return types;
+    } else if (type.name) return { [type.name]: type };
+    else return {};
+  } while (true);
+};
+
 const validateQuery = ({ context, path = [], query, schema, type }) => {
   const fail = (code, extra) => {
     throw new PaveError(code, { context, path, query, schema, type, ...extra });
@@ -20,13 +36,14 @@ const validateQuery = ({ context, path = [], query, schema, type }) => {
     else if (type.arrayOf) type = type.arrayOf;
     else if (type.oneOf) {
       const _query = {};
-      for (const _type of type.oneOf) {
-        _query[`_on${isObject(_type) ? _type.name : _type}`] = validateQuery({
+      const types = getTypes(type);
+      for (const name in types) {
+        _query[`_on${name}`] = validateQuery({
           context,
           path,
           query,
           schema,
-          type: _type
+          type: types[name]
         });
       }
       return _query;
