@@ -196,7 +196,7 @@ export default async () => {
     },
     things: {
       _type: {},
-      _onFoo: {
+      _on_Foo: {
         id: {},
         name: {
           _args: {
@@ -212,26 +212,26 @@ export default async () => {
           }
         }
       },
-      _onBar: {
+      _on_Bar: {
         color: {}
       }
     },
     oneOfArgsString: {
       _args: { thing: 'str' },
       _field: 'oneOfArgs',
-      _onThingString: 'str'
+      _on_ThingString: 'str'
     },
     oneOfArgsA: {
       _args: { thing: { a: 'A', a2: 'A2' } },
       _field: 'oneOfArgs',
-      _onThingA: {
+      _on_ThingA: {
         a: {}
       }
     },
     oneOfArgsB: {
       _args: { thing: { b: 'B', b2: 'B2' } },
       _field: 'oneOfArgs',
-      _onThingB: {
+      _on_ThingB: {
         b2: {}
       }
     }

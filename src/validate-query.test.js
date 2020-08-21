@@ -133,8 +133,8 @@ export default {
           def: {},
           oneOf: {
             id: { _type: {} },
-            _onBar: { status: {} },
-            _onFoo: {
+            _on_Bar: { status: {} },
+            _on_Foo: {
               _type: {},
               id: { _args: { name: 'foo' }, _type: {} },
               fooField: { _args: {} }
@@ -154,8 +154,8 @@ export default {
         sum: { _args: { a: 3, b: 1 } },
         def: { _args: { a: 3 } },
         oneOf: {
-          _onBar: { id: {}, status: {} },
-          _onFoo: {
+          _on_Bar: { id: {}, status: {} },
+          _on_Foo: {
             id: { _args: { name: 'foo' } },
             _type: {},
             fooField: {}

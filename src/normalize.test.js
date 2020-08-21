@@ -128,8 +128,8 @@ export default {
         query: injectType({
           oneOfs: {
             shared: {},
-            _onFoo: { id: {}, name: {} },
-            _onBar: { id: {}, color: {} }
+            _on_Foo: { id: {}, name: {} },
+            _on_Bar: { id: {}, color: {} }
           }
         })
       }),

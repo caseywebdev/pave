@@ -20,10 +20,10 @@ const estimateCost = ({ context, query, schema, type }) => {
       let cost = 0;
       if (type.fields) {
         const merged = {};
-        const onKey = `_on${type.name}`;
+        const onKey = `_on_${type.name}`;
         for (const key in query) {
           if (key === onKey) Object.assign(merged, query[key]);
-          else if (!key.startsWith('_on')) merged[key] = query[key];
+          else if (!key.startsWith('_on_')) merged[key] = query[key];
         }
         for (const alias in merged) {
           const _query = merged[alias];

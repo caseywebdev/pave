@@ -12,10 +12,10 @@ const walk = ({ _, cache, query, value }) => {
     else {
       // eslint-disable-next-line no-unused-vars
       const { _args, _field, ..._query } = ensureObject(query);
-      Object.assign(_query, _query[`_on${value._type}`]);
+      Object.assign(_query, _query[`_on_${value._type}`]);
       const data = {};
       for (const alias in _query) {
-        if (alias.startsWith('_on')) continue;
+        if (alias.startsWith('_on_')) continue;
 
         const query = ensureObject(_query[alias]);
         const field = normalizeField({ alias, query });

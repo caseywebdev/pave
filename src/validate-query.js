@@ -38,7 +38,7 @@ const validateQuery = ({ context, path = [], query, schema, type }) => {
       const _query = {};
       const types = getTypes(type);
       for (const name in types) {
-        _query[`_on${name}`] = validateQuery({
+        _query[`_on_${name}`] = validateQuery({
           context,
           path,
           query,
@@ -50,10 +50,10 @@ const validateQuery = ({ context, path = [], query, schema, type }) => {
     } else if (type.fields) {
       let { _field, ..._query } = ensureObject(query);
       const merged = {};
-      const onKey = `_on${type.name}`;
+      const onKey = `_on_${type.name}`;
       for (const key in _query) {
         if (key === onKey) Object.assign(merged, query[key]);
-        else if (!key.startsWith('_on')) merged[key] = query[key];
+        else if (!key.startsWith('_on_')) merged[key] = query[key];
       }
 
       _query = {};

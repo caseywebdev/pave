@@ -82,10 +82,10 @@ const execute = async ({
     } else if (type.oneOf) type = type.resolveType(value);
     else if (type.fields) {
       const merged = {};
-      const onKey = `_on${type.name}`;
+      const onKey = `_on_${type.name}`;
       for (const key in query) {
         if (key === onKey) Object.assign(merged, query[key]);
-        else if (!key.startsWith('_on')) merged[key] = query[key];
+        else if (!key.startsWith('_on_')) merged[key] = query[key];
       }
       return Object.fromEntries(
         await Promise.all(

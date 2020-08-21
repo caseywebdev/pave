@@ -15,7 +15,7 @@ const walk = ({ normalized = {}, data, getKey, query }) => {
 
   // eslint-disable-next-line no-unused-vars
   const { _args, _field, ..._query } = ensureObject(query);
-  Object.assign(_query, _query[`_on${data._type}`]);
+  Object.assign(_query, _query[`_on_${data._type}`]);
   for (const alias in _query) {
     if (!(alias in data)) continue;
 
