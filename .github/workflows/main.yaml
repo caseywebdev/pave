@@ -1,0 +1,13 @@
+name: main
+on: [push]
+jobs:
+  main:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Install
+      uses: docker://node:alpine
+    - name: Test
+      uses: docker://node:alpine
+      run: bin/test

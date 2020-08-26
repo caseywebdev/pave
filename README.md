@@ -1,8 +1,9 @@
-# Pave
+# Pave ![Status]
 
 Paving the way to better state management.
 
 [Try out pave in your browser.](https://tonicdev.com/npm/pave)
+
 
 ## Why?
 
@@ -324,6 +325,7 @@ This is the `update` function `Store` uses, exposed as a convenience for use in
 any situation that may require updating a value without mutating the original
 value.
 
+[Status]: https://github.com/caseywebdev/pave/workflows/main/badge.svg
 [Falcor]: https://github.com/netflix/falcor
 [GraphQL]: https://github.com/facebook/graphql
 [Om (next)]: https://github.com/omcljs/om
