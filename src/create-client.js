@@ -28,9 +28,9 @@ export default ({ cache, execute, getKey } = {}) => {
       return client;
     },
 
-    execute: async ({ context, query }) => {
+    execute: async ({ query, ...args }) => {
       query = injectType(query);
-      const data = await execute({ context, query });
+      const data = await execute({ query, ...args });
       client.update({ data, query });
       return data;
     },
