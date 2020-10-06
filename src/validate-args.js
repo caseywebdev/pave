@@ -90,10 +90,10 @@ const _validateArgs = ({ args, context, path = [], schema, type, value }) => {
       if (isFunction(_value)) {
         _value = _value({
           args: validateArgs({
+            args: type.args,
             context,
             path: path.concat('_args'),
             schema,
-            type,
             value: args
           }),
           context,
@@ -108,12 +108,12 @@ const _validateArgs = ({ args, context, path = [], schema, type, value }) => {
   } while (true);
 };
 
-const validateArgs = ({ context, path, schema, type, value }) =>
+const validateArgs = ({ args, context, path, schema, value }) =>
   _validateArgs({
     context,
     path,
     schema,
-    type: { defaultValue: {}, fields: type.args },
+    type: { defaultValue: {}, fields: args },
     value
   });
 

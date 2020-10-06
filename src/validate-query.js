@@ -94,10 +94,10 @@ const validateQuery = ({ context, path = [], query, schema, type }) => {
 
       if (_args !== SKIP_ARGS) {
         _query._args = validateArgs({
+          args: type.args,
           context,
           path: path.concat('_args'),
           schema,
-          type,
           value: _args
         });
       }

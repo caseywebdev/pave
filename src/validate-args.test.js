@@ -36,20 +36,18 @@ export default () => {
           e: ['foo', 'buz', null]
         }
       },
-      type: {
-        args: {
-          a: { typeArgs: { min: 1 }, type: 'Int' },
-          b: 'Int',
-          c: {
-            fields: {
-              d: 'Int',
-              e: {
-                arrayOf: { nullable: 'String' },
-                minLength: 3,
-                maxLength: 3
-              },
-              f: { defaultValue: 'bar', type: 'String' }
-            }
+      args: {
+        a: { typeArgs: { min: 1 }, type: 'Int' },
+        b: 'Int',
+        c: {
+          fields: {
+            d: 'Int',
+            e: {
+              arrayOf: { nullable: 'String' },
+              minLength: 3,
+              maxLength: 3
+            },
+            f: { defaultValue: 'bar', type: 'String' }
           }
         }
       }

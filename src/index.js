@@ -5,8 +5,6 @@ import PaveError from './pave-error.js';
 import validateArgs from './validate-args.js';
 import validateQuery from './validate-query.js';
 
-// TODO: Create a `validateSchema` function
-
 export default {
   createClient,
   estimateCost,
