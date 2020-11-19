@@ -97,6 +97,8 @@ const _validateArgs = ({ args, context, path = [], schema, type, value }) => {
             value: args
           }),
           context,
+          path,
+          schema,
           value
         });
       }
