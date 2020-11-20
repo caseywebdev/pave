@@ -3,12 +3,21 @@ import isFunction from './is-function.js';
 import isObject from './is-object.js';
 import PaveError from './pave-error.js';
 
-const _validateArgs = ({ args, context, path = [], schema, type, value }) => {
+const _validateArgs = ({
+  args,
+  context,
+  path = [],
+  query,
+  schema,
+  type,
+  value
+}) => {
   const fail = (code, extra) => {
     throw new PaveError(code, {
       args,
       context,
       path,
+      query,
       schema,
       type,
       value,
@@ -59,6 +68,7 @@ const _validateArgs = ({ args, context, path = [], schema, type, value }) => {
           context,
           path: path.concat(i),
           schema,
+          query,
           type: type.arrayOf,
           value
         })
@@ -78,6 +88,7 @@ const _validateArgs = ({ args, context, path = [], schema, type, value }) => {
           args,
           context,
           path: path.concat(field),
+          query,
           schema,
           type: _type,
           value
@@ -93,11 +104,14 @@ const _validateArgs = ({ args, context, path = [], schema, type, value }) => {
             args: type.args,
             context,
             path: path.concat('_args'),
+            query,
             schema,
+            validate: type.validate,
             value: args
           }),
           context,
           path,
+          query,
           schema,
           value
         });
@@ -110,13 +124,24 @@ const _validateArgs = ({ args, context, path = [], schema, type, value }) => {
   } while (true);
 };
 
-const validateArgs = ({ args, context, path, schema, value }) =>
-  _validateArgs({
+const validateArgs = ({
+  args,
+  context,
+  path,
+  query,
+  schema,
+  validate,
+  value
+}) => {
+  args = _validateArgs({
     context,
     path,
+    query,
     schema,
     type: { defaultValue: {}, fields: args },
     value
   });
+  return validate ? validate({ args, context, path, schema, query }) : args;
+};
 
 export default validateArgs;
