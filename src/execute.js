@@ -118,22 +118,21 @@ const execute = async ({
       const { _args, ..._query } = query;
       let _value = 'resolve' in type ? type.resolve : value;
       if (isFunction(_value)) {
-        const args = validateArgs({
-          args: type.args,
-          context,
-          path: path.concat('_args'),
-          query,
-          schema,
-          validate: type.validate,
-          value: _args
-        });
         _value = await _value({
-          args,
+          args: validateArgs({
+            args: _args,
+            context,
+            path: path.concat('_args'),
+            query,
+            schema,
+            type
+          }),
           context,
           obj,
           path,
           query,
           schema,
+          type,
           value
         });
       }

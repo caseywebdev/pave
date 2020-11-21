@@ -3,23 +3,23 @@ import isFunction from './is-function.js';
 import isObject from './is-object.js';
 import PaveError from './pave-error.js';
 
-const _validateArgs = ({
-  args,
+const validateValue = ({
   context,
   path = [],
   query,
   schema,
   type,
+  typeArgs,
   value
 }) => {
   const fail = (code, extra) => {
     throw new PaveError(code, {
-      args,
       context,
       path,
       query,
       schema,
       type,
+      typeArgs,
       value,
       ...extra
     });
@@ -63,13 +63,13 @@ const _validateArgs = ({
       }
 
       return value.map((value, i) =>
-        _validateArgs({
-          args,
+        validateValue({
           context,
           path: path.concat(i),
-          schema,
           query,
+          schema,
           type: type.arrayOf,
+          typeArgs,
           value
         })
       );
@@ -84,13 +84,13 @@ const _validateArgs = ({
         const _type = type.fields[field];
         if (!_type) fail('unknownField', { field });
 
-        value = _validateArgs({
-          args,
+        value = validateValue({
           context,
           path: path.concat(field),
           query,
           schema,
           type: _type,
+          typeArgs,
           value
         });
         if (value !== undefined) _value[field] = value;
@@ -101,47 +101,41 @@ const _validateArgs = ({
       if (isFunction(_value)) {
         _value = _value({
           args: validateArgs({
-            args: type.args,
+            args: typeArgs,
             context,
             path: path.concat('_args'),
             query,
             schema,
-            validate: type.validate,
-            value: args
+            type
           }),
           context,
           path,
           query,
           schema,
+          type,
           value
         });
       }
 
-      args = type.typeArgs;
+      typeArgs = type.typeArgs;
       type = type.type;
       value = _value;
     }
   } while (true);
 };
 
-const validateArgs = ({
-  args,
-  context,
-  path,
-  query,
-  schema,
-  validate,
-  value
-}) => {
-  args = _validateArgs({
+const validateArgs = ({ args, context, path, query, schema, type }) => {
+  args = validateValue({
     context,
     path,
     query,
     schema,
-    type: { defaultValue: {}, fields: args },
-    value
+    type: { defaultValue: {}, fields: type.args },
+    value: args
   });
-  return validate ? validate({ args, context, path, schema, query }) : args;
+  return type.validate
+    ? type.validate({ args, context, path, query, schema, type })
+    : args;
 };
 
 export default validateArgs;

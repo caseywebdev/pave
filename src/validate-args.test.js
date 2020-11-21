@@ -29,7 +29,7 @@ export default {
             }
           }
         },
-        value: {
+        args: {
           a: 1,
           b: 2,
           c: {
@@ -37,18 +37,20 @@ export default {
             e: ['foo', 'buz', null]
           }
         },
-        args: {
-          a: { typeArgs: { min: 1 }, type: 'Int' },
-          b: 'Int',
-          c: {
-            fields: {
-              d: 'Int',
-              e: {
-                arrayOf: { nullable: 'String' },
-                minLength: 3,
-                maxLength: 3
-              },
-              f: { defaultValue: 'bar', type: 'String' }
+        type: {
+          args: {
+            a: { typeArgs: { min: 1 }, type: 'Int' },
+            b: 'Int',
+            c: {
+              fields: {
+                d: 'Int',
+                e: {
+                  arrayOf: { nullable: 'String' },
+                  minLength: 3,
+                  maxLength: 3
+                },
+                f: { defaultValue: 'bar', type: 'String' }
+              }
             }
           }
         }
@@ -66,19 +68,21 @@ export default {
 
   'with validate fn': () => {
     const schema = { int: {} };
-    const args = { a: 'int', b: 'int' };
-    const validate = ({ args, args: { a, b } }) => {
-      if (a + b > 3) throw new Error('invalid');
+    const type = {
+      args: { a: 'int', b: 'int' },
+      validate: ({ args, args: { a, b } }) => {
+        if (a + b > 3) throw new Error('invalid');
 
-      return args;
+        return args;
+      }
     };
-    assert.deepEqual(
-      validateArgs({ schema, args, validate, value: { a: 1, b: 2 } }),
-      { a: 1, b: 2 }
-    );
+    assert.deepEqual(validateArgs({ schema, type, args: { a: 1, b: 2 } }), {
+      a: 1,
+      b: 2
+    });
 
     try {
-      validateArgs({ schema, args, validate, value: { a: 2, b: 2 } });
+      validateArgs({ schema, type, args: { a: 2, b: 2 } });
       throw new Error('Expected a validation error to be thrown');
     } catch (er) {
       if (er.message !== 'invalid') {
