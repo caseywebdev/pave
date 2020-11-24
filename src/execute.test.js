@@ -191,13 +191,13 @@ export default async () => {
     },
     selfLink: {
       selfLinkWithAddition: {
-        addition: {}
+        addition: undefined
       }
     },
     things: {
       _type: {},
       _on_Foo: {
-        id: {},
+        id: 1,
         name: {
           _args: {
             separator: ' '
@@ -208,12 +208,12 @@ export default async () => {
           id: {},
           subSub: {
             _field: 'subFoo',
-            id: {}
+            id: 0
           }
         }
       },
       _on_Bar: {
-        color: {}
+        color: null
       }
     },
     oneOfArgsString: {
@@ -271,7 +271,7 @@ export default async () => {
 
   assert.deepEqual(
     await execute({
-      query: validateQuery({ query, schema, type: 'Root' }),
+      query, //: validateQuery({ query, schema, type: 'Root' }),
       schema,
       type: 'Root'
     }),

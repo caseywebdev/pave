@@ -1,3 +1,4 @@
+import ensureObject from './ensure-object.js';
 import isArray from './is-array.js';
 import isFunction from './is-function.js';
 import isObject from './is-object.js';
@@ -90,8 +91,8 @@ const execute = async ({
       return Object.fromEntries(
         await Promise.all(
           Object.entries(merged).map(async ([alias, query]) => {
-            const { _field, ..._query } = query;
-            const field = _field || alias;
+            const { _field, ..._query } = ensureObject(query);
+            const field = _field ?? alias;
             let _type = type.fields[field];
             if (!_type) {
               if (field === '_type') {
@@ -115,7 +116,7 @@ const execute = async ({
         )
       );
     } else {
-      const { _args, ..._query } = query;
+      const { _args, ..._query } = ensureObject(query);
       let _value = 'resolve' in type ? type.resolve : value;
       if (isFunction(_value)) {
         _value = await _value({

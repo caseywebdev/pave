@@ -8,7 +8,7 @@ export default ({ cache, execute, getKey } = {}) => {
   const watchers = new Set();
 
   const client = {
-    cache: cache || {},
+    cache: cache ?? {},
 
     cacheExecute: ({ key, query }) =>
       cacheExecute({ cache: client.cache, key, query: injectType(query) }),

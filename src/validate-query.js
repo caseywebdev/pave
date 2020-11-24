@@ -27,7 +27,7 @@ const validateQuery = ({ context, path = [], query, schema, type }) => {
   };
 
   do {
-    if (type == null) return {};
+    if (type == null) return query;
     else if (!isObject(type)) {
       if (schema[type]) type = schema[type];
       else fail('unknownType');
@@ -63,7 +63,7 @@ const validateQuery = ({ context, path = [], query, schema, type }) => {
         const query = ensureObject(merged[alias]);
         if (query === SKIP_ARGS) continue;
 
-        const field = query._field || alias;
+        const field = query._field ?? alias;
         let _type = type.fields[field];
         if (!_type) {
           if (field === '_type') _type = {};

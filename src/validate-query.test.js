@@ -26,7 +26,9 @@ export default {
           }
         }
       }),
-      { total: { _field: 'sum', _args: { a: 1, b: 2 } } }
+      {
+        total: { _field: 'sum', _args: { a: 1, b: 2 }, _type: { _args: 'foo' } }
+      }
     );
   },
 
@@ -136,7 +138,7 @@ export default {
             _on_Bar: { status: {} },
             _on_Foo: {
               _type: {},
-              id: { _args: { name: 'foo' }, _type: {} },
+              id: { _args: { name: 'foo' }, _type: {}, dynamicExtra: {} },
               fooField: { _args: {} }
             }
           }
@@ -154,9 +156,9 @@ export default {
         sum: { _args: { a: 3, b: 1 } },
         def: { _args: { a: 3 } },
         oneOf: {
-          _on_Bar: { id: {}, status: {} },
+          _on_Bar: { id: { _type: {} }, status: {} },
           _on_Foo: {
-            id: { _args: { name: 'foo' } },
+            id: { _args: { name: 'foo' }, _type: {}, dynamicExtra: {} },
             _type: {},
             fooField: {}
           }

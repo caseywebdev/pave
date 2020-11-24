@@ -27,7 +27,7 @@ const estimateCost = ({ context, query, schema, type }) => {
         }
         for (const alias in merged) {
           const _query = merged[alias];
-          const _type = type.fields[_query._field || alias];
+          const _type = type.fields[_query._field ?? alias];
           cost += estimateCost({ context, query: _query, schema, type: _type });
         }
       } else {
