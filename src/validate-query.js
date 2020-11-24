@@ -27,7 +27,7 @@ const validateQuery = ({ context, path = [], query, schema, type }) => {
   };
 
   do {
-    if (type == null) return query;
+    if (type == null) return ensureObject(query);
     else if (!isObject(type)) {
       if (schema[type]) type = schema[type];
       else fail('unknownType');

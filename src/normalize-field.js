@@ -16,7 +16,7 @@ const orderObject = obj => {
 };
 
 export default ({ alias, query }) => {
-  const field = query._field || alias;
+  const field = query._field ?? alias;
   const args = ensureObject(query._args);
   if (!Object.keys(args).length) return field;
 

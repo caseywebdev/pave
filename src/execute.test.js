@@ -269,12 +269,7 @@ export default async () => {
     oneOfArgsB: { b2: 'B2' }
   };
 
-  assert.deepEqual(
-    await execute({
-      query, //: validateQuery({ query, schema, type: 'Root' }),
-      schema,
-      type: 'Root'
-    }),
-    expected
-  );
+  validateQuery({ query, schema, type: 'Root' });
+
+  assert.deepEqual(await execute({ query, schema, type: 'Root' }), expected);
 };
