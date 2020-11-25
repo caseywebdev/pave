@@ -11,7 +11,7 @@ const walk = ({ normalized = {}, data, getKey, query }) => {
   if (!isObject(data) || !('_type' in data)) return data;
 
   const key = getKey && getKey(data);
-  const obj = key ? normalized[key] || (normalized[key] = {}) : {};
+  const obj = key ? normalized[key] ?? (normalized[key] = {}) : {};
 
   // eslint-disable-next-line no-unused-vars
   const { _args, _field, ..._query } = ensureObject(query);
