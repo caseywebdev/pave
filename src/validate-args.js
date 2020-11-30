@@ -133,9 +133,17 @@ const validateArgs = ({ args, context, path, query, schema, type }) => {
     type: { defaultValue: {}, fields: type.args },
     value: args
   });
-  return type.validate
-    ? type.validate({ args, context, path, query, schema, type })
-    : args;
+
+  if (!type.validate) return args;
+
+  return type.validate({
+    args,
+    context,
+    path,
+    query: { ...query, _args: args },
+    schema,
+    type
+  });
 };
 
 export default validateArgs;

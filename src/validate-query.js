@@ -97,7 +97,7 @@ const validateQuery = ({ context, path = [], query, schema, type }) => {
           args: _args,
           context,
           path: path.concat('_args'),
-          query,
+          query: { ..._query, _args },
           schema,
           type
         });
