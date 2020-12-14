@@ -139,7 +139,7 @@ export default {
             _on_Foo: {
               _type: {},
               id: { _args: { name: 'foo' }, _type: {}, dynamicExtra: {} },
-              fooField: { _args: {} }
+              fooField: null
             }
           }
         },
