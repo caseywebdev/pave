@@ -1,7 +1,7 @@
 import isFunction from './is-function.js';
 import isObject from './is-object.js';
 
-const estimateCost = ({ context, query, schema, type }) => {
+const estimateCost = ({ context, path = [], query, schema, type }) => {
   do {
     if (type == null) return 0;
     else if (!isObject(type)) type = schema[type];
@@ -11,7 +11,7 @@ const estimateCost = ({ context, query, schema, type }) => {
     else if (type.oneOf) {
       return Math.max(
         ...type.oneOf.map(type =>
-          estimateCost({ context, query, schema, type })
+          estimateCost({ context, path, query, schema, type })
         )
       );
     } else {
@@ -28,11 +28,18 @@ const estimateCost = ({ context, query, schema, type }) => {
         for (const alias in merged) {
           const _query = merged[alias];
           const _type = type.fields[_query._field ?? alias];
-          cost += estimateCost({ context, query: _query, schema, type: _type });
+          cost += estimateCost({
+            context,
+            path: path.concat(alias),
+            query: _query,
+            schema,
+            type: _type
+          });
         }
       } else {
         cost = estimateCost({
           context,
+          path,
           query: _query,
           schema,
           type: type.type
@@ -40,7 +47,15 @@ const estimateCost = ({ context, query, schema, type }) => {
       }
 
       if (isFunction(type.cost)) {
-        cost = type.cost({ args: _args, context, cost, query, schema, type });
+        cost = type.cost({
+          args: _args,
+          context,
+          cost,
+          path,
+          query,
+          schema,
+          type
+        });
       } else if (type.cost) cost += type.cost;
 
       return cost;

@@ -15,7 +15,10 @@ export default () => {
             bar: { cost: 10 },
             baz: {
               args: { size: {} },
-              cost: ({ args: { size }, cost }) => size * cost,
+              cost: ({ args: { size }, cost, path }) => {
+                assert.deepEqual(path, ['baz']);
+                return size * cost;
+              },
               type: {
                 fields: {
                   a: { cost: 1 },
