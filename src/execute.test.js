@@ -191,13 +191,13 @@ export default async () => {
     },
     selfLink: {
       selfLinkWithAddition: {
-        addition: undefined
+        addition: {}
       }
     },
     things: {
       _type: {},
       _on_Foo: {
-        id: 1,
+        id: {},
         name: {
           _args: {
             separator: ' '
@@ -208,18 +208,17 @@ export default async () => {
           id: {},
           subSub: {
             _field: 'subFoo',
-            id: 0
+            id: {}
           }
         }
       },
       _on_Bar: {
-        color: null
+        color: {}
       }
     },
     oneOfArgsString: {
       _args: { thing: 'str' },
-      _field: 'oneOfArgs',
-      _on_ThingString: 'str'
+      _field: 'oneOfArgs'
     },
     oneOfArgsA: {
       _args: { thing: { a: 'A', a2: 'A2' } },

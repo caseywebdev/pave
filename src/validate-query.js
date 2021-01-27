@@ -1,4 +1,3 @@
-import ensureObject from './ensure-object.js';
 import isObject from './is-object.js';
 import PaveError from './pave-error.js';
 import validateArgs from './validate-args.js';
@@ -27,8 +26,22 @@ const validateQuery = ({ context, path = [], query, schema, type }) => {
   };
 
   do {
-    if (type == null) return ensureObject(query);
-    else if (!isObject(type)) {
+    if (!isObject(query)) fail('invalidQuery');
+
+    if (type == null) {
+      for (const alias in query) {
+        if (
+          alias !== '_args' &&
+          alias !== '_field' &&
+          alias !== '_type' &&
+          !alias.startsWith('_on_')
+        ) {
+          fail('unknownField', { alias, field: query[alias]?._field || alias });
+        }
+      }
+
+      return {};
+    } else if (!isObject(type)) {
       if (schema[type]) type = schema[type];
       else fail('unknownType');
     } else if (type.optional) type = type.optional;
@@ -48,7 +61,7 @@ const validateQuery = ({ context, path = [], query, schema, type }) => {
       }
       return _query;
     } else if (type.fields) {
-      let { _field, ..._query } = ensureObject(query);
+      let { _field, ..._query } = query;
       const merged = {};
       const onKey = `_on_${type.name}`;
       for (const key in _query) {
@@ -60,7 +73,9 @@ const validateQuery = ({ context, path = [], query, schema, type }) => {
       if (_field) _query._field = _field;
 
       for (const alias in merged) {
-        const query = ensureObject(merged[alias]);
+        const query = merged[alias];
+        if (!isObject(query)) fail('invalidQuery', { alias, field: alias });
+
         if (query === SKIP_ARGS) continue;
 
         const field = query._field ?? alias;
@@ -81,7 +96,7 @@ const validateQuery = ({ context, path = [], query, schema, type }) => {
 
       return _query;
     } else {
-      let { _args, _field, ..._query } = ensureObject(query);
+      let { _args, _field, ..._query } = query;
       _query = validateQuery({
         context,
         path,

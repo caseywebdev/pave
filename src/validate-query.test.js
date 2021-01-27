@@ -27,7 +27,7 @@ export default {
         }
       }),
       {
-        total: { _field: 'sum', _args: { a: 1, b: 2 }, _type: { _args: 'foo' } }
+        total: { _field: 'sum', _args: { a: 1, b: 2 } }
       }
     );
   },
@@ -128,7 +128,7 @@ export default {
           objAlias: {
             _args: { id: 3 },
             _field: 'obj',
-            name: 123,
+            name: {},
             objAlias2: { _field: 'obj', name: {} }
           },
           sum: { _args: { a: 3 } },
@@ -138,8 +138,8 @@ export default {
             _on_Bar: { status: {} },
             _on_Foo: {
               _type: {},
-              id: { _args: { name: 'foo' }, _type: {}, dynamicExtra: {} },
-              fooField: null
+              id: { _args: { name: 'foo' }, _type: {} },
+              fooField: {}
             }
           }
         },
@@ -156,9 +156,9 @@ export default {
         sum: { _args: { a: 3, b: 1 } },
         def: { _args: { a: 3 } },
         oneOf: {
-          _on_Bar: { id: { _type: {} }, status: {} },
+          _on_Bar: { id: {}, status: {} },
           _on_Foo: {
-            id: { _args: { name: 'foo' }, _type: {}, dynamicExtra: {} },
+            id: { _args: { name: 'foo' } },
             _type: {},
             fooField: {}
           }
