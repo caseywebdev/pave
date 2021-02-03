@@ -61,8 +61,8 @@ export default {
         foo: { _type: {}, id: {}, name: {} }
       }
     });
-    client.cacheUpdate({ data: { 'Foo:1': { id: 2 } } });
-    client.cacheUpdate({ data: { 'Foo:1': { name: 'FOO' } } });
+    client.cacheUpdate({ data: { 'Foo:1': { _type: 'Foo:1', id: 2 } } });
+    client.cacheUpdate({ data: { 'Foo:1': { _type: 'Foo:1', name: 'FOO' } } });
     assert.deepEqual(events, [
       { _type: 'Root', foo: { _type: 'Foo:1', id: 1 } },
       { _type: 'Root', _key: { _type: 'Foo:1', id: 1, name: 'foo' } },

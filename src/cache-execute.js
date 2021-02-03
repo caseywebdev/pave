@@ -7,7 +7,7 @@ const walk = ({ _, cache, query, value }) => {
   do {
     if (isArray(value)) {
       return value.map(value => walk({ _, cache, query, value }));
-    } else if (!isObject(value) || !('_type' in value)) return value;
+    } else if (!isObject(value) || value._type === undefined) return value;
     else if (value._type === '_ref') value = cache[value.key];
     else {
       // eslint-disable-next-line no-unused-vars

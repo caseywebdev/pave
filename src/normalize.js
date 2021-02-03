@@ -8,7 +8,7 @@ const walk = ({ normalized = {}, data, getKey, query }) => {
     return data.map(data => walk({ normalized, data, getKey, query }));
   }
 
-  if (!isObject(data) || !('_type' in data)) return data;
+  if (!isObject(data) || data._type === undefined) return data;
 
   const key = getKey && getKey(data);
   const obj = key ? normalized[key] ?? (normalized[key] = {}) : {};
@@ -21,7 +21,11 @@ const walk = ({ normalized = {}, data, getKey, query }) => {
 
     const query = ensureObject(_query[alias]);
     const field = normalizeField({ alias, query });
-    obj[field] = walk({ normalized, data: data[alias], getKey, query });
+    const value = walk({ normalized, data: data[alias], getKey, query });
+    obj[field] =
+      isObject(value) && !isArray(value) && value._type !== 'ref'
+        ? { ...obj[field], ...value }
+        : value;
   }
 
   return key ? { _type: '_ref', key } : obj;

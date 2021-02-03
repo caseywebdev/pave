@@ -15,14 +15,14 @@ export default {
             _type: 'Foo',
             id: 1,
             last: 'Last',
-            nested: { _type: null, id: null, a: 1, b: null },
+            nested: { _type: null, a: 1 },
             list: []
           },
           bar: {
             _type: 'Foo',
             id: 1,
             name: 'Mr Foo',
-            nested: { _type: null, id: null, a: null, b: 2 },
+            nested: { _type: null, b: 2 },
             list: [
               {
                 _type: 'Root',
@@ -39,7 +39,7 @@ export default {
           foo: {
             id: {},
             last: {},
-            nested: { a: {}, b: {} },
+            nested: { a: {} },
             list: { id: {}, foo: { id: {}, color: {} } }
           },
           bar: {
@@ -47,7 +47,7 @@ export default {
             _args: { id: 1 },
             id: {},
             name: {},
-            nested: { id: {}, a: {}, b: {} },
+            nested: { b: {} },
             list: { id: {}, foo: { id: {}, color: {} } }
           }
         })
@@ -65,7 +65,7 @@ export default {
           name: 'Mr Foo',
           last: 'Last',
           color: 'blue',
-          nested: { _type: null, id: null, a: null, b: 2 },
+          nested: { _type: null, a: 1, b: 2 },
           list: [
             { _type: '_ref', key: 'Root' },
             { _type: '_ref', key: 'Root' }

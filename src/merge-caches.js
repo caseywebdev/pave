@@ -1,17 +1,30 @@
+import isArray from './is-array.js';
 import isEqual from './is-equal.js';
+import isObject from './is-object.js';
 
-export default (a, b) => {
-  let c = a;
+const merge = (a, b, isCacheRoot) => {
+  if (isEqual(a, b)) return a;
 
-  for (const k1 in b) {
-    for (const k2 in b[k1]) {
-      if (isEqual(b[k1][k2], c[k1] && c[k1][k2])) continue;
-
-      if (c === a) c = { ...a };
-      if (c[k1] === a[k1]) c[k1] = { ...a[k1] };
-      c[k1][k2] = b[k1][k2];
-    }
+  if (
+    !isObject(a) ||
+    isArray(a) ||
+    !isObject(b) ||
+    isArray(b) ||
+    (b._type === undefined && !isCacheRoot) ||
+    b._type === '_ref'
+  ) {
+    return b;
   }
 
+  let c = a;
+  for (const k in b) {
+    const v = merge(a[k], b[k]);
+    if (v !== a[k]) {
+      if (c === a) c = { ...a };
+      c[k] = v;
+    }
+  }
   return c;
 };
+
+export default (a, b) => merge(a, b, true);
