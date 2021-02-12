@@ -92,6 +92,16 @@ export default async () => {
               typeof val === 'string' ? 'String' : val.a ? ThingA : ThingB
           },
           resolve: ({ args: { thing } }) => thing
+        },
+        nullableFields: {
+          type: {
+            nullable: {
+              fields: {
+                a: 'String'
+              }
+            }
+          },
+          resolve: () => {}
         }
       }
     },
@@ -233,7 +243,8 @@ export default async () => {
       _on_ThingB: {
         b2: {}
       }
-    }
+    },
+    nullableFields: { a: {} }
   };
 
   const expected = {
@@ -265,7 +276,8 @@ export default async () => {
     ],
     oneOfArgsString: 'str',
     oneOfArgsA: { a: 'A' },
-    oneOfArgsB: { b2: 'B2' }
+    oneOfArgsB: { b2: 'B2' },
+    nullableFields: null
   };
 
   validateQuery({ query, schema, type: 'Root' });
