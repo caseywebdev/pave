@@ -27,6 +27,7 @@ const execute = async ({
   };
 
   let isNullable = false;
+  let isOneOf = false;
   let isOptional = false;
   do {
     if (isFunction(value)) value = await value();
@@ -79,8 +80,13 @@ const execute = async ({
           })
         )
       );
-    } else if (type.oneOf) type = type.resolveType(value);
-    else if (type.fields) {
+    } else if (type.oneOf) {
+      type = type.resolveType(value);
+      isOneOf = true;
+    } else if (isOneOf) {
+      path = path.concat(`_on_${type.name}`);
+      isOneOf = false;
+    } else if (type.fields) {
       if (value == null) {
         type = null;
         continue;
