@@ -134,8 +134,9 @@ export default {
           sum: { _args: { a: 3 } },
           def: {},
           oneOf: {
-            id: { _type: {} },
-            _on_Bar: { status: {} },
+            _field: 'oneOf',
+            _type: {},
+            _on_Bar: { id: { _type: {} }, status: {} },
             _on_Foo: {
               _type: {},
               id: { _args: { name: 'foo' }, _type: {} },

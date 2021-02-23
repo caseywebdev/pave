@@ -1,3 +1,4 @@
+import getTypes from './get-types.js';
 import isFunction from './is-function.js';
 import isObject from './is-object.js';
 
@@ -10,23 +11,24 @@ const estimateCost = ({ context, path = [], query, schema, type }) => {
     else if (type.arrayOf) type = type.arrayOf;
     else if (type.oneOf) {
       return Math.max(
-        ...type.oneOf.map(type =>
-          estimateCost({ context, path, query, schema, type })
-        )
+        ...Object.entries(getTypes(type)).map(([name, type]) => {
+          const onKey = `_on_${name}`;
+          return estimateCost({
+            context,
+            path: path.concat(onKey),
+            query: query[onKey] ?? {},
+            schema,
+            type
+          });
+        })
       );
     } else {
       // eslint-disable-next-line no-unused-vars
       const { _args, _field, ..._query } = query;
       let cost = 0;
       if (type.fields) {
-        const merged = {};
-        const onKey = `_on_${type.name}`;
-        for (const key in query) {
-          if (key === onKey) Object.assign(merged, query[key]);
-          else if (!key.startsWith('_on_')) merged[key] = query[key];
-        }
-        for (const alias in merged) {
-          const _query = merged[alias];
+        for (const alias in query) {
+          const _query = query[alias];
           const _type = type.fields[_query._field ?? alias];
           cost += estimateCost({
             context,

@@ -130,7 +130,7 @@ const validateArgs = ({ args, context, path, query, schema, type }) => {
     path,
     query,
     schema,
-    type: { defaultValue: {}, fields: type.args },
+    type: { defaultValue: {}, fields: type.args ?? {} },
     value: args
   });
 

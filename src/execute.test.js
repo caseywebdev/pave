@@ -205,8 +205,8 @@ export default async () => {
       }
     },
     things: {
-      _type: {},
       _on_Foo: {
+        _type: {},
         id: {},
         name: {
           _args: {
@@ -223,6 +223,7 @@ export default async () => {
         }
       },
       _on_Bar: {
+        _type: {},
         color: {}
       }
     },

@@ -84,23 +84,15 @@ const execute = async ({
       type = type.resolveType(value);
       isOneOf = true;
     } else if (isOneOf) {
-      path = path.concat(`_on_${type.name}`);
-      isOneOf = false;
-    } else if (type.fields) {
-      if (value == null) {
-        type = null;
-        continue;
-      }
-
-      const merged = {};
       const onKey = `_on_${type.name}`;
-      for (const key in query) {
-        if (key === onKey) Object.assign(merged, query[key]);
-        else if (!key.startsWith('_on_')) merged[key] = query[key];
-      }
+      path = path.concat(onKey);
+      query = query[onKey] ?? {};
+      isOneOf = false;
+    } else if (type.fields && value == null) type = null;
+    else if (type.fields) {
       return Object.fromEntries(
         await Promise.all(
-          Object.entries(merged).map(async ([alias, query]) => {
+          Object.entries(query).map(async ([alias, query]) => {
             const { _field, ..._query } = query;
             const field = _field ?? alias;
             let _type = type.fields[field];

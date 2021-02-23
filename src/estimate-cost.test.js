@@ -26,8 +26,24 @@ export default () => {
                   c: { cost: 3 }
                 }
               }
+            },
+            oneOf: {
+              oneOf: [
+                'SuperExpensive',
+                {
+                  nullable: {
+                    name: 'MediumExpensive',
+                    fields: { ding: { cost: 50 } }
+                  }
+                },
+                { name: 'Cheap', fields: { dong: { cost: 1 } } }
+              ]
             }
           }
+        },
+        SuperExpensive: {
+          name: 'SuperExpensive',
+          fields: { doot: { cost: 100 } }
         }
       },
       type: 'Root',
@@ -35,9 +51,18 @@ export default () => {
         foo: {}, // 5
         bar: {}, // 10
         bar2: { _field: 'bar' }, // 10
-        baz: { _args: { size: 10 }, a: {}, b: {}, c: {} } // 60
-      } // 85 * 3 = 255
+        baz: { _args: { size: 10 }, a: {}, b: {}, c: {} }, // 60
+        oneOf: {
+          _on_SuperExpensive: { doot: {} },
+          _on_MediumExpensive: { ding: {} }
+        }, // 100
+        oneOf2: {
+          _field: 'oneOf',
+          _on_MediumExpensive: { ding: {} },
+          _on_Cheap: { dong: {} }
+        } // 50
+      } // 235 * 3 = 705
     }),
-    255
+    705
   );
 };

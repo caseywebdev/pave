@@ -1,24 +1,9 @@
+import getTypes from './get-types.js';
 import isObject from './is-object.js';
 import PaveError from './pave-error.js';
 import validateArgs from './validate-args.js';
 
 const SKIP_ARGS = {};
-
-const getTypes = type => {
-  do {
-    if (type == null) return {};
-    else if (!isObject(type)) return { [type]: type };
-    else if (type.optional) type = type.optional;
-    else if (type.nullable) type = type.nullable;
-    else if (type.arrayOf) type = type.arrayOf;
-    else if (type.oneOf) {
-      const types = {};
-      for (const _type of type.oneOf) Object.assign(types, getTypes(_type));
-      return types;
-    } else if (type.name) return { [type.name]: type };
-    else return {};
-  } while (true);
-};
 
 const validateQuery = ({ context, path = [], query, schema, type }) => {
   const fail = (code, extra) => {
@@ -48,53 +33,68 @@ const validateQuery = ({ context, path = [], query, schema, type }) => {
     else if (type.nullable) type = type.nullable;
     else if (type.arrayOf) type = type.arrayOf;
     else if (type.oneOf) {
-      const _query = {};
+      query = { ...query };
       const types = getTypes(type);
-      for (const name in types) {
-        _query[`_on_${name}`] = validateQuery({
+
+      for (const alias in query) {
+        if (alias === '_field' || query[alias] === SKIP_ARGS) continue;
+
+        const subQuery = { ...query[alias] };
+        if (!isObject(subQuery)) fail('invalidQuery', { alias, field: alias });
+
+        const field = subQuery._field ?? alias;
+        if (field == '_type') {
+          delete query[alias];
+          continue;
+        }
+
+        if (alias === field) delete subQuery._field;
+
+        if (!field.startsWith('_on_')) {
+          fail('ambiguousField', { alias, field: alias });
+        }
+
+        const name = field.slice('_on_'.length);
+        query[alias] = validateQuery({
           context,
-          path,
-          query,
+          path: path.concat(alias),
+          query: subQuery,
           schema,
           type: types[name]
         });
       }
-      return _query;
+
+      return query;
     } else if (type.fields) {
-      let { _field, ..._query } = query;
-      const merged = {};
-      const onKey = `_on_${type.name}`;
-      for (const key in _query) {
-        if (key === onKey) Object.assign(merged, query[key]);
-        else if (!key.startsWith('_on_')) merged[key] = query[key];
-      }
+      query = { ...query };
 
-      _query = {};
-      if (_field) _query._field = _field;
+      for (const alias in query) {
+        if (alias === '_field' || query[alias] === SKIP_ARGS) continue;
 
-      for (const alias in merged) {
-        const query = merged[alias];
-        if (!isObject(query)) fail('invalidQuery', { alias, field: alias });
+        if (!isObject(query[alias])) {
+          fail('invalidQuery', { alias, field: alias });
+        }
 
-        if (query === SKIP_ARGS) continue;
+        const subQuery = { ...query[alias] };
+        const field = subQuery._field ?? alias;
+        if (alias === field) delete subQuery._field;
 
-        const field = query._field ?? alias;
         let _type = type.fields[field];
         if (!_type) {
           if (field === '_type') _type = {};
           else fail('unknownField', { alias, field });
         }
 
-        _query[alias] = validateQuery({
+        query[alias] = validateQuery({
           context,
           path: path.concat(alias),
-          query,
+          query: subQuery,
           schema,
           type: _type
         });
       }
 
-      return _query;
+      return query;
     } else {
       let { _args, _field, ..._query } = query;
       _query = validateQuery({
