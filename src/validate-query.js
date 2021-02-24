@@ -1,4 +1,3 @@
-import getTypes from './get-types.js';
 import isObject from './is-object.js';
 import PaveError from './pave-error.js';
 import validateArgs from './validate-args.js';
@@ -34,7 +33,6 @@ const validateQuery = ({ context, path = [], query, schema, type }) => {
     else if (type.arrayOf) type = type.arrayOf;
     else if (type.oneOf) {
       query = { ...query };
-      const types = getTypes(type);
 
       for (const alias in query) {
         if (alias === '_field' || query[alias] === SKIP_ARGS) continue;
@@ -60,7 +58,7 @@ const validateQuery = ({ context, path = [], query, schema, type }) => {
           path: path.concat(alias),
           query: subQuery,
           schema,
-          type: types[name]
+          type: type.oneOf[name]
         });
       }
 

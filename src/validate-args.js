@@ -73,7 +73,7 @@ const validateValue = ({
           value
         })
       );
-    } else if (type.oneOf) type = type.resolveType(value);
+    } else if (type.oneOf) type = type.oneOf[type.resolveType(value)];
     else if (type.fields) {
       let check = {};
       for (const field in type.fields) check[field] = undefined;

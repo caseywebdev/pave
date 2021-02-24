@@ -27,12 +27,9 @@ const execute = async ({
   };
 
   let isNullable = false;
-  let isOneOf = false;
   let isOptional = false;
   let name = null;
   do {
-    if (type?.name) name = type.name;
-
     if (isFunction(value)) value = await value();
     else if (type == null) {
       if (value != null) return value;
@@ -58,7 +55,7 @@ const execute = async ({
     } else if (type.nullable) {
       type = type.nullable;
       isNullable = true;
-    } else if (obj == null && value == null) type = null;
+    } else if ((obj == null || type.fields) && value == null) type = null;
     else if (type.arrayOf) {
       if (!isArray(value)) fail('expectedArray');
 
@@ -85,17 +82,12 @@ const execute = async ({
         )
       );
     } else if (type.oneOf) {
-      type = type.resolveType(value);
-      isOneOf = true;
-    } else if (type.fields && value == null) type = null;
-    else if (type.fields) {
-      if (isOneOf) {
-        const onKey = `_on_${name}`;
-        path = path.concat(onKey);
-        query = query[onKey] ?? {};
-        isOneOf = false;
-      }
-
+      const name = type.resolveType(value);
+      type = type.oneOf[name];
+      const onKey = `_on_${name}`;
+      path = path.concat(onKey);
+      query = query[onKey] ?? {};
+    } else if (type.fields) {
       return Object.fromEntries(
         await Promise.all(
           Object.entries(query).map(async ([alias, query]) => {

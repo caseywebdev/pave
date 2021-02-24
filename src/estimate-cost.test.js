@@ -28,16 +28,15 @@ export default () => {
               }
             },
             oneOf: {
-              oneOf: [
-                'SuperExpensive',
-                {
-                  name: 'MediumExpensive',
+              oneOf: {
+                SuperExpensive: 'SuperExpensive',
+                MediumExpensive: {
                   nullable: {
                     fields: { ding: { cost: 50 } }
                   }
                 },
-                { name: 'Cheap', fields: { dong: { cost: 1 } } }
-              ]
+                Cheap: { fields: { dong: { cost: 1 } } }
+              }
             }
           }
         },

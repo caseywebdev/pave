@@ -58,7 +58,7 @@ export default {
                 args: { id: 'Int' }
               },
               oneOf: {
-                oneOf: ['Foo', 'Bar']
+                oneOf: { Foo: 'Foo', Bar: 'Bar' }
               }
             }
           },

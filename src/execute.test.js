@@ -21,7 +21,6 @@ export default async () => {
   );
 
   const ThingA = {
-    name: 'ThingA',
     fields: {
       a: 'String',
       a2: 'String'
@@ -29,7 +28,6 @@ export default async () => {
   };
 
   const ThingB = {
-    name: 'ThingB',
     fields: {
       b: 'String',
       b2: 'String'
@@ -65,8 +63,8 @@ export default async () => {
         things: {
           type: {
             arrayOf: {
-              oneOf: ['Bar', 'Foo'],
-              resolveType: ({ id }) => (id ? 'Foo' : 'Bar')
+              oneOf: { b: 'Bar', f: 'Foo' },
+              resolveType: ({ id }) => (id ? 'f' : 'b')
             },
             minLength: 1,
             maxLength: 10
@@ -80,15 +78,15 @@ export default async () => {
         oneOfArgs: {
           args: {
             thing: {
-              oneOf: ['String', ThingA, ThingB],
+              oneOf: { String: 'String', ThingA, ThingB },
               resolveType: val =>
-                typeof val === 'string' ? 'String' : val.a ? ThingA : ThingB
+                typeof val === 'string' ? 'String' : val.a ? 'ThingA' : 'ThingB'
             }
           },
           type: {
-            oneOf: ['String', ThingA, ThingB],
+            oneOf: { String: 'String', ThingA, ThingB },
             resolveType: val =>
-              typeof val === 'string' ? 'String' : val.a ? ThingA : ThingB
+              typeof val === 'string' ? 'String' : val.a ? 'ThingA' : 'ThingB'
           },
           resolve: ({ args: { thing } }) => thing
         },
@@ -108,7 +106,7 @@ export default async () => {
       fields: {
         id: {
           type: {
-            oneOf: ['Number', 'String'],
+            oneOf: { Number: 'Number', String: 'String' },
             resolveType: value =>
               typeof value === 'number' ? 'Number' : 'String'
           }
@@ -198,7 +196,7 @@ export default async () => {
       }
     },
     things: {
-      _on_Foo: {
+      _on_f: {
         _type: {},
         id: {},
         name: {
@@ -215,7 +213,7 @@ export default async () => {
           }
         }
       },
-      _on_Bar: {
+      _on_b: {
         _type: {},
         color: {}
       }

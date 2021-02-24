@@ -1,4 +1,3 @@
-import getTypes from './get-types.js';
 import isFunction from './is-function.js';
 import isObject from './is-object.js';
 
@@ -11,7 +10,7 @@ const estimateCost = ({ context, path = [], query, schema, type }) => {
     else if (type.arrayOf) type = type.arrayOf;
     else if (type.oneOf) {
       return Math.max(
-        ...Object.entries(getTypes(type)).map(([name, type]) => {
+        ...Object.entries(type.oneOf).map(([name, type]) => {
           const onKey = `_on_${name}`;
           return estimateCost({
             context,
