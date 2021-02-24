@@ -226,6 +226,7 @@ export default async () => {
       _args: { thing: { a: 'A', a2: 'A2' } },
       _field: 'oneOfArgs',
       _on_ThingA: {
+        _type: {},
         a: {}
       }
     },
@@ -233,6 +234,7 @@ export default async () => {
       _args: { thing: { b: 'B', b2: 'B2' } },
       _field: 'oneOfArgs',
       _on_ThingB: {
+        _type: {},
         b2: {}
       }
     },
@@ -267,8 +269,8 @@ export default async () => {
       { _type: 'Bar', color: 'blue' }
     ],
     oneOfArgsString: 'str',
-    oneOfArgsA: { a: 'A' },
-    oneOfArgsB: { b2: 'B2' },
+    oneOfArgsA: { _type: 'ThingA', a: 'A' },
+    oneOfArgsB: { _type: 'ThingB', b2: 'B2' },
     nullableFields: null
   };
 

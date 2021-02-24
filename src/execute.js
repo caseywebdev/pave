@@ -82,7 +82,7 @@ const execute = async ({
         )
       );
     } else if (type.oneOf) {
-      const name = type.resolveType(value);
+      name = type.resolveType(value);
       type = type.oneOf[name];
       const onKey = `_on_${name}`;
       path = path.concat(onKey);
