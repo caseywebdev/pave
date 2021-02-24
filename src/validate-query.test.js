@@ -63,21 +63,18 @@ export default {
             }
           },
           Obj: {
-            name: 'Obj',
             fields: {
               name: 'String',
               obj: 'Obj'
             }
           },
           Foo: {
-            name: 'Foo',
             fields: {
               id: { args: { name: 'String' } },
               fooField: {}
             }
           },
           Bar: {
-            name: 'Bar',
             fields: {
               id: {},
               barField: {},
