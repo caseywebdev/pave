@@ -29,7 +29,10 @@ const execute = async ({
   let isNullable = false;
   let isOneOf = false;
   let isOptional = false;
+  let name = null;
   do {
+    if (type?.name) name = type.name;
+
     if (isFunction(value)) value = await value();
     else if (type == null) {
       if (value != null) return value;
@@ -43,6 +46,7 @@ const execute = async ({
       return value;
     } else if (!isObject(type)) {
       if (schema[type]) {
+        name = type;
         obj = null;
         type = schema[type];
       } else fail('unknownType');
@@ -83,24 +87,24 @@ const execute = async ({
     } else if (type.oneOf) {
       type = type.resolveType(value);
       isOneOf = true;
-    } else if (isOneOf) {
-      const onKey = `_on_${type.name}`;
-      path = path.concat(onKey);
-      query = query[onKey] ?? {};
-      isOneOf = false;
     } else if (type.fields && value == null) type = null;
     else if (type.fields) {
+      if (isOneOf) {
+        const onKey = `_on_${name}`;
+        path = path.concat(onKey);
+        query = query[onKey] ?? {};
+        isOneOf = false;
+      }
+
       return Object.fromEntries(
         await Promise.all(
           Object.entries(query).map(async ([alias, query]) => {
             const { _field, ..._query } = query;
             const field = _field ?? alias;
-            let _type = type.fields[field];
-            if (!_type) {
-              if (field === '_type') {
-                _type = { type: { nullable: {} }, resolve: type.name };
-              } else fail('unknownField', { alias, field });
-            }
+            if (field === '_type') return [alias, name];
+
+            const _type = type.fields[field];
+            if (!_type) fail('unknownField', { alias, field });
 
             return [
               alias,

@@ -31,8 +31,8 @@ export default () => {
               oneOf: [
                 'SuperExpensive',
                 {
+                  name: 'MediumExpensive',
                   nullable: {
-                    name: 'MediumExpensive',
                     fields: { ding: { cost: 50 } }
                   }
                 },
@@ -42,7 +42,6 @@ export default () => {
           }
         },
         SuperExpensive: {
-          name: 'SuperExpensive',
           fields: { doot: { cost: 100 } }
         }
       },

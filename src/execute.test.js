@@ -38,7 +38,6 @@ export default async () => {
 
   const schema = {
     Root: {
-      name: 'Root',
       defaultValue: {},
       fields: {
         _type: { type: 'String', resolve: 'Root' },
@@ -106,7 +105,6 @@ export default async () => {
       }
     },
     Foo: {
-      name: 'Foo',
       fields: {
         id: {
           type: {
@@ -131,19 +129,16 @@ export default async () => {
       }
     },
     Bar: {
-      name: 'Bar',
       fields: {
         color: { type: 'String' }
       }
     },
     Boolean: {
-      name: 'Boolean',
       resolve: ({ value }) => {
         if (typeof value === 'boolean') return value;
       }
     },
     String: {
-      name: 'String',
       args: {
         maxLength: { optional: 'Number' }
       },
@@ -162,11 +157,9 @@ export default async () => {
       }
     },
     NullableString: {
-      name: 'NullableString',
       resolve: ({ value }) => value.trim() || null
     },
     Number: {
-      name: 'Number',
       resolve: ({ value, path }) => {
         if (typeof value === 'number') return value;
 

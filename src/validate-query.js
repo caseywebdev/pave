@@ -79,11 +79,13 @@ const validateQuery = ({ context, path = [], query, schema, type }) => {
         const field = subQuery._field ?? alias;
         if (alias === field) delete subQuery._field;
 
-        let _type = type.fields[field];
-        if (!_type) {
-          if (field === '_type') _type = {};
-          else fail('unknownField', { alias, field });
+        if (field === '_type') {
+          query[alias] = {};
+          continue;
         }
+
+        const _type = type.fields[field];
+        if (!_type) fail('unknownField', { alias, field });
 
         query[alias] = validateQuery({
           context,
