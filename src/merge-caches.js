@@ -3,17 +3,15 @@ import isEqual from './is-equal.js';
 import isObject from './is-object.js';
 
 const merge = (a, b, isCacheRoot) => {
-  if (isEqual(a, b)) return a;
-
   if (
     !isObject(a) ||
-    isArray(a) ||
     !isObject(b) ||
+    isArray(a) ||
     isArray(b) ||
     (b._type === undefined && !isCacheRoot) ||
     b._type === '_ref'
   ) {
-    return b;
+    return isEqual(a, b) ? a : b;
   }
 
   let c = a;
