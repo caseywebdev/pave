@@ -70,7 +70,7 @@ export default {
     const schema = { int: {} };
     const type = {
       args: { a: 'int', b: 'int' },
-      validate: ({ args, args: { a, b } }) => {
+      validateArgs: ({ args, args: { a, b } }) => {
         if (a + b > 3) throw new Error('invalid');
 
         return args;
