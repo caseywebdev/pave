@@ -5,7 +5,7 @@ import PaveError from './pave-error.js';
 
 const validateValue = ({
   context,
-  path = [],
+  path,
   query,
   schema,
   type,
@@ -124,7 +124,7 @@ const validateValue = ({
   } while (true);
 };
 
-const validateArgs = ({ args, context, path, query, schema, type }) => {
+const validateArgs = ({ args, context, path = [], query, schema, type }) => {
   args = validateValue({
     context,
     path,
