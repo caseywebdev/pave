@@ -19,9 +19,8 @@ const walk = ({ _, cache, query, value }) => {
 
         const query = ensureObject(_query[alias]);
         const field = normalizeField({ alias, query });
-        if (field in value) {
-          data[alias] = walk({ _, cache, query, value: value[field] });
-        } else _.isPartial = true;
+        if (value[field] === undefined) _.isPartial = true;
+        else data[alias] = walk({ _, cache, query, value: value[field] });
       }
       return data;
     }

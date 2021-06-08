@@ -17,7 +17,7 @@ const walk = ({ normalized = {}, data, getKey, query }) => {
   const { _args, _field, ..._query } = ensureObject(query);
   Object.assign(_query, _query[`_on_${data._type}`]);
   for (const alias in _query) {
-    if (!(alias in data)) continue;
+    if (data[alias] === undefined) continue;
 
     const query = ensureObject(_query[alias]);
     const field = normalizeField({ alias, query });
