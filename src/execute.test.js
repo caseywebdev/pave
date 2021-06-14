@@ -69,11 +69,8 @@ export default async () => {
             minLength: 1,
             maxLength: 10
           },
-          resolve: () => () => () => () => () => [
-            { id: 1 },
-            { id: '2', name: 'foo' },
-            { color: 'blue' }
-          ]
+          resolve: () => () => () => () => () =>
+            [{ id: 1 }, { id: '2', name: 'foo' }, { color: 'blue' }]
         },
         oneOfArgs: {
           args: {
@@ -121,8 +118,11 @@ export default async () => {
             separator: { type: 'String', typeArgs: { maxLength: 3 } }
           },
           type: 'String',
-          resolve: ({ args: { separator }, value }) => () => () =>
-            `${value}${separator}${value}`
+          resolve:
+            ({ args: { separator }, value }) =>
+            () =>
+            () =>
+              `${value}${separator}${value}`
         }
       }
     },

@@ -41,7 +41,7 @@ const validateQuery = ({ context, path = [], query, schema, type }) => {
         if (!isObject(subQuery)) fail('invalidQuery', { alias, field: alias });
 
         const field = subQuery._field ?? alias;
-        if (field == '_type') {
+        if (field === '_type') {
           delete query[alias];
           continue;
         }
