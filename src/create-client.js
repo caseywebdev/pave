@@ -1,7 +1,7 @@
 import cacheExecute from './cache-execute.js';
 import injectType from './inject-type.js';
-import isEqual from './is-equal.js';
 import mergeCaches from './merge-caches.js';
+import mergeRefs from './merge-refs.js';
 import normalize from './normalize.js';
 
 export default ({ cache, execute, getKey } = {}) => {
@@ -22,8 +22,8 @@ export default ({ cache, execute, getKey } = {}) => {
         const { data, onChange, query } = watcher;
         if (!query) return onChange(client.cache);
 
-        const newData = client.cacheExecute({ query });
-        if (!isEqual(data, newData)) onChange((watcher.data = newData));
+        const newData = mergeRefs(client.cacheExecute({ query }), data);
+        if (newData !== data) onChange((watcher.data = newData));
       });
       return client;
     },

@@ -1,6 +1,6 @@
 import isArray from './is-array.js';
-import isEqual from './is-equal.js';
 import isObject from './is-object.js';
+import mergeRefs from './merge-refs.js';
 
 const merge = (a, b, isCacheRoot) => {
   if (
@@ -11,7 +11,7 @@ const merge = (a, b, isCacheRoot) => {
     (b._type === undefined && !isCacheRoot) ||
     b._type === '_ref'
   ) {
-    return isEqual(a, b) ? a : b;
+    return mergeRefs(b, a);
   }
 
   let c = a;

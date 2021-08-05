@@ -1,8 +1,29 @@
 import { strict as assert } from 'assert';
 
-import isEqual from './is-equal.js';
+import mergeRefs from './merge-refs.js';
+
+const isEqual = (a, b) => mergeRefs(a, b) === b;
 
 export default {
+  basic: () => {
+    const data = {
+      a: { b: 1 },
+      c: { d: 1 },
+      e: [{ a: 1 }, { b: 2 }]
+    };
+
+    assert.equal(mergeRefs({ ...data, e: [...data.e] }, data), data);
+
+    let data2 = { a: { b: 1 } };
+    let merged = mergeRefs(data2, data);
+    assert.deepEqual(merged, data2);
+    assert.equal(merged.a, data.a);
+
+    data2 = { e: [{ a: 1 }] };
+    merged = mergeRefs(data2, data);
+    assert.deepEqual(merged, data2);
+    assert.equal(merged.e[0], data.e[0]);
+  },
   undefined: () => {
     assert.equal(isEqual(undefined, undefined), true);
     assert.equal(isEqual(undefined, null), false);
