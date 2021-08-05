@@ -2,7 +2,9 @@ import isArray from './is-array.js';
 import isObject from './is-object.js';
 
 const merge = (a, b) => {
-  if (!isObject(a) || !isObject(b) || isArray(a) !== isArray(b)) return a;
+  if (a === b || !isObject(a) || !isObject(b) || isArray(a) !== isArray(b)) {
+    return a;
+  }
 
   const d = isArray(a) ? [] : {};
   let c = Object.keys(a).length === Object.keys(b).length ? b : d;
