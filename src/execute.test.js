@@ -96,6 +96,20 @@ export default async () => {
             }
           },
           resolve: () => {}
+        },
+        nullableArrayOf: {
+          type: {
+            nullable: {
+              arrayOf: 'String'
+            }
+          }
+        },
+        nullableOneOf: {
+          type: {
+            nullable: {
+              oneOf: { String, Number }
+            }
+          }
         }
       }
     },
@@ -238,7 +252,9 @@ export default async () => {
         b2: {}
       }
     },
-    nullableFields: { a: {} }
+    nullableFields: { a: {} },
+    nullableArrayOf: {},
+    nullableOneOf: {}
   };
 
   const expected = {
@@ -271,7 +287,9 @@ export default async () => {
     oneOfArgsString: 'str',
     oneOfArgsA: { _type: 'ThingA', a: 'A' },
     oneOfArgsB: { _type: 'ThingB', b2: 'B2' },
-    nullableFields: null
+    nullableFields: null,
+    nullableArrayOf: null,
+    nullableOneOf: null
   };
 
   validateQuery({ query, schema, type: 'Root' });

@@ -55,8 +55,12 @@ const execute = async ({
     } else if (type.nullable) {
       type = type.nullable;
       isNullable = true;
-    } else if ((obj == null || type.fields) && value == null) type = null;
-    else if (type.arrayOf) {
+    } else if (
+      (obj == null || type.arrayOf || type.oneOf || type.fields) &&
+      value == null
+    ) {
+      type = null;
+    } else if (type.arrayOf) {
       if (!isArray(value)) fail('expectedArray');
 
       const { minLength, maxLength } = type;
