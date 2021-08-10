@@ -11,7 +11,9 @@ export default {
     client.watch({ query: { foo: {} }, onChange });
     client.watch({
       query: { dne: {} },
-      onChange: () => assert.fail('Should not have been called')
+      onChange: () => {
+        throw new Error('Should not have been called');
+      }
     });
     client.update({
       data: { _type: null, foo: 123 },
