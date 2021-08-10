@@ -9,8 +9,10 @@ const orderObject = obj => {
 
   const val = {};
   const keys = Object.keys(obj).sort();
-  for (let i = 0, l = keys.length; i < l; ++i) {
-    val[keys[i]] = orderObject(obj[keys[i]]);
+  const l = keys.length;
+  for (let i = 0; i < l; ++i) {
+    const k = keys[i];
+    val[k] = orderObject(obj[k]);
   }
   return val;
 };
