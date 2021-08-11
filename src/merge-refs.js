@@ -10,12 +10,7 @@ const merge = (a, b) => {
     const l = a.length;
     const d = new Array(l);
     let c = l === b.length ? b : d;
-    for (let i = 0; i < l; ++i) {
-      const bV = b[i];
-      const v = merge(a[i], bV);
-      d[i] = v;
-      if (v !== bV) c = d;
-    }
+    for (let i = 0; i < l; ++i) if ((d[i] = merge(a[i], b[i])) !== b[i]) c = d;
     return c;
   }
 
@@ -27,10 +22,7 @@ const merge = (a, b) => {
   let c = l === Object.keys(b).length ? b : d;
   for (let i = 0; i < l; ++i) {
     const k = keys[i];
-    const bV = b[k];
-    const v = merge(a[k], bV);
-    d[k] = v;
-    if (v !== bV) c = d;
+    if ((d[k] = merge(a[k], b[k])) !== b[k]) c = d;
   }
   return c;
 };

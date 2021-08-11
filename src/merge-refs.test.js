@@ -4,6 +4,34 @@ import mergeRefs from './merge-refs.js';
 
 const isEqual = (a, b) => mergeRefs(a, b) === b;
 
+let seed = 0;
+const getRandom = () => {
+  const x = Math.sin(++seed) * 10000;
+  return x - Math.floor(x);
+};
+
+const createRandomObj = (depth = 0) => {
+  const random = getRandom();
+  if (depth === 3) {
+    return random < 0.2
+      ? null
+      : random < 0.4
+      ? 0
+      : random < 0.6
+      ? true
+      : random < 0.8
+      ? 'str'
+      : undefined;
+  }
+
+  const values = Array(100)
+    .fill()
+    .map(() => createRandomObj(depth + 1));
+  return random < 0.5 ? values : Object.fromEntries(Object.entries(values));
+};
+
+let randomObjPairs = [];
+
 export default {
   basic: () => {
     const data = {
@@ -82,5 +110,15 @@ export default {
     assert.equal(isEqual({ a: 1, b: 1 }, { b: 1 }), false);
     assert.equal(isEqual({ a: 1 }, { a: 1, b: 1 }), false);
     assert.equal(isEqual({}, []), false);
+  },
+
+  '#skip perf': {
+    setup: () => {
+      randomObjPairs = new Array(10)
+        .fill()
+        .map(() => [createRandomObj(), createRandomObj()]);
+    },
+
+    run: () => randomObjPairs.forEach(([a, b]) => mergeRefs(a, b))
   }
 };
