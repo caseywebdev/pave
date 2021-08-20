@@ -27,6 +27,25 @@ export default {
       { _root: { _type: null, foo: 123 } },
       { _type: null, foo: 123 }
     ]);
+
+    const base = { _type: null, bar: { _type: null, baz: {}, bang: {} } };
+    client.update({
+      data: { _type: null, bar: { _type: null, baz: {}, bang: {} } },
+      query: { _type: {}, bar: { _type: null, baz: {}, bang: {} } }
+    });
+    const { data } = client.watch({
+      data: base,
+      query: { bar: { baz: {}, bang: {} } },
+      onChange: data => {
+        assert.equal(data.bar.baz, 1);
+        assert.equal(base.bar.bang, data.bar.bang);
+      }
+    });
+    assert.equal(base, data);
+    client.update({
+      data: { _type: null, bar: { _type: null, baz: {}, bang: {} } },
+      query: { _type: {}, bar: { _type: {}, baz: 1 } }
+    });
   },
 
   'cancel watching': () => {

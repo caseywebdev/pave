@@ -41,9 +41,12 @@ export default ({ cache, execute, getKey } = {}) => {
       client.cacheUpdate({ data });
     },
 
-    watch: ({ onChange, query }) => {
+    watch: ({ data, onChange, query }) => {
       query = query && injectType(query);
-      const data = query && client.cacheExecute({ query });
+      data = mergeRefs(
+        query ? client.cacheExecute({ query }) : client.cache,
+        data
+      );
       const watcher = { data, onChange, query };
       watchers.add(watcher);
       return { data, unwatch: () => watchers.delete(watcher) };
