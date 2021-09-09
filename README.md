@@ -33,7 +33,20 @@ API that makes managing app state much easier.
   history tracking trivial and prohibits unexpected mutations.
 
 - **Small**<br>
-  ![](https://badgen.net/bundlephobia/minzip/pave)
+  pave<br>
+  [![pave](https://packagephobia.com/badge?p=pave)](https://packagephobia.com/result?p=pave)
+
+  graphql<br>
+  [![pave](https://packagephobia.com/badge?p=graphql)](https://packagephobia.com/result?p=graphql)
+
+  falcor<br>
+  [![pave](https://packagephobia.com/badge?p=falcor)](https://packagephobia.com/result?p=falcor)
+
+  react-relay<br>
+  [![pave](https://packagephobia.com/badge?p=react-relay)](https://packagephobia.com/result?p=react-relay)
+
+  @apollo/client<br>
+  [![pave](https://packagephobia.com/badge?p=@apollo/client)](https://packagephobia.com/result?p=@apollo/client)
 
 ## Install
 
