@@ -7,6 +7,8 @@ import normalize from './normalize.js';
 export default ({ cache, execute, getKey } = {}) => {
   const watchers = new Set();
 
+  let currentUpdate;
+
   const client = {
     cache: cache ?? {},
 
@@ -15,11 +17,14 @@ export default ({ cache, execute, getKey } = {}) => {
 
     cacheUpdate: ({ data }) => {
       const prev = client.cache;
-      client.cache = mergeCaches(client.cache, data);
+      client.cache = mergeCaches(prev, data);
       if (client.cache === prev) return client;
 
+      const thisUpdate = (currentUpdate = {});
       watchers.forEach(watcher => {
         const { data, onChange, query } = watcher;
+        if (thisUpdate !== currentUpdate) return;
+
         if (!query) return onChange(client.cache);
 
         const newData = mergeRefs(client.cacheExecute({ query }), data);
@@ -38,18 +43,18 @@ export default ({ cache, execute, getKey } = {}) => {
     update: ({ data, query }) => {
       query = injectType(query);
       data = normalize({ data, getKey, query });
-      client.cacheUpdate({ data });
+      return client.cacheUpdate({ data });
     },
 
     watch: ({ data, onChange, query }) => {
-      query = query && injectType(query);
-      data = mergeRefs(
-        query ? client.cacheExecute({ query }) : client.cache,
-        data
-      );
-      const watcher = { data, onChange, query };
+      const watcher = { onChange };
       watchers.add(watcher);
-      return { data, unwatch: () => watchers.delete(watcher) };
+      const unwatch = () => watchers.delete(watcher);
+      if (!query) return { unwatch };
+
+      watcher.query = query = injectType(query);
+      watcher.data = data = mergeRefs(client.cacheExecute({ query }), data);
+      return { data, unwatch };
     }
   };
 
