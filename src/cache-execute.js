@@ -3,10 +3,18 @@ import isArray from './is-array.js';
 import isObject from './is-object.js';
 import normalizeField from './normalize-field.js';
 
-const walk = ({ _, cache, query, value }) => {
+const walk = ({ cache, query, value }) => {
   do {
     if (isArray(value)) {
-      return value.map(value => walk({ _, cache, query, value }));
+      const allResolved = [];
+      const l = value.length;
+      for (let i = 0; i < l; ++i) {
+        const resolved = walk({ cache, query, value: value[i] });
+        if (resolved === undefined) return;
+
+        allResolved.push(resolved);
+      }
+      return allResolved;
     } else if (!isObject(value) || value._type === undefined) return value;
     else if (value._type === '_ref') value = cache[value.key];
     else {
@@ -19,17 +27,15 @@ const walk = ({ _, cache, query, value }) => {
 
         const query = ensureObject(_query[alias]);
         const field = normalizeField({ alias, query });
-        if (value[field] === undefined) _.isPartial = true;
-        else data[alias] = walk({ _, cache, query, value: value[field] });
+        const resolved = walk({ cache, query, value: value[field] });
+        if (resolved === undefined) return;
+
+        data[alias] = resolved;
       }
       return data;
     }
   } while (true);
 };
 
-export default ({ cache, key, query }) => {
-  const _ = { isPartial: false };
-  const value = cache[key ?? '_root'];
-  const result = walk({ _, cache, query, value });
-  if (!_.isPartial) return result;
-};
+export default ({ cache, key, query }) =>
+  walk({ cache, query, value: cache[key ?? '_root'] });
