@@ -21,15 +21,17 @@ export default ({ cache, execute, getKey } = {}) => {
       if (client.cache === prev) return client;
 
       const thisUpdate = (currentUpdate = {});
+
       watchers.forEach(watcher => {
-        const { data, onChange, query } = watcher;
         if (thisUpdate !== currentUpdate) return;
 
+        const { data, onChange, query } = watcher;
         if (!query) return onChange(client.cache);
 
         const newData = mergeRefs(client.cacheExecute({ query }), data);
         if (newData !== data) onChange((watcher.data = newData));
       });
+
       return client;
     },
 
