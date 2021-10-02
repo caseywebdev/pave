@@ -9,7 +9,7 @@ const validateQuery = ({ context, path = [], query, schema, type }) => {
     throw new PaveError(code, { context, path, query, schema, type, ...extra });
   };
 
-  do {
+  while (true) {
     if (!isObject(query)) fail('invalidQuery');
 
     if (type == null) {
@@ -25,13 +25,31 @@ const validateQuery = ({ context, path = [], query, schema, type }) => {
       }
 
       return {};
-    } else if (!isObject(type)) {
-      if (schema[type]) type = schema[type];
-      else fail('unknownType');
-    } else if (type.optional) type = type.optional;
-    else if (type.nullable) type = type.nullable;
-    else if (type.arrayOf) type = type.arrayOf;
-    else if (type.oneOf) {
+    }
+
+    if (!isObject(type)) {
+      if (!schema[type]) fail('unknownType');
+
+      type = schema[type];
+      continue;
+    }
+
+    if (type.optional) {
+      type = type.optional;
+      continue;
+    }
+
+    if (type.nullable) {
+      type = type.nullable;
+      continue;
+    }
+
+    if (type.arrayOf) {
+      type = type.arrayOf;
+      continue;
+    }
+
+    if (type.oneOf) {
       query = { ...query };
 
       for (const alias in query) {
@@ -63,7 +81,9 @@ const validateQuery = ({ context, path = [], query, schema, type }) => {
       }
 
       return query;
-    } else if (type.fields) {
+    }
+
+    if (type.fields) {
       query = { ...query };
 
       for (const alias in query) {
@@ -95,34 +115,34 @@ const validateQuery = ({ context, path = [], query, schema, type }) => {
       }
 
       return query;
-    } else {
-      let { _args, _field, ..._query } = query;
-      _query = validateQuery({
-        context,
-        path,
-        query: { _args: SKIP_ARGS, ..._query },
-        schema,
-        type: type.type
-      });
-
-      if (_field) _query._field = _field;
-
-      if (_args !== SKIP_ARGS) {
-        _query._args = validateArgs({
-          args: _args,
-          context,
-          path: path.concat('_args'),
-          query: { ..._query, _args },
-          schema,
-          type
-        });
-      }
-
-      if (!type.args) delete _query._args;
-
-      return _query;
     }
-  } while (true);
+
+    let { _args, _field, ..._query } = query;
+    _query = validateQuery({
+      context,
+      path,
+      query: { _args: SKIP_ARGS, ..._query },
+      schema,
+      type: type.type
+    });
+
+    if (_field) _query._field = _field;
+
+    if (_args !== SKIP_ARGS) {
+      _query._args = validateArgs({
+        args: _args,
+        context,
+        path: path.concat('_args'),
+        query: { ..._query, _args },
+        schema,
+        type
+      });
+    }
+
+    if (!type.args) delete _query._args;
+
+    return _query;
+  }
 };
 
 export default validateQuery;

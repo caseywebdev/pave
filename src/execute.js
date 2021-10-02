@@ -29,9 +29,13 @@ const execute = async ({
   let isNullable = false;
   let isOptional = false;
   let name = null;
-  do {
-    if (isFunction(value)) value = await value();
-    else if (type == null) {
+  while (true) {
+    if (isFunction(value)) {
+      value = await value();
+      continue;
+    }
+
+    if (type == null) {
       if (value != null) return value;
 
       if (!isOptional && isNullable) return null;
@@ -41,26 +45,43 @@ const execute = async ({
       if (value === null && !isNullable) fail('expectedNonNull');
 
       return value;
-    } else if (!isObject(type)) {
-      if (schema[type]) {
-        name = type;
-        obj = null;
-        type = schema[type];
-      } else fail('unknownType');
-    } else if (value === undefined && type.defaultValue !== undefined) {
+    }
+
+    if (!isObject(type)) {
+      if (!schema[type]) fail('unknownType');
+
+      name = type;
+      obj = null;
+      type = schema[type];
+      continue;
+    }
+
+    if (value === undefined && type.defaultValue !== undefined) {
       value = type.defaultValue;
-    } else if (type.optional) {
+      continue;
+    }
+
+    if (type.optional) {
       type = type.optional;
       isOptional = true;
-    } else if (type.nullable) {
+      continue;
+    }
+
+    if (type.nullable) {
       type = type.nullable;
       isNullable = true;
-    } else if (
+      continue;
+    }
+
+    if (
       (obj == null || type.arrayOf || type.oneOf || type.fields) &&
       value == null
     ) {
       type = null;
-    } else if (type.arrayOf) {
+      continue;
+    }
+
+    if (type.arrayOf) {
       if (!isArray(value)) fail('expectedArray');
 
       const { minLength, maxLength } = type;
@@ -85,13 +106,18 @@ const execute = async ({
           })
         )
       );
-    } else if (type.oneOf) {
+    }
+
+    if (type.oneOf) {
       name = type.resolveType(value);
       type = type.oneOf[name];
       const onKey = `_on_${name}`;
       path = path.concat(onKey);
       query = query[onKey] ?? {};
-    } else if (type.fields) {
+      continue;
+    }
+
+    if (type.fields) {
       return Object.fromEntries(
         await Promise.all(
           Object.entries(query).map(async ([alias, query]) => {
@@ -117,35 +143,35 @@ const execute = async ({
           })
         )
       );
-    } else {
-      const { _args, ..._query } = query;
-      let _value = 'resolve' in type ? type.resolve : value;
-      if (isFunction(_value)) {
-        _value = await _value({
-          args: validateArgs({
-            args: _args,
-            context,
-            path: path.concat('_args'),
-            query,
-            schema,
-            type
-          }),
+    }
+
+    const { _args, ..._query } = query;
+    let _value = 'resolve' in type ? type.resolve : value;
+    if (isFunction(_value)) {
+      _value = await _value({
+        args: validateArgs({
+          args: _args,
           context,
-          obj,
-          path,
+          path: path.concat('_args'),
           query,
           schema,
-          type,
-          value
-        });
-      }
-
-      if (type.typeArgs) _query._args = type.typeArgs;
-      query = _query;
-      type = type.type;
-      value = _value;
+          type
+        }),
+        context,
+        obj,
+        path,
+        query,
+        schema,
+        type,
+        value
+      });
     }
-  } while (true);
+
+    if (type.typeArgs) _query._args = type.typeArgs;
+    query = _query;
+    type = type.type;
+    value = _value;
+  }
 };
 
 export default execute;

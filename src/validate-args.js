@@ -27,7 +27,7 @@ const validateValue = ({
 
   let isNullable = false;
   let isOptional = false;
-  do {
+  while (true) {
     if (type == null) {
       if (value != null) return value;
 
@@ -38,19 +38,38 @@ const validateValue = ({
       if (value === null && !isNullable) fail('expectedNonNull');
 
       return value;
-    } else if (!isObject(type)) {
-      if (schema[type]) type = schema[type];
-      else fail('unknownType');
-    } else if (value === undefined && type.defaultValue !== undefined) {
+    }
+
+    if (!isObject(type)) {
+      if (!schema[type]) fail('unknownType');
+
+      type = schema[type];
+      continue;
+    }
+
+    if (value === undefined && type.defaultValue !== undefined) {
       value = type.defaultValue;
-    } else if (type.optional) {
+      continue;
+    }
+
+    if (type.optional) {
       type = type.optional;
       isOptional = true;
-    } else if (type.nullable) {
+      continue;
+    }
+
+    if (type.nullable) {
       type = type.nullable;
       isNullable = true;
-    } else if (value == null) type = null;
-    else if (type.arrayOf) {
+      continue;
+    }
+
+    if (value == null) {
+      type = null;
+      continue;
+    }
+
+    if (type.arrayOf) {
       if (!isArray(value)) fail('expectedArray');
 
       const { minLength, maxLength } = type;
@@ -73,8 +92,14 @@ const validateValue = ({
           value
         })
       );
-    } else if (type.oneOf) type = type.oneOf[type.resolveType(value)];
-    else if (type.fields) {
+    }
+
+    if (type.oneOf) {
+      type = type.oneOf[type.resolveType(value)];
+      continue;
+    }
+
+    if (type.fields) {
       let check = {};
       for (const field in type.fields) check[field] = undefined;
       check = { ...check, ...value };
@@ -96,32 +121,32 @@ const validateValue = ({
         if (value !== undefined) _value[field] = value;
       }
       return _value;
-    } else {
-      let _value = 'resolve' in type ? type.resolve : value;
-      if (isFunction(_value)) {
-        _value = _value({
-          args: validateArgs({
-            args: typeArgs,
-            context,
-            path: path.concat('_args'),
-            query,
-            schema,
-            type
-          }),
+    }
+
+    let _value = 'resolve' in type ? type.resolve : value;
+    if (isFunction(_value)) {
+      _value = _value({
+        args: validateArgs({
+          args: typeArgs,
           context,
-          path,
+          path: path.concat('_args'),
           query,
           schema,
-          type,
-          value
-        });
-      }
-
-      typeArgs = type.typeArgs;
-      type = type.type;
-      value = _value;
+          type
+        }),
+        context,
+        path,
+        query,
+        schema,
+        type,
+        value
+      });
     }
-  } while (true);
+
+    typeArgs = type.typeArgs;
+    type = type.type;
+    value = _value;
+  }
 };
 
 const validateArgs = ({ args, context, path = [], query, schema, type }) => {
