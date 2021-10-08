@@ -38,7 +38,6 @@ export default async () => {
     Root: {
       defaultValue: {},
       fields: {
-        _type: { type: 'String', resolve: 'Root' },
         addition: 'Boolean',
         nullableString: {
           args: { string: { nullable: 'String' } },
@@ -183,6 +182,7 @@ export default async () => {
   };
 
   const query = {
+    _type: {},
     nullableStringA: {
       _field: 'nullableString',
       _args: { string: 'not null' }
@@ -258,6 +258,7 @@ export default async () => {
   };
 
   const expected = {
+    _type: 'Root',
     nullableStringA: 'not null',
     nullableStringB: null,
     nullableStringC: 'not null',

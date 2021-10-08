@@ -87,7 +87,9 @@ const validateQuery = ({ context, path = [], query, schema, type }) => {
       query = { ...query };
 
       for (const alias in query) {
-        if (alias === '_field' || query[alias] === SKIP_ARGS) continue;
+        if (alias === '_field' && path.length > 0) continue;
+
+        if (query[alias] === SKIP_ARGS) continue;
 
         if (!isObject(query[alias])) {
           fail('invalidQuery', { alias, field: alias });
