@@ -145,5 +145,15 @@ export default {
         'Bar:2': { _type: 'Bar', shared: 'b', id: 2, color: 'blue' }
       }
     );
+  },
+
+  'with _args': () => {
+    assert.deepEqual(
+      normalize({
+        data: { field: 'value' },
+        query: { _args: { foo: 'bar' }, field: {} }
+      }),
+      { '_root({"foo":"bar"})': { field: 'value' } }
+    );
   }
 };

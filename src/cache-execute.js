@@ -2,6 +2,7 @@ import ensureObject from './ensure-object.js';
 import isArray from './is-array.js';
 import isObject from './is-object.js';
 import normalizeField from './normalize-field.js';
+import normalizeRoot from './normalize-root.js';
 
 const walk = ({ cache, query, value }) => {
   while (true) {
@@ -43,4 +44,4 @@ const walk = ({ cache, query, value }) => {
 };
 
 export default ({ cache, key, query }) =>
-  walk({ cache, query, value: cache[key ?? '_root'] });
+  walk({ cache, query, value: cache[key ?? normalizeRoot({ query })] });

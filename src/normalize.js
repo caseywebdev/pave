@@ -2,6 +2,7 @@ import ensureObject from './ensure-object.js';
 import isArray from './is-array.js';
 import isObject from './is-object.js';
 import normalizeField from './normalize-field.js';
+import normalizeRoot from './normalize-root.js';
 
 const walk = ({ normalized = {}, data, getKey, query }) => {
   if (isArray(data)) {
@@ -33,6 +34,11 @@ const walk = ({ normalized = {}, data, getKey, query }) => {
 
 export default ({ data, getKey, query }) => {
   const normalized = {};
-  normalized._root = walk({ data, getKey, normalized, query });
+  normalized[normalizeRoot({ query })] = walk({
+    data,
+    getKey,
+    normalized,
+    query
+  });
   return normalized;
 };

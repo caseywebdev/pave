@@ -39,6 +39,22 @@ export default {
       { sum: 3 }
     );
   },
+  'root args': () => {
+    assert.deepEqual(
+      cacheExecute({
+        cache: { '_root({"foo":"bar"})': { field: 'value' } },
+        query: { _args: { foo: 'bar' }, field: {} }
+      }),
+      { field: 'value' }
+    );
+    assert.deepEqual(
+      cacheExecute({
+        cache: { _root: { field: 'value' } },
+        query: { _args: { foo: 'bar' }, field: {} }
+      }),
+      undefined
+    );
+  },
   oneOf: () => {
     assert.deepEqual(
       cacheExecute({
