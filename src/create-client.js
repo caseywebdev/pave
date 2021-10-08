@@ -4,16 +4,23 @@ import mergeCaches from './merge-caches.js';
 import mergeRefs from './merge-refs.js';
 import normalize from './normalize.js';
 
-export default ({ cache, execute, getKey } = {}) => {
-  const watchers = new Set();
+const identity = v => v;
 
+export default ({
+  cache,
+  execute,
+  getKey,
+  transformQuery = injectType
+} = {}) => {
+  transformQuery ??= identity;
+  const watchers = new Set();
   let currentUpdate;
 
   const client = {
     cache: cache ?? {},
 
     cacheExecute: ({ key, query }) =>
-      cacheExecute({ cache: client.cache, key, query: injectType(query) }),
+      cacheExecute({ cache: client.cache, key, query: transformQuery(query) }),
 
     cacheUpdate: ({ data }) => {
       const prev = client.cache;
@@ -36,14 +43,14 @@ export default ({ cache, execute, getKey } = {}) => {
     },
 
     execute: async ({ query, ...args }) => {
-      query = injectType(query);
+      query = transformQuery(query);
       const data = await execute({ query, ...args });
       client.update({ data, query });
       return data;
     },
 
     update: ({ data, query }) => {
-      query = injectType(query);
+      query = transformQuery(query);
       data = normalize({ data, getKey, query });
       return client.cacheUpdate({ data });
     },
@@ -54,7 +61,7 @@ export default ({ cache, execute, getKey } = {}) => {
       const unwatch = () => watchers.delete(watcher);
       if (!query) return { unwatch };
 
-      watcher.query = query = injectType(query);
+      watcher.query = query = transformQuery(query);
       watcher.data = data = mergeRefs(client.cacheExecute({ query }), data);
       return { data, unwatch };
     }
