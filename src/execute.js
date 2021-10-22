@@ -110,6 +110,8 @@ const execute = async ({
 
     if (type.oneOf) {
       name = type.resolveType(value);
+      if (!(name in type.oneOf)) fail('expectedOneOfType');
+
       type = type.oneOf[name];
       const onKey = `_on_${name}`;
       path = path.concat(onKey);

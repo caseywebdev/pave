@@ -95,7 +95,10 @@ const validateValue = ({
     }
 
     if (type.oneOf) {
-      type = type.oneOf[type.resolveType(value)];
+      const name = type.resolveType(value);
+      if (!(name in type.oneOf)) fail('expectedOneOfType');
+
+      type = type.oneOf[name];
       continue;
     }
 
