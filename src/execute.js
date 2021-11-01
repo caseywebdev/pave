@@ -130,9 +130,6 @@ const execute = async ({
             const field = _field ?? alias;
             if (field === '_type') return [alias, name];
 
-            const _type = type.fields[field];
-            if (!_type) fail('unknownField', { alias, field });
-
             return [
               alias,
               await execute({
@@ -141,7 +138,7 @@ const execute = async ({
                 path: path.concat(alias),
                 query: _query,
                 schema,
-                type: _type,
+                type: type.fields[field],
                 value: value[field]
               })
             ];
