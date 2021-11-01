@@ -28,6 +28,7 @@ const execute = async ({
 
   let isNullable = false;
   let isOptional = false;
+  let isResolved = false;
   let name = null;
   while (true) {
     if (isFunction(value)) {
@@ -147,18 +148,22 @@ const execute = async ({
       );
     }
 
-    const { _args, ..._query } = query;
+    query = { ...query };
     let _value = 'resolve' in type ? type.resolve : value;
     if (isFunction(_value)) {
-      _value = await _value({
-        args: validateArgs({
-          args: _args,
+      if (isResolved) {
+        query._args = validateArgs({
+          args: query._args,
           context,
-          path: path.concat('_args'),
+          path,
           query,
           schema,
           type
-        }),
+        });
+      }
+
+      _value = await _value({
+        args: query._args,
         context,
         obj,
         path,
@@ -169,8 +174,9 @@ const execute = async ({
       });
     }
 
-    if (type.typeArgs) _query._args = type.typeArgs;
-    query = _query;
+    isResolved = true;
+    if (type.typeArgs) query._args = type.typeArgs;
+    else delete query._args;
     type = type.type;
     value = _value;
   }

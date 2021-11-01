@@ -80,7 +80,11 @@ export default async () => {
             }
           },
           type: {
-            oneOf: { String: 'String', ThingA, ThingB },
+            oneOf: {
+              String: { type: 'String', typeArgs: { maxLength: 3 } },
+              ThingA,
+              ThingB
+            },
             resolveType: val =>
               typeof val === 'string' ? 'String' : val.a ? 'ThingA' : 'ThingB'
           },
@@ -181,7 +185,7 @@ export default async () => {
     }
   };
 
-  const query = {
+  let query = {
     _type: {},
     nullableStringA: {
       _field: 'nullableString',
@@ -293,7 +297,7 @@ export default async () => {
     nullableOneOf: null
   };
 
-  validateQuery({ query, schema, type: 'Root' });
+  query = validateQuery({ query, schema, type: 'Root' });
 
   assert.deepEqual(await execute({ query, schema, type: 'Root' }), expected);
 };
