@@ -11,6 +11,7 @@ const execute = async ({
   query,
   schema,
   type,
+  typeArgs,
   value
 }) => {
   const fail = (code, extra) => {
@@ -21,6 +22,7 @@ const execute = async ({
       query,
       schema,
       type,
+      typeArgs,
       value,
       ...extra
     });
@@ -28,7 +30,6 @@ const execute = async ({
 
   let isNullable = false;
   let isOptional = false;
-  let isResolved = false;
   let name = null;
   while (true) {
     if (isFunction(value)) {
@@ -103,6 +104,7 @@ const execute = async ({
             query,
             schema,
             type: type.arrayOf,
+            typeArgs,
             value
           })
         )
@@ -151,9 +153,9 @@ const execute = async ({
     query = { ...query };
     let _value = 'resolve' in type ? type.resolve : value;
     if (isFunction(_value)) {
-      if (isResolved) {
+      if (typeArgs) {
         query._args = validateArgs({
-          args: query._args,
+          args: typeArgs,
           context,
           path,
           query,
@@ -174,9 +176,8 @@ const execute = async ({
       });
     }
 
-    isResolved = true;
-    if (type.typeArgs) query._args = type.typeArgs;
-    else delete query._args;
+    delete query._args;
+    typeArgs = type.typeArgs ?? {};
     type = type.type;
     value = _value;
   }
