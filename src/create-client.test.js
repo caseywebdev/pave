@@ -91,6 +91,11 @@ export default {
       { _type: 'Root', _key: { _type: 'Foo:1', id: 2, name: 'foo' } },
       { _type: 'Root', _key: { _type: 'Foo:1', id: 2, name: 'FOO' } }
     ]);
+
+    assert.deepEqual(
+      client.cacheExecute({ key: 'Foo:1', query: { name: {} } }),
+      { name: 'FOO' }
+    );
   },
 
   'arg ref changes': () => {

@@ -20,7 +20,11 @@ export default ({
     cache: cache ?? {},
 
     cacheExecute: ({ key, query }) =>
-      cacheExecute({ cache: client.cache, key, query: transformQuery(query) }),
+      cacheExecute({
+        cache: client.cache,
+        key,
+        query: key ? query : transformQuery(query)
+      }),
 
     cacheUpdate: ({ data }) => {
       const prev = client.cache;
