@@ -3,11 +3,11 @@ import isObject from './is-object.js';
 const injectType = query => {
   if (!isObject(query)) return query;
 
-  const original = query;
-  for (const key in query) {
+  const initial = query;
+  for (const key in initial) {
     if (key === '_args' || key === '_field' || key === '_type') continue;
 
-    if (query === original) query = { _type: {}, ...query };
+    if (query === initial) query = { _type: {}, ...query };
     query[key] = injectType(query[key]);
   }
 
