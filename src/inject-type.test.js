@@ -10,8 +10,12 @@ export default () => {
       id: {},
       a: {
         _type: { _field: 'not overridden' },
-        name: {},
-        b: {}
+        name: { _args: { formal: true } },
+        b: {},
+        c: {
+          d: {},
+          e: {}
+        }
       }
     }),
     {
@@ -21,8 +25,13 @@ export default () => {
       id: {},
       a: {
         _type: { _field: 'not overridden' },
-        name: {},
-        b: {}
+        name: { _args: { formal: true } },
+        b: {},
+        c: {
+          _type: {},
+          d: {},
+          e: {}
+        }
       }
     }
   );
