@@ -1,7 +1,7 @@
 import isObject from './is-object.js';
 
 const injectType = query => {
-  if (!isObject(query)) return query;
+  if (!isObject(query) || !Object.keys(query).length) return query;
 
   query = { _type: {}, ...query };
   for (const key in query) {

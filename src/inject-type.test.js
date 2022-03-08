@@ -18,11 +18,11 @@ export default () => {
       _type: {},
       _args: { a: 1 },
       _field: 'foo',
-      id: { _type: {} },
+      id: {},
       a: {
         _type: { _field: 'not overridden' },
-        name: { _type: {} },
-        b: { _type: {} }
+        name: {},
+        b: {}
       }
     }
   );
