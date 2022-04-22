@@ -1,4 +1,3 @@
-import ensureObject from './ensure-object.js';
 import isArray from './is-array.js';
 import isObject from './is-object.js';
 import normalizeField from './normalize-field.js';
@@ -15,12 +14,12 @@ const walk = ({ normalized = {}, data, getKey, query }) => {
   const obj = key == null ? {} : (normalized[key] ??= {});
 
   // eslint-disable-next-line no-unused-vars
-  const { _args, _field, ..._query } = ensureObject(query);
+  const { _args, _field, ..._query } = query;
   Object.assign(_query, _query[`_on_${data._type}`]);
   for (const alias in _query) {
     if (data[alias] === undefined) continue;
 
-    const query = ensureObject(_query[alias]);
+    const query = _query[alias];
     const field = normalizeField({ alias, query });
     const value = walk({ normalized, data: data[alias], getKey, query });
     obj[field] =

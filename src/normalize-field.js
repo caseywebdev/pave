@@ -1,4 +1,3 @@
-import ensureObject from './ensure-object.js';
 import isArray from './is-array.js';
 import isObject from './is-object.js';
 
@@ -17,10 +16,8 @@ const orderObject = obj => {
   return val;
 };
 
-export default ({ alias, query }) => {
-  const field = query._field ?? alias;
-  const args = ensureObject(query._args);
-  if (!Object.keys(args).length) return field;
-
-  return field + `(${JSON.stringify(orderObject(args))})`;
-};
+export default ({ alias, query: { _args, _field } }) =>
+  (_field ?? alias) +
+  (Object.keys(_args ?? {}).length
+    ? `(${JSON.stringify(orderObject(_args))})`
+    : '');

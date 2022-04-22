@@ -31,7 +31,7 @@ export default {
     const base = { _type: null, bar: { _type: null, baz: {}, bang: {} } };
     client.update({
       data: { _type: null, bar: { _type: null, baz: {}, bang: {} } },
-      query: { _type: {}, bar: { _type: null, baz: {}, bang: {} } }
+      query: { _type: {}, bar: { _type: {}, baz: {}, bang: {} } }
     });
     const { data } = client.watch({
       data: base,
@@ -44,7 +44,7 @@ export default {
     assert.equal(base, data);
     client.update({
       data: { _type: null, bar: { _type: null, baz: {}, bang: {} } },
-      query: { _type: {}, bar: { _type: {}, baz: 1 } }
+      query: { _type: {}, bar: { _type: {}, baz: {} } }
     });
   },
 
