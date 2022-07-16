@@ -23,7 +23,7 @@ const walk = ({ normalized = {}, data, getKey, query }) => {
     const field = normalizeField({ alias, query });
     const value = walk({ normalized, data: data[alias], getKey, query });
     obj[field] =
-      isObject(value) && !isArray(value) && value._type !== 'ref'
+      isObject(value) && !isArray(value) && value._type !== '_ref'
         ? { ...obj[field], ...value }
         : value;
   }
