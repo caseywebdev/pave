@@ -6,6 +6,7 @@ import validateArgs from './validate-args.js';
 
 const validateValue = ({
   context,
+  obj,
   path = [],
   query,
   schema,
@@ -16,6 +17,7 @@ const validateValue = ({
   const fail = (code, extra) => {
     throw new PaveError(code, {
       context,
+      obj,
       path,
       query,
       schema,
@@ -44,6 +46,7 @@ const validateValue = ({
     if (!isObject(type)) {
       if (!schema[type]) fail('unknownType');
 
+      obj = null;
       type = schema[type];
       continue;
     }
@@ -85,6 +88,7 @@ const validateValue = ({
       return value.map((value, i) =>
         validateValue({
           context,
+          obj,
           path: path.concat(i),
           query,
           schema,
@@ -108,6 +112,7 @@ const validateValue = ({
       for (const field in type.fields) check[field] = undefined;
       check = { ...check, ...value };
       const _value = {};
+      obj = value;
       for (const field in check) {
         let value = check[field];
         const _type = type.fields[field];
@@ -115,6 +120,7 @@ const validateValue = ({
 
         value = validateValue({
           context,
+          obj,
           path: path.concat(field),
           query,
           schema,
@@ -139,6 +145,7 @@ const validateValue = ({
             type
           }),
           context,
+          obj,
           path,
           query,
           schema,

@@ -1,14 +1,14 @@
 import isArray from './is-array.js';
 import isObject from './is-object.js';
+import validateArgs from './validate-args.js';
 import validateValue from './validate-value.js';
 
 export default ({ schema, typeFields }) => {
   const typeObject = {
-    resolve: ({ path, value, schema }) => {
+    resolve: ({ value, ...rest }) => {
       if (isObject(value) && !isArray(value)) {
         return validateValue({
-          path,
-          schema,
+          ...rest,
           type: {
             fields: Object.fromEntries(
               Object.keys(value).map(key => [key, type])
@@ -62,7 +62,6 @@ export default ({ schema, typeFields }) => {
           );
         }
       },
-      value: {},
       optional: { fields: { ...typeFields, optional: type } },
       nullable: { fields: { ...typeFields, nullable: type } },
       arrayOf: {
@@ -82,7 +81,19 @@ export default ({ schema, typeFields }) => {
           cost,
           resolve: { optional: { nullable: {} } },
           type: { optional: type },
-          typeArgs: { optional: typeObject },
+          typeArgs: {
+            optional: {
+              resolve: ({ obj, value, ...rest }) =>
+                validateArgs({
+                  ...rest,
+                  args: value,
+                  type:
+                    typeof obj.type === 'string'
+                      ? rest.schema[obj.type]
+                      : obj.type
+                })
+            }
+          },
           validateArgs: { optional: fn }
         }
       }
@@ -91,7 +102,7 @@ export default ({ schema, typeFields }) => {
       typeof value === 'string'
         ? 'string'
         : !isObject(value) || isArray(value)
-        ? 'value'
+        ? 'invalid'
         : 'optional' in value
         ? 'optional'
         : 'nullable' in value

@@ -119,9 +119,8 @@ export default async () => {
           nullableOneOf: {
             type: {
               nullable: {
-                oneOf: { String, Number },
-                resolveType: value =>
-                  typeof value === 'string' ? 'String' : 'Number'
+                oneOf: { string: 'String', number: 'Number' },
+                resolveType: value => typeof value
               }
             }
           },
@@ -137,9 +136,8 @@ export default async () => {
         fields: {
           id: {
             type: {
-              oneOf: { Number: 'Number', String: 'String' },
-              resolveType: value =>
-                typeof value === 'number' ? 'Number' : 'String'
+              oneOf: { number: 'Number', string: 'String' },
+              resolveType: value => typeof value
             }
           },
           subFoo: {
