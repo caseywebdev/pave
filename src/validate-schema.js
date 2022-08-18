@@ -2,27 +2,27 @@ import isArray from './is-array.js';
 import isObject from './is-object.js';
 import validateValue from './validate-value.js';
 
-const getSchema = ({ schema, typeFields }) => ({
-  typeObject: {
+export default ({ schema, typeFields }) => {
+  const typeObject = {
     resolve: ({ path, value, schema }) => {
       if (isObject(value) && !isArray(value)) {
         return validateValue({
-          value,
           path,
           schema,
           type: {
             fields: Object.fromEntries(
-              Object.keys(value).map(key => [key, 'type'])
+              Object.keys(value).map(key => [key, type])
             )
-          }
+          },
+          value
         });
       }
 
       throw new Error(`Expected ${JSON.stringify(value)} to be a type object`);
     }
-  },
+  };
 
-  positiveNumber: {
+  const positiveNumber = {
     resolve: ({ value }) => {
       if (typeof value === 'number' && value >= 0) return value;
 
@@ -30,20 +30,29 @@ const getSchema = ({ schema, typeFields }) => ({
         `Expected ${JSON.stringify(value)} to be a positive number`
       );
     }
-  },
+  };
 
-  function: {
+  const fn = {
     resolve: ({ value }) => {
       if (typeof value === 'function') return value;
 
       throw new Error(`Expected ${JSON.stringify(value)} to be a function`);
     }
-  },
+  };
 
-  type: {
+  const cost = {
+    nullable: {
+      oneOf: { fn, positiveNumber },
+      resolveType: value => (typeof value === 'function' ? fn : positiveNumber)
+    }
+  };
+
+  typeFields = { ...typeFields, defaultValue: { optional: {} } };
+  const type = {};
+  Object.assign(type, {
     oneOf: {
       string: {
-        resolve: ({ value }) => {
+        resolve: ({ schema, value }) => {
           const keys = Object.keys(schema);
           if (typeof value === 'string' && keys.includes(value)) return value;
 
@@ -53,35 +62,27 @@ const getSchema = ({ schema, typeFields }) => ({
         }
       },
       value: {},
-      optional: { fields: { ...typeFields, optional: 'type' } },
-      nullable: { fields: { ...typeFields, nullable: 'type' } },
+      optional: { fields: { ...typeFields, optional: type } },
+      nullable: { fields: { ...typeFields, nullable: type } },
       arrayOf: {
         fields: {
           ...typeFields,
-          arrayOf: 'type',
-          minLength: { optional: 'positiveNumber' },
-          maxLength: { optional: 'positiveNumber' }
+          arrayOf: type,
+          minLength: { optional: positiveNumber },
+          maxLength: { optional: positiveNumber }
         }
       },
-      oneOf: {
-        fields: { ...typeFields, oneOf: 'typeObject', resolveType: 'function' }
-      },
-      fields: { fields: { ...typeFields, fields: 'typeObject' } },
+      oneOf: { fields: { ...typeFields, oneOf: typeObject, resolveType: fn } },
+      fields: { fields: { ...typeFields, cost, fields: typeObject } },
       resolve: {
         fields: {
           ...typeFields,
-          args: { optional: 'typeObject' },
-          cost: {
-            nullable: {
-              oneOf: { function: 'function', positiveNumber: 'positiveNumber' },
-              resolveType: value =>
-                typeof value === 'function' ? 'function' : 'positiveNumber'
-            }
-          },
+          args: { optional: typeObject },
+          cost,
           resolve: { optional: { nullable: {} } },
-          type: { optional: 'type' },
-          typeArgs: { optional: 'typeObject' },
-          validateArgs: { optional: 'function' }
+          type: { optional: type },
+          typeArgs: { optional: typeObject },
+          validateArgs: { optional: fn }
         }
       }
     },
@@ -101,15 +102,7 @@ const getSchema = ({ schema, typeFields }) => ({
         : 'fields' in value
         ? 'fields'
         : 'resolve'
-  }
-});
-
-export default ({ schema, typeFields }) =>
-  validateValue({
-    value: schema,
-    type: 'typeObject',
-    schema: getSchema({
-      schema,
-      typeFields: { ...typeFields, defaultValue: { optional: {} } }
-    })
   });
+
+  return validateValue({ schema, type: typeObject, value: schema });
+};
