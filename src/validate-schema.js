@@ -41,9 +41,10 @@ export default ({ schema, typeFields }) => {
   };
 
   const cost = {
-    nullable: {
+    optional: {
       oneOf: { fn, positiveNumber },
-      resolveType: value => (typeof value === 'function' ? fn : positiveNumber)
+      resolveType: value =>
+        typeof value === 'function' ? 'fn' : 'positiveNumber'
     }
   };
 
