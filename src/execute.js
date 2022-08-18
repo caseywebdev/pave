@@ -142,19 +142,22 @@ const execute = async ({
       );
     }
 
+    query = { ...query };
     if ('resolve' in type) {
       if (isFunction(type.resolve)) {
+        if (typeArgs) {
+          query._args = validateArgs({
+            args: typeArgs,
+            context,
+            path,
+            query,
+            schema,
+            type
+          });
+        }
+
         value = await type.resolve({
-          args: typeArgs
-            ? validateArgs({
-                args: typeArgs,
-                context,
-                path,
-                query,
-                schema,
-                type
-              })
-            : query._args,
+          args: query._args,
           context,
           obj,
           path,
@@ -166,6 +169,7 @@ const execute = async ({
       } else value = type.resolve;
     }
 
+    delete query._args;
     typeArgs = type.typeArgs ?? {};
     type = type.type;
   }
