@@ -2,6 +2,7 @@ import { strict as assert } from 'assert';
 
 import execute from './execute.js';
 import validateQuery from './validate-query.js';
+import validateSchema from './validate-schema.js';
 
 export default async () => {
   assert.deepEqual(
@@ -34,239 +35,251 @@ export default async () => {
     }
   };
 
-  const schema = {
-    Root: {
-      defaultValue: {},
-      fields: {
-        addition: 'Boolean',
-        nullableString: {
-          args: { string: { nullable: 'String' } },
-          type: { nullable: 'NullableString' },
-          resolve: ({ args: { string } }) => string
-        },
-        nonNullableNullableString: {
-          args: { string: 'String' },
-          type: 'NullableString',
-          resolve: ({ args: { string } }) => string
-        },
-        nullableStringArg: {
-          args: { string: { nullable: 'NullableString' } },
-          type: { nullable: 'String' },
-          resolve: ({ args: { string } }) => string
-        },
-        selfLink: 'Root',
-        selfLinkWithAddition: {
-          type: 'Root',
-          resolve: { addition: true }
-        },
-        things: {
-          type: {
-            arrayOf: {
-              oneOf: { b: 'Bar', f: 'Foo' },
-              resolveType: ({ id }) => (id ? 'f' : 'b')
-            },
-            minLength: 1,
-            maxLength: 10
+  const schema = validateSchema({
+    schema: {
+      Root: {
+        defaultValue: {},
+        fields: {
+          addition: 'Boolean',
+          nullableString: {
+            args: { string: { nullable: 'String' } },
+            type: { nullable: 'NullableString' },
+            resolve: ({ args: { string } }) => string
           },
-          resolve: () => () => () => () => () =>
-            [{ id: 1 }, { id: '2', name: 'foo' }, { color: 'blue' }]
-        },
-        oneOfArgs: {
-          args: {
-            thing: {
-              oneOf: { String: 'String', ThingA, ThingB },
+          nonNullableNullableString: {
+            args: { string: 'String' },
+            type: 'NullableString',
+            resolve: ({ args: { string } }) => string
+          },
+          nullableStringArg: {
+            args: { string: { nullable: 'NullableString' } },
+            type: { nullable: 'String' },
+            resolve: ({ args: { string } }) => string
+          },
+          selfLink: 'Root',
+          selfLinkWithAddition: {
+            type: 'Root',
+            resolve: { addition: true }
+          },
+          things: {
+            type: {
+              arrayOf: {
+                oneOf: { b: 'Bar', f: 'Foo' },
+                resolveType: ({ id }) => (id ? 'f' : 'b')
+              },
+              minLength: 1,
+              maxLength: 10
+            },
+            resolve: () => [
+              { id: 1 },
+              { id: '2', name: 'foo' },
+              { color: 'blue' }
+            ]
+          },
+          oneOfArgs: {
+            args: {
+              thing: {
+                oneOf: { String: 'String', ThingA, ThingB },
+                resolveType: val =>
+                  typeof val === 'string'
+                    ? 'String'
+                    : val.a
+                    ? 'ThingA'
+                    : 'ThingB'
+              }
+            },
+            type: {
+              oneOf: {
+                String: { type: 'String', typeArgs: { maxLength: 3 } },
+                ThingA,
+                ThingB
+              },
               resolveType: val =>
                 typeof val === 'string' ? 'String' : val.a ? 'ThingA' : 'ThingB'
-            }
-          },
-          type: {
-            oneOf: {
-              String: { type: 'String', typeArgs: { maxLength: 3 } },
-              ThingA,
-              ThingB
             },
-            resolveType: val =>
-              typeof val === 'string' ? 'String' : val.a ? 'ThingA' : 'ThingB'
+            resolve: ({ args: { thing } }) => thing
           },
-          resolve: ({ args: { thing } }) => thing
-        },
-        nullableFields: {
-          type: {
-            nullable: {
-              fields: {
-                a: 'String'
+          nullableFields: {
+            type: {
+              nullable: {
+                fields: {
+                  a: 'String'
+                }
+              }
+            },
+            resolve: () => {}
+          },
+          nullableArrayOf: {
+            type: {
+              nullable: {
+                arrayOf: 'String'
               }
             }
           },
-          resolve: () => {}
-        },
-        nullableArrayOf: {
-          type: {
-            nullable: {
+          nullableOneOf: {
+            type: {
+              nullable: {
+                oneOf: { String, Number },
+                resolveType: value =>
+                  typeof value === 'string' ? 'String' : 'Number'
+              }
+            }
+          },
+          arrayOfStrings: {
+            type: {
               arrayOf: 'String'
-            }
+            },
+            resolve: ['a', 'b', 'c']
           }
-        },
-        nullableOneOf: {
-          type: {
-            nullable: {
-              oneOf: { String, Number }
-            }
-          }
-        },
-        arrayOfStrings: {
-          type: {
-            arrayOf: 'String'
-          },
-          resolve: ['a', 'b', 'c']
         }
-      }
-    },
-    Foo: {
-      fields: {
-        id: {
-          type: {
-            oneOf: { Number: 'Number', String: 'String' },
-            resolveType: value =>
-              typeof value === 'number' ? 'Number' : 'String'
-          }
-        },
-        subFoo: {
-          type: 'Foo',
-          resolve: async () => await { id: 123 }
-        },
-        name: {
-          defaultValue: 'Default name',
-          args: {
-            separator: { type: 'String', typeArgs: { maxLength: 3 } }
-          },
-          type: 'String',
-          resolve:
-            ({ args: { separator }, value }) =>
-            () =>
-            () =>
-              `${value}${separator}${value}`
-        }
-      }
-    },
-    Bar: {
-      fields: {
-        color: { type: 'String' }
-      }
-    },
-    Boolean: {
-      resolve: ({ value }) => {
-        if (typeof value === 'boolean') return value;
-      }
-    },
-    String: {
-      args: {
-        maxLength: { optional: 'Number' }
       },
-      resolve: ({ args: { maxLength }, path, value }) => {
-        if (typeof value !== 'string') {
+      Foo: {
+        fields: {
+          id: {
+            type: {
+              oneOf: { Number: 'Number', String: 'String' },
+              resolveType: value =>
+                typeof value === 'number' ? 'Number' : 'String'
+            }
+          },
+          subFoo: {
+            type: 'Foo',
+            resolve: async () => await { id: 123 }
+          },
+          name: {
+            defaultValue: 'Default name',
+            args: {
+              separator: { type: 'String', typeArgs: { maxLength: 3 } }
+            },
+            type: 'String',
+            resolve: ({ args: { separator }, value }) =>
+              `${value}${separator}${value}`
+          }
+        }
+      },
+      Bar: {
+        fields: {
+          color: { type: 'String' }
+        }
+      },
+      Boolean: {
+        resolve: ({ value }) => {
+          if (typeof value === 'boolean') return value;
+        }
+      },
+      String: {
+        args: {
+          maxLength: { optional: 'Number' }
+        },
+        resolve: ({ args: { maxLength }, path, value }) => {
+          if (typeof value !== 'string') {
+            throw new Error(
+              `Expected a "String" but got ${JSON.stringify(value)} ${path}`
+            );
+          }
+
+          if (maxLength != null && value.length > maxLength) {
+            throw new Error(`String cannot be more than ${maxLength} ${path}`);
+          }
+
+          return value;
+        }
+      },
+      NullableString: {
+        resolve: ({ value }) => value.trim() || null
+      },
+      Number: {
+        resolve: ({ value, path }) => {
+          if (typeof value === 'number') return value;
+
           throw new Error(
-            `Expected a "String" but got ${JSON.stringify(value)} ${path}`
+            `Expected a "Number" but got ${JSON.stringify(value)} ${path}`
           );
         }
-
-        if (maxLength != null && value.length > maxLength) {
-          throw new Error(`String cannot be more than ${maxLength} ${path}`);
-        }
-
-        return value;
-      }
-    },
-    NullableString: {
-      resolve: ({ value }) => value.trim() || null
-    },
-    Number: {
-      resolve: ({ value, path }) => {
-        if (typeof value === 'number') return value;
-
-        throw new Error(
-          `Expected a "Number" but got ${JSON.stringify(value)} ${path}`
-        );
       }
     }
-  };
+  });
 
-  let query = {
-    _type: {},
-    nullableStringA: {
-      _field: 'nullableString',
-      _args: { string: 'not null' }
-    },
-    nullableStringB: { _field: 'nullableString', _args: { string: '   ' } },
-    nullableStringC: {
-      _field: 'nonNullableNullableString',
-      _args: { string: 'not null' }
-    },
-    nullableStringD: {
-      _field: 'nonNullableNullableString',
-      _args: { string: '  a  ' }
-    },
-    nullableStringE: {
-      _field: 'nullableStringArg',
-      _args: { string: 'not null' }
-    },
-    nullableStringF: {
-      _field: 'nullableStringArg',
-      _args: { string: '   ' }
-    },
-    selfLink: {
-      selfLinkWithAddition: {
-        addition: {}
-      }
-    },
-    things: {
-      _on_f: {
-        _type: {},
-        id: {},
-        name: {
-          _args: {
-            separator: ' '
-          }
-        },
-        sub: {
-          _field: 'subFoo',
-          id: {},
-          subSub: {
-            _field: 'subFoo',
-            id: {}
-          }
+  const query = validateQuery({
+    query: {
+      _type: {},
+      nullableStringA: {
+        _field: 'nullableString',
+        _args: { string: 'not null' }
+      },
+      nullableStringB: { _field: 'nullableString', _args: { string: '   ' } },
+      nullableStringC: {
+        _field: 'nonNullableNullableString',
+        _args: { string: 'not null' }
+      },
+      nullableStringD: {
+        _field: 'nonNullableNullableString',
+        _args: { string: '  a  ' }
+      },
+      nullableStringE: {
+        _field: 'nullableStringArg',
+        _args: { string: 'not null' }
+      },
+      nullableStringF: {
+        _field: 'nullableStringArg',
+        _args: { string: '   ' }
+      },
+      selfLink: {
+        selfLinkWithAddition: {
+          addition: {}
         }
       },
-      _on_b: {
-        _type: {},
-        color: {}
-      }
+      things: {
+        _on_f: {
+          _type: {},
+          id: {},
+          name: {
+            _args: {
+              separator: ' '
+            }
+          },
+          sub: {
+            _field: 'subFoo',
+            id: {},
+            subSub: {
+              _field: 'subFoo',
+              id: {}
+            }
+          }
+        },
+        _on_b: {
+          _type: {},
+          color: {}
+        }
+      },
+      oneOfArgsString: {
+        _args: { thing: 'str' },
+        _field: 'oneOfArgs'
+      },
+      oneOfArgsA: {
+        _args: { thing: { a: 'A', a2: 'A2' } },
+        _field: 'oneOfArgs',
+        _on_ThingA: {
+          _type: {},
+          a: {}
+        }
+      },
+      oneOfArgsB: {
+        _args: { thing: { b: 'B', b2: 'B2' } },
+        _field: 'oneOfArgs',
+        _on_ThingB: {
+          _type: {},
+          b2: {}
+        }
+      },
+      nullableFields: { a: {} },
+      nullableArrayOf: {},
+      nullableOneOf: {},
+      arrayOfStrings: {}
     },
-    oneOfArgsString: {
-      _args: { thing: 'str' },
-      _field: 'oneOfArgs'
-    },
-    oneOfArgsA: {
-      _args: { thing: { a: 'A', a2: 'A2' } },
-      _field: 'oneOfArgs',
-      _on_ThingA: {
-        _type: {},
-        a: {}
-      }
-    },
-    oneOfArgsB: {
-      _args: { thing: { b: 'B', b2: 'B2' } },
-      _field: 'oneOfArgs',
-      _on_ThingB: {
-        _type: {},
-        b2: {}
-      }
-    },
-    nullableFields: { a: {} },
-    nullableArrayOf: {},
-    nullableOneOf: {},
-    arrayOfStrings: {}
-  };
+    schema,
+    type: 'Root'
+  });
 
   const expected = {
     _type: 'Root',
@@ -304,8 +317,6 @@ export default async () => {
     nullableOneOf: null,
     arrayOfStrings: ['a', 'b', 'c']
   };
-
-  query = validateQuery({ query, schema, type: 'Root' });
 
   assert.deepEqual(await execute({ query, schema, type: 'Root' }), expected);
 };

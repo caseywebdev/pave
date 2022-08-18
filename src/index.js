@@ -5,6 +5,8 @@ import injectType from './inject-type.js';
 import PaveError from './pave-error.js';
 import validateArgs from './validate-args.js';
 import validateQuery from './validate-query.js';
+import validateSchema from './validate-schema.js';
+import validateValue from './validate-value.js';
 
 export default {
   createClient,
@@ -13,5 +15,7 @@ export default {
   injectType,
   PaveError,
   validateArgs,
-  validateQuery
+  validateQuery,
+  validateSchema,
+  validateValue
 };
