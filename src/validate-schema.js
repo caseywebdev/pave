@@ -49,9 +49,11 @@ export default ({ schema, typeFields }) => {
   };
 
   typeFields = { ...typeFields, defaultValue: { optional: {} } };
+  const seenValues = new Set();
   const type = {};
   Object.assign(type, {
     oneOf: {
+      recursive: {},
       string: {
         resolve: ({ schema, value }) => {
           const keys = Object.keys(schema);
@@ -98,12 +100,16 @@ export default ({ schema, typeFields }) => {
         }
       }
     },
-    resolveType: value =>
-      typeof value === 'string'
-        ? 'string'
-        : !isObject(value) || isArray(value)
-        ? 'invalid'
-        : 'optional' in value
+    resolveType: value => {
+      if (seenValues.has(value)) return 'recursive';
+
+      if (typeof value === 'string') return 'string';
+
+      if (!isObject(value) || isArray(value)) return 'invalid';
+
+      seenValues.add(value);
+
+      return 'optional' in value
         ? 'optional'
         : 'nullable' in value
         ? 'nullable'
@@ -113,7 +119,8 @@ export default ({ schema, typeFields }) => {
         ? 'oneOf'
         : 'fields' in value
         ? 'fields'
-        : 'resolve'
+        : 'resolve';
+    }
   });
 
   return validateValue({ schema, type: typeObject, value: schema });

@@ -35,6 +35,9 @@ export default async () => {
     }
   };
 
+  const recursiveType = {};
+  recursiveType.optional = { nullable: { fields: { recursiveType } } };
+
   const schema = validateSchema({
     schema: {
       Root: {
@@ -194,7 +197,8 @@ export default async () => {
             `Expected a "Number" but got ${JSON.stringify(value)} ${path}`
           );
         }
-      }
+      },
+      recursiveType
     }
   });
 
