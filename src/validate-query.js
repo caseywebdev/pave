@@ -1,26 +1,23 @@
 import isObject from './is-object.js';
-import PaveError from './pave-error.js';
+import throwPaveError from './throw-pave-error.js';
 import validateArgs from './validate-args.js';
 
 const SKIP_ARGS = {};
 
 const validateQuery = ({ context, path = [], query, schema, type }) => {
-  const fail = (code, extra) => {
-    throw new PaveError(code, { context, path, query, schema, type, ...extra });
-  };
+  const fail = (code, extra) =>
+    throwPaveError(code, { context, path, query, schema, type, ...extra });
 
   while (true) {
     if (!isObject(query)) fail('invalidQuery');
 
     if (type == null) {
       for (const alias in query) {
-        if (
-          alias !== '_args' &&
-          alias !== '_field' &&
-          alias !== '_type' &&
-          !alias.startsWith('_on_')
-        ) {
-          fail('unknownField', { alias, field: query[alias]?._field || alias });
+        if (alias !== '_args' && alias !== '_field' && alias !== '_type') {
+          fail('unexpectedField', {
+            alias,
+            field: query[alias]?._field || alias
+          });
         }
       }
 
@@ -66,11 +63,9 @@ const validateQuery = ({ context, path = [], query, schema, type }) => {
 
         if (alias === field) delete subQuery._field;
 
-        if (!field.startsWith('_on_')) {
-          fail('ambiguousField', { alias, field: alias });
-        }
-
         const name = field.slice('_on_'.length);
+        if (!type.oneOf[name]) fail('expectedOneOfTypeField', { field: alias });
+
         query[alias] = validateQuery({
           context,
           path: path.concat(alias),
@@ -92,7 +87,10 @@ const validateQuery = ({ context, path = [], query, schema, type }) => {
         if (query[alias] === SKIP_ARGS) continue;
 
         if (!isObject(query[alias])) {
-          fail('invalidQuery', { alias, field: alias });
+          fail('invalidQuery', {
+            path: path.concat(alias),
+            query: query[alias]
+          });
         }
 
         const subQuery = { ...query[alias] };

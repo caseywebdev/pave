@@ -1,7 +1,7 @@
 import isArray from './is-array.js';
 import isFunction from './is-function.js';
 import isObject from './is-object.js';
-import PaveError from './pave-error.js';
+import throwPaveError from './throw-pave-error.js';
 import validateArgs from './validate-args.js';
 
 const execute = async ({
@@ -14,8 +14,8 @@ const execute = async ({
   typeArgs,
   value
 }) => {
-  const fail = (code, extra) => {
-    throw new PaveError(code, {
+  const fail = (code, extra) =>
+    throwPaveError(code, {
       context,
       obj,
       path,
@@ -26,7 +26,6 @@ const execute = async ({
       value,
       ...extra
     });
-  };
 
   let isNullable = false;
   let isOptional = false;

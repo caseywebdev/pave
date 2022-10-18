@@ -1,7 +1,7 @@
 import isArray from './is-array.js';
 import isFunction from './is-function.js';
 import isObject from './is-object.js';
-import PaveError from './pave-error.js';
+import throwPaveError from './throw-pave-error.js';
 import validateArgs from './validate-args.js';
 
 const validateValue = ({
@@ -14,8 +14,9 @@ const validateValue = ({
   typeArgs,
   value
 }) => {
-  const fail = (code, extra) => {
-    throw new PaveError(code, {
+  const fail = (code, extra) =>
+    throwPaveError(code, {
+      code,
       context,
       obj,
       path,
@@ -26,7 +27,6 @@ const validateValue = ({
       value,
       ...extra
     });
-  };
 
   let isNullable = false;
   let isOptional = false;
