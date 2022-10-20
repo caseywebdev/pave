@@ -15,7 +15,7 @@ const getSuggestion = (provided, expected) => {
     expected
       .map(value => ({ distance: levenshtein(provided, value), value }))
       .sort((a, b) => (a.distance < b.distance ? -1 : 1))
-      .flatMap(({ distance, value }) => (distance <= 5 ? `"${value}"` : []))
+      .flatMap(({ distance, value }) => (distance <= 2 ? `"${value}"` : []))
   );
   return suggestion && `. Did you mean ${suggestion}?`;
 };
@@ -40,7 +40,7 @@ const messages = {
     )} must be at least length ${minLength}`,
 
   expectedNonNull: ({ path }) =>
-    `The value at ${formatPath(path)} cannot be null`,
+    `A non-null value is required at ${formatPath(path)}`,
 
   expectedOneOfType: ({ type: { oneOf }, path, value }) =>
     `The value ${JSON.stringify(value)} at ${formatPath(
@@ -48,27 +48,29 @@ const messages = {
     )} does not resolve to ${formatOr(Object.keys(oneOf))}`,
 
   expectedOneOfTypeField: ({ type: { oneOf }, path, field }) =>
-    `The field ${JSON.stringify(field)} at ${formatPath(
+    `The field ${JSON.stringify(field)} does not exist at ${formatPath(
       path
-    )} does not exist${getSuggestion(
+    )}${getSuggestion(
       field,
       Object.keys(oneOf).map(key => `_on_${key}`)
     )}`,
 
-  expectedRequired: ({ path }) => `A value at ${formatPath(path)} is required`,
+  expectedRequired: ({ path }) => `A value is required at ${formatPath(path)}`,
 
   invalidQuery: ({ path, query }) =>
     `The query object ${JSON.stringify(query)} at ${formatPath(
       path
-    )} but ${JSON.stringify(query)} is invalid`,
+    )} is invalid`,
 
   unexpectedField: ({ field, path }) =>
-    `The field ${JSON.stringify(field)} at ${formatPath(path)} is not expected`,
+    `The field ${JSON.stringify(
+      field
+    )} (or any other field) is not expected at ${formatPath(path)}`,
 
   unknownField: ({ type: { fields }, path, field }) =>
-    `The field ${JSON.stringify(field)} at ${formatPath(
+    `The field ${JSON.stringify(field)} does not exist at ${formatPath(
       path
-    )} does not exist${getSuggestion(field, Object.keys(fields))}`,
+    )}${getSuggestion(field, Object.keys(fields))}`,
 
   unknownType: ({ path, type }) =>
     `The type ${JSON.stringify(type)} at ${formatPath(path)} does not exist`
