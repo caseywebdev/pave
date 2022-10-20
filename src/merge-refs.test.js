@@ -24,13 +24,11 @@ const createRandomObj = (depth = 0) => {
       : undefined;
   }
 
-  const values = Array(100)
+  const values = Array(10)
     .fill()
     .map(() => createRandomObj(depth + 1));
   return random < 0.5 ? values : Object.fromEntries(Object.entries(values));
 };
-
-let randomObjPairs = [];
 
 export default {
   basic: () => {
@@ -112,13 +110,5 @@ export default {
     assert.equal(isEqual({}, []), false);
   },
 
-  '#skip perf': {
-    setup: () => {
-      randomObjPairs = new Array(10)
-        .fill()
-        .map(() => [createRandomObj(), createRandomObj()]);
-    },
-
-    run: () => randomObjPairs.forEach(([a, b]) => mergeRefs(a, b))
-  }
+  'bench #times=10': () => mergeRefs(createRandomObj(), createRandomObj())
 };

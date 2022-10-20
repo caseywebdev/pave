@@ -13,19 +13,17 @@ export default {
 
   'kitten sitting': () => assert.equal(levenshtein('kitten', 'sitting'), 3),
 
-  'bench #skip': () => {
-    for (let i = 0; i < 100; ++i) {
-      for (let i = 0; i + 1 < words.length; i += 2) {
-        levenshtein(words[i], words[i + 1]);
-      }
+  'bench #times=10': () => {
+    for (let i = 0; i + 1 < words.length; i += 2) {
+      levenshtein(words[i], words[i + 1]);
+    }
 
-      for (let i = 0; i + 1 < sentences.length; i += 2) {
-        levenshtein(sentences[i], sentences[i + 1]);
-      }
+    for (let i = 0; i + 1 < sentences.length; i += 2) {
+      levenshtein(sentences[i], sentences[i + 1]);
+    }
 
-      for (let i = 0; i + 1 < paragraphs.length; i += 2) {
-        levenshtein(paragraphs[i], paragraphs[i + 1]);
-      }
+    for (let i = 0; i + 1 < paragraphs.length; i += 2) {
+      levenshtein(paragraphs[i], paragraphs[i + 1]);
     }
   }
 };
