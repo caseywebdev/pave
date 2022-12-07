@@ -1,23 +1,21 @@
 import validateValue from './validate-value.js';
 
-export default ({ args, context, path = [], query, schema, type }) => {
-  args = validateValue({
+export default ({ args, context, path = [], query, schema, type }) =>
+  validateValue({
     context,
     path,
     query,
     schema,
-    type: { defaultValue: {}, fields: type?.args ?? {} },
-    value: args
+    type: {
+      type: { fields: type?.args ?? {} },
+      validate:
+        type?.validateArgs &&
+        (({ query, value, ...rest }) =>
+          type.validateArgs({
+            args: value,
+            query: { _args: value, ...query },
+            ...rest
+          }))
+    },
+    value: args ?? {}
   });
-
-  return (
-    type?.validateArgs?.({
-      args,
-      context,
-      path,
-      query: { ...query, _args: args },
-      schema,
-      type
-    }) ?? args
-  );
-};

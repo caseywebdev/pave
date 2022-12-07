@@ -71,9 +71,8 @@ export default {
         },
         query: {
           oneOfs: {
-            shared: {},
-            _on_Foo: { id: {}, name: {} },
-            _on_Bar: { id: {}, color: {} }
+            _on_Foo: { id: {}, name: {}, shared: {} },
+            _on_Bar: { id: {}, color: {}, shared: {} }
           }
         }
       }),

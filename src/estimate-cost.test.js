@@ -10,36 +10,38 @@ export default () => {
         schema: {
           Root: {
             cost: ({ cost }) => cost * 3,
-            fields: {
-              foo: {
-                cost: 5
-              },
-              bar: { cost: 10 },
-              baz: {
-                args: { size: {} },
-                cost: ({ args: { size }, cost, path }) => {
-                  assert.deepEqual(path, ['baz']);
-                  return size * cost;
+            type: {
+              fields: {
+                foo: {
+                  cost: 5
                 },
-                type: {
-                  fields: {
-                    a: { cost: 1 },
-                    b: { cost: 2 },
-                    c: { cost: 3 }
-                  }
-                }
-              },
-              oneOf: {
-                oneOf: {
-                  SuperExpensive: 'SuperExpensive',
-                  MediumExpensive: {
-                    nullable: {
-                      fields: { ding: { cost: 50 } }
-                    }
+                bar: { cost: 10 },
+                baz: {
+                  args: { size: {} },
+                  cost: ({ args: { size }, cost, path }) => {
+                    assert.deepEqual(path, ['baz']);
+                    return size * cost;
                   },
-                  Cheap: { fields: { dong: { cost: 1 } } }
+                  type: {
+                    fields: {
+                      a: { cost: 1 },
+                      b: { cost: 2 },
+                      c: { cost: 3 }
+                    }
+                  }
                 },
-                resolveType: () => {}
+                oneOf: {
+                  oneOf: {
+                    SuperExpensive: 'SuperExpensive',
+                    MediumExpensive: {
+                      nullable: {
+                        fields: { ding: { cost: 50 } }
+                      }
+                    },
+                    Cheap: { fields: { dong: { cost: 1 } } }
+                  },
+                  resolveType: () => {}
+                }
               }
             }
           },

@@ -3,10 +3,10 @@ import isObject from './is-object.js';
 import validateArgs from './validate-args.js';
 import validateValue from './validate-value.js';
 
-export default ({ schema, typeFields }) => {
+export default ({ extraFields, schema }) => {
   const typeObject = {
     resolve: ({ value, ...rest }) => {
-      if (isObject(value) && !isArray(value)) {
+      if (isObject(value)) {
         return validateValue({
           ...rest,
           type: {
@@ -40,16 +40,8 @@ export default ({ schema, typeFields }) => {
     }
   };
 
-  const cost = {
-    optional: {
-      oneOf: { fn, positiveNumber },
-      resolveType: value =>
-        typeof value === 'function' ? 'fn' : 'positiveNumber'
-    }
-  };
-
-  typeFields = { ...typeFields, defaultValue: { optional: {} } };
   const seenValues = new Set();
+  const defaultValue = { optional: {} };
   const type = {};
   Object.assign(type, {
     oneOf: {
@@ -64,23 +56,30 @@ export default ({ schema, typeFields }) => {
           );
         }
       },
-      optional: { fields: { ...typeFields, optional: type } },
-      nullable: { fields: { ...typeFields, nullable: type } },
+      optional: { fields: { optional: type } },
+      nullable: { fields: { defaultValue, nullable: type } },
       arrayOf: {
         fields: {
-          ...typeFields,
           arrayOf: type,
+          defaultValue,
           minLength: { optional: positiveNumber },
           maxLength: { optional: positiveNumber }
         }
       },
-      oneOf: { fields: { ...typeFields, oneOf: typeObject, resolveType: fn } },
-      fields: { fields: { ...typeFields, cost, fields: typeObject } },
+      oneOf: { fields: { defaultValue, oneOf: typeObject, resolveType: fn } },
+      fields: { fields: { defaultValue, fields: typeObject } },
       resolve: {
         fields: {
-          ...typeFields,
+          ...extraFields,
           args: { optional: typeObject },
-          cost,
+          cost: {
+            optional: {
+              oneOf: { fn, positiveNumber },
+              resolveType: value =>
+                typeof value === 'function' ? 'fn' : 'positiveNumber'
+            }
+          },
+          defaultValue,
           resolve: { optional: { nullable: {} } },
           type: { optional: type },
           typeArgs: {
@@ -96,6 +95,7 @@ export default ({ schema, typeFields }) => {
                 })
             }
           },
+          validate: { optional: fn },
           validateArgs: { optional: fn }
         }
       }

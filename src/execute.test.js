@@ -132,6 +132,11 @@ export default async () => {
               arrayOf: 'String'
             },
             resolve: ['a', 'b', 'c']
+          },
+          validateOverride: {
+            type: { fields: ['Bar', 'TrimmedString'] },
+            resolve: [{ color: 'red' }, ' trim me '],
+            validate: ({ value }) => ({ ...value, 1: value[1]?.toUpperCase() })
           }
         }
       },
@@ -185,6 +190,10 @@ export default async () => {
 
           return value;
         }
+      },
+      TrimmedString: {
+        type: 'String',
+        validate: ({ value }) => value.trim()
       },
       NullableString: {
         resolve: ({ value }) => value.trim() || null
@@ -277,7 +286,8 @@ export default async () => {
       nullableFields: { a: {} },
       nullableArrayOf: {},
       nullableOneOf: {},
-      arrayOfStrings: {}
+      arrayOfStrings: {},
+      validateOverride: { 0: { color: {} }, 1: {} }
     },
     schema,
     type: 'Root'
@@ -317,7 +327,8 @@ export default async () => {
     nullableFields: null,
     nullableArrayOf: null,
     nullableOneOf: null,
-    arrayOfStrings: ['a', 'b', 'c']
+    arrayOfStrings: ['a', 'b', 'c'],
+    validateOverride: { 0: { color: 'red' }, 1: 'TRIM ME' }
   };
 
   assert.deepEqual(await execute({ query, schema, type: 'Root' }), expected);

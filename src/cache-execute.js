@@ -25,8 +25,7 @@ const walk = ({ cache, query, value }) => {
     }
 
     // eslint-disable-next-line no-unused-vars
-    const { _args, _field, ..._query } = query;
-    Object.assign(_query, _query[`_on_${value._type}`]);
+    const { _args, _field, ..._query } = query[`_on_${value._type}`] ?? query;
     const data = {};
     for (const alias in _query) {
       if (alias.startsWith('_on_')) continue;
