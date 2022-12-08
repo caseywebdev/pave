@@ -51,6 +51,8 @@ const validateValue = ({
       continue;
     }
 
+    if (isArray(type)) type = { fields: type };
+
     if (value === undefined && type.defaultValue !== undefined) {
       value = type.defaultValue;
       continue;
@@ -111,7 +113,8 @@ const validateValue = ({
       let check = {};
       for (const field in type.fields) check[field] = undefined;
       check = { ...check, ...value };
-      const _value = {};
+      const fieldsIsArray = isArray(type.fields);
+      const _value = fieldsIsArray ? [] : {};
       obj = value;
       for (const field in check) {
         let value = check[field];
@@ -128,7 +131,8 @@ const validateValue = ({
           typeArgs,
           value
         });
-        if (value !== undefined) _value[field] = value;
+        if (fieldsIsArray) _value.push(value);
+        else if (value !== undefined) _value[field] = value;
       }
       return _value;
     }
@@ -155,27 +159,8 @@ const validateValue = ({
       } else value = type.resolve;
     }
 
-    const validate = type.validate;
     typeArgs = type.typeArgs;
     type = type.type;
-
-    if (validate) {
-      if (value != null) {
-        value = validateValue({
-          context,
-          obj,
-          path,
-          query,
-          schema,
-          type,
-          typeArgs,
-          value
-        });
-        value =
-          validate({ context, obj, path, query, schema, type, value }) ?? value;
-      }
-      type = null;
-    }
   }
 };
 

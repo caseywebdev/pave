@@ -52,6 +52,8 @@ const execute = async ({
       continue;
     }
 
+    if (isArray(type)) type = { fields: type };
+
     if (value === undefined && type.defaultValue !== undefined) {
       value = type.defaultValue;
       continue;
@@ -169,27 +171,8 @@ const execute = async ({
     }
 
     delete query._args;
-    const validate = type.validate;
     typeArgs = type.typeArgs ?? {};
     type = type.type;
-
-    if (validate) {
-      if (value != null) {
-        value = await execute({
-          context,
-          obj,
-          path,
-          query,
-          schema,
-          type,
-          typeArgs,
-          value
-        });
-        value =
-          validate({ context, obj, path, query, schema, type, value }) ?? value;
-      }
-      type = null;
-    }
   }
 };
 

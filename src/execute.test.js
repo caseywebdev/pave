@@ -133,10 +133,9 @@ export default async () => {
             },
             resolve: ['a', 'b', 'c']
           },
-          validateOverride: {
-            type: { fields: ['Bar', 'TrimmedString'] },
-            resolve: [{ color: 'red' }, ' trim me '],
-            validate: ({ value }) => ({ ...value, 1: value[1]?.toUpperCase() })
+          tuple: {
+            type: ['Bar', 'TrimmedString'],
+            resolve: [{ color: 'red' }, ' trim me ']
           }
         }
       },
@@ -175,9 +174,10 @@ export default async () => {
       },
       String: {
         args: {
-          maxLength: { optional: 'Number' }
+          maxLength: { optional: 'Number' },
+          validate: { optional: {} }
         },
-        resolve: ({ args: { maxLength }, path, value }) => {
+        resolve: ({ args: { maxLength, validate }, path, value }) => {
           if (typeof value !== 'string') {
             throw new Error(
               `Expected a "String" but got ${JSON.stringify(value)} ${path}`
@@ -188,12 +188,14 @@ export default async () => {
             throw new Error(`String cannot be more than ${maxLength} ${path}`);
           }
 
+          if (validate) value = validate(value);
+
           return value;
         }
       },
       TrimmedString: {
         type: 'String',
-        validate: ({ value }) => value.trim()
+        typeArgs: { validate: str => str.trim() }
       },
       NullableString: {
         resolve: ({ value }) => value.trim() || null
@@ -287,7 +289,7 @@ export default async () => {
       nullableArrayOf: {},
       nullableOneOf: {},
       arrayOfStrings: {},
-      validateOverride: { 0: { color: {} }, 1: {} }
+      tuple: [{ color: {} }, {}]
     },
     schema,
     type: 'Root'
@@ -328,7 +330,7 @@ export default async () => {
     nullableArrayOf: null,
     nullableOneOf: null,
     arrayOfStrings: ['a', 'b', 'c'],
-    validateOverride: { 0: { color: 'red' }, 1: 'TRIM ME' }
+    tuple: { 0: { color: 'red' }, 1: 'trim me' }
   };
 
   assert.deepEqual(await execute({ query, schema, type: 'Root' }), expected);

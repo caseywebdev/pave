@@ -41,6 +41,13 @@ export default ({ extraFields, schema }) => {
   };
 
   const seenValues = new Set();
+  const cost = {
+    optional: {
+      oneOf: { fn, positiveNumber },
+      resolveType: value =>
+        typeof value === 'function' ? 'fn' : 'positiveNumber'
+    }
+  };
   const defaultValue = { optional: {} };
   const type = {};
   Object.assign(type, {
@@ -56,29 +63,49 @@ export default ({ extraFields, schema }) => {
           );
         }
       },
-      optional: { fields: { optional: type } },
-      nullable: { fields: { defaultValue, nullable: type } },
+      tuple: { arrayOf: type },
+      optional: {
+        fields: {
+          ...extraFields?.optional,
+          cost,
+          optional: type
+        }
+      },
+      nullable: {
+        fields: { ...extraFields?.nullable, cost, defaultValue, nullable: type }
+      },
       arrayOf: {
         fields: {
+          ...extraFields?.arrayOf,
           arrayOf: type,
+          cost,
           defaultValue,
           minLength: { optional: positiveNumber },
           maxLength: { optional: positiveNumber }
         }
       },
-      oneOf: { fields: { defaultValue, oneOf: typeObject, resolveType: fn } },
-      fields: { fields: { defaultValue, fields: typeObject } },
+      oneOf: {
+        fields: {
+          ...extraFields?.oneOf,
+          cost,
+          defaultValue,
+          oneOf: typeObject,
+          resolveType: fn
+        }
+      },
+      fields: {
+        fields: {
+          ...extraFields?.fields,
+          cost,
+          defaultValue,
+          fields: typeObject
+        }
+      },
       resolve: {
         fields: {
-          ...extraFields,
+          ...extraFields?.resolve,
           args: { optional: typeObject },
-          cost: {
-            optional: {
-              oneOf: { fn, positiveNumber },
-              resolveType: value =>
-                typeof value === 'function' ? 'fn' : 'positiveNumber'
-            }
-          },
+          cost,
           defaultValue,
           resolve: { optional: { nullable: {} } },
           type: { optional: type },
@@ -95,7 +122,6 @@ export default ({ extraFields, schema }) => {
                 })
             }
           },
-          validate: { optional: fn },
           validateArgs: { optional: fn }
         }
       }
@@ -105,7 +131,9 @@ export default ({ extraFields, schema }) => {
 
       if (typeof value === 'string') return 'string';
 
-      if (!isObject(value) || isArray(value)) return 'invalid';
+      if (!isObject(value)) return 'invalid';
+
+      if (isArray(value)) return 'tuple';
 
       seenValues.add(value);
 

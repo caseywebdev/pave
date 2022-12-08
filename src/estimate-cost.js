@@ -1,50 +1,33 @@
+import isArray from './is-array.js';
 import isFunction from './is-function.js';
 import isObject from './is-object.js';
 
 const estimateCost = ({ context, path = [], query, schema, type }) => {
+  let cost = 0;
   while (true) {
-    if (type == null) return 0;
+    if (type == null) return cost;
 
-    if (!isObject(type)) {
-      type = schema[type];
-      continue;
-    }
+    if (isArray(type)) type = { fields: type };
 
-    if (type.optional) {
-      type = type.optional;
-      continue;
-    }
-
-    if (type.nullable) {
-      type = type.nullable;
-      continue;
-    }
-
-    if (type.arrayOf) {
-      type = type.arrayOf;
-      continue;
-    }
-
-    if (type.oneOf) {
-      let cost = 0;
-      for (const name in type.oneOf) {
-        const onKey = `_on_${name}`;
-        cost = Math.max(
-          cost,
-          estimateCost({
+    let nextType;
+    if (!isObject(type)) nextType = schema[type];
+    else if (type.optional) nextType = type.optional;
+    else if (type.nullable) nextType = type.nullable;
+    else if (type.arrayOf) nextType = type.arrayOf;
+    else if (type.oneOf) {
+      cost += Math.max(
+        ...Object.entries(type.oneOf).map(([name, type]) => {
+          const onKey = `_on_${name}`;
+          return estimateCost({
             context,
             path: path.concat(onKey),
             query: query[onKey] ?? {},
             schema,
-            type: type.oneOf[name]
-          })
-        );
-      }
-      return cost;
-    }
-
-    if (type.fields) {
-      let cost = 0;
+            type
+          });
+        })
+      );
+    } else if (type.fields) {
       for (const alias in query) {
         const _query = query[alias];
         const _type = type.fields[_query._field ?? alias];
@@ -56,22 +39,23 @@ const estimateCost = ({ context, path = [], query, schema, type }) => {
           type: _type
         });
       }
-      return cost;
+    } else {
+      cost += estimateCost({ context, path, query, schema, type: type.type });
     }
 
     if (isFunction(type.cost)) {
       return type.cost({
         args: query._args,
         context,
-        cost: estimateCost({ context, path, query, schema, type: type.type }),
+        cost,
         path,
         query,
         schema,
         type
       });
-    }
+    } else if (type.cost) cost += type.cost;
 
-    return type.cost || 0;
+    type = nextType;
   }
 };
 

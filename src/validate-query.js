@@ -1,3 +1,4 @@
+import isArray from './is-array.js';
 import isObject from './is-object.js';
 import throwPaveError from './throw-pave-error.js';
 import validateArgs from './validate-args.js';
@@ -30,6 +31,8 @@ const validateQuery = ({ context, path = [], query, schema, type }) => {
       type = schema[type];
       continue;
     }
+
+    if (isArray(type)) type = { fields: type };
 
     if (type.optional) {
       type = type.optional;
@@ -93,9 +96,13 @@ const validateQuery = ({ context, path = [], query, schema, type }) => {
           });
         }
 
-        const subQuery = { ...query[alias] };
-        const field = subQuery._field ?? alias;
-        if (alias === field) delete subQuery._field;
+        let subQuery = query[alias];
+        let field = alias;
+        if (!isArray(subQuery)) {
+          subQuery = { ...query[alias] };
+          field = subQuery._field ?? alias;
+          if (alias === field) delete subQuery._field;
+        }
 
         if (field === '_type') {
           query[alias] = {};
