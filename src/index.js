@@ -1,6 +1,6 @@
 import createClient from './create-client.js';
-import estimateCost from './estimate-cost.js';
 import execute from './execute.js';
+import getQueryCost from './get-query-cost.js';
 import injectType from './inject-type.js';
 import PaveError from './pave-error.js';
 import validateArgs from './validate-args.js';
@@ -10,8 +10,8 @@ import validateValue from './validate-value.js';
 
 export default {
   createClient,
-  estimateCost,
   execute,
+  getQueryCost,
   injectType,
   PaveError,
   validateArgs,

@@ -2,7 +2,7 @@ import isArray from './is-array.js';
 import isFunction from './is-function.js';
 import isObject from './is-object.js';
 
-const estimateCost = ({ context, path = [], query, schema, type }) => {
+const getQueryCost = ({ context, path = [], query, schema, type }) => {
   let cost = 0;
   while (true) {
     if (type == null) return cost;
@@ -18,7 +18,7 @@ const estimateCost = ({ context, path = [], query, schema, type }) => {
       cost += Math.max(
         ...Object.entries(type.oneOf).map(([name, type]) => {
           const onKey = `_on_${name}`;
-          return estimateCost({
+          return getQueryCost({
             context,
             path: path.concat(onKey),
             query: query[onKey] ?? {},
@@ -31,7 +31,7 @@ const estimateCost = ({ context, path = [], query, schema, type }) => {
       for (const alias in query) {
         const _query = query[alias];
         const _type = type.fields[_query._field ?? alias];
-        cost += estimateCost({
+        cost += getQueryCost({
           context,
           path: path.concat(alias),
           query: _query,
@@ -40,7 +40,7 @@ const estimateCost = ({ context, path = [], query, schema, type }) => {
         });
       }
     } else {
-      cost += estimateCost({ context, path, query, schema, type: type.type });
+      cost += getQueryCost({ context, path, query, schema, type: type.type });
     }
 
     if (isFunction(type.cost)) {
@@ -59,4 +59,4 @@ const estimateCost = ({ context, path = [], query, schema, type }) => {
   }
 };
 
-export default estimateCost;
+export default getQueryCost;

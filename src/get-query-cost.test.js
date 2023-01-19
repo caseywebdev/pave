@@ -1,11 +1,11 @@
 import { strict as assert } from 'assert';
 
-import estimateCost from './estimate-cost.js';
+import getQueryCost from './get-query-cost.js';
 import validateSchema from './validate-schema.js';
 
 export default () => {
   assert.equal(
-    estimateCost({
+    getQueryCost({
       schema: validateSchema({
         schema: {
           Root: {
