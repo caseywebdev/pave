@@ -13,4 +13,12 @@ export default () => {
     }),
     [1, [2, undefined, { key: 1 }, null]]
   );
+
+  assert.deepEqual(
+    validateValue({
+      type: { fields: { undef: { optional: {} } } },
+      value: {}
+    }),
+    {}
+  );
 };
