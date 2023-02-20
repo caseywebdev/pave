@@ -1,41 +1,42 @@
-import isArray from './is-array.js';
 import isObject from './is-object.js';
-import normalizeField from './normalize-field.js';
+import normalizeKey from './normalize-key.js';
 import normalizeRoot from './normalize-root.js';
 
-const walk = ({ normalized = {}, data, getKey, query }) => {
+const { isArray } = Array;
+
+const walk = ({ normalized = {}, data, getRef, query }) => {
   if (isArray(data)) {
-    return data.map(data => walk({ normalized, data, getKey, query }));
+    return data.map(data => walk({ normalized, data, getRef, query }));
   }
 
   if (!isObject(data) || data._type === undefined) return data;
 
-  const key = getKey?.(data);
-  const obj = key == null ? {} : (normalized[key] ??= {});
+  const ref = getRef?.(data);
+  const obj = ref ? (normalized[ref] ??= {}) : {};
 
   // eslint-disable-next-line no-unused-vars
-  const { _args, _field, ..._query } = query;
+  const { _arg, _key, ..._query } = query;
   Object.assign(_query, _query[`_on_${data._type}`]);
   for (const alias in _query) {
     if (data[alias] === undefined) continue;
 
     const query = _query[alias];
-    const field = normalizeField({ alias, query });
-    const value = walk({ normalized, data: data[alias], getKey, query });
-    obj[field] =
-      isObject(value) && !isArray(value) && value._type !== '_ref'
-        ? { ...obj[field], ...value }
+    const key = normalizeKey({ alias, query });
+    const value = walk({ normalized, data: data[alias], getRef, query });
+    obj[key] =
+      isObject(value) && !isArray(value) && !value._type?.ref
+        ? { ...obj[key], ...value }
         : value;
   }
 
-  return key == null ? obj : { _type: '_ref', key };
+  return ref ? { _type: { ref } } : obj;
 };
 
-export default ({ data, getKey, query }) => {
+export default ({ data, getRef, query }) => {
   const normalized = {};
   normalized[normalizeRoot({ query })] = walk({
     data,
-    getKey,
+    getRef,
     normalized,
     query
   });

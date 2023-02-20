@@ -7,7 +7,7 @@ export default {
   'from _root': () => {
     assert.deepEqual(
       normalize({
-        getKey: ({ _type, id }) =>
+        getRef: ({ _type, id }) =>
           _type === 'Root' ? 'Root' : _type && id ? `${_type}:${id}` : null,
         data: {
           _type: 'Root',
@@ -36,28 +36,30 @@ export default {
           }
         },
         query: injectType({
-          foo: {
-            id: {},
-            last: {},
-            nested: { a: {} },
-            list: { id: {}, foo: { id: {}, color: {} } }
-          },
-          bar: {
-            _field: 'foo',
-            _args: { id: 1 },
-            id: {},
-            name: {},
-            nested: { b: {} },
-            list: { id: {}, foo: { id: {}, color: {} } }
+          query: {
+            foo: {
+              id: {},
+              last: {},
+              nested: { a: {} },
+              list: { id: {}, foo: { id: {}, color: {} } }
+            },
+            bar: {
+              _key: 'foo',
+              _arg: { id: 1 },
+              id: {},
+              name: {},
+              nested: { b: {} },
+              list: { id: {}, foo: { id: {}, color: {} } }
+            }
           }
         })
       }),
       {
-        _root: { _type: '_ref', key: 'Root' },
+        _root: { _type: { ref: 'Root' } },
         Root: {
           _type: 'Root',
-          'foo({"id":1})': { _type: '_ref', key: 'Foo:1' },
-          foo: { _type: '_ref', key: 'Foo:1' }
+          'foo({"id":1})': { _type: { ref: 'Foo:1' } },
+          foo: { _type: { ref: 'Foo:1' } }
         },
         'Foo:1': {
           _type: 'Foo',
@@ -66,10 +68,7 @@ export default {
           last: 'Last',
           color: 'blue',
           nested: { _type: null, a: 1, b: 2 },
-          list: [
-            { _type: '_ref', key: 'Root' },
-            { _type: '_ref', key: 'Root' }
-          ]
+          list: [{ _type: { ref: 'Root' } }, { _type: { ref: 'Root' } }]
         }
       }
     );
@@ -78,7 +77,7 @@ export default {
   'from key': () => {
     assert.deepEqual(
       normalize({
-        getKey: ({ _type, id }) =>
+        getRef: ({ _type, id }) =>
           _type === 'Root' ? 'Root' : _type && id ? `${_type}:${id}` : null,
         data: {
           _type: 'Foo',
@@ -91,18 +90,20 @@ export default {
           }
         },
         query: injectType({
-          id: {},
-          name: {},
-          bar: { id: {}, name: {} }
+          query: {
+            id: {},
+            name: {},
+            bar: { id: {}, name: {} }
+          }
         })
       }),
       {
-        _root: { _type: '_ref', key: 'Foo:1' },
+        _root: { _type: { ref: 'Foo:1' } },
         'Foo:1': {
           _type: 'Foo',
           id: 1,
           name: 'foo',
-          bar: { _type: '_ref', key: 'Bar:2' }
+          bar: { _type: { ref: 'Bar:2' } }
         },
         'Bar:2': {
           _type: 'Bar',
@@ -116,7 +117,7 @@ export default {
   'one of': () => {
     assert.deepEqual(
       normalize({
-        getKey: ({ _type, id }) =>
+        getRef: ({ _type, id }) =>
           _type === 'Root' ? 'Root' : _type && id ? `${_type}:${id}` : null,
         data: {
           _type: null,
@@ -126,20 +127,19 @@ export default {
           ]
         },
         query: injectType({
-          oneOfs: {
-            shared: {},
-            _on_Foo: { id: {}, name: {} },
-            _on_Bar: { id: {}, color: {} }
+          query: {
+            oneOfs: {
+              shared: {},
+              _on_Foo: { id: {}, name: {} },
+              _on_Bar: { id: {}, color: {} }
+            }
           }
         })
       }),
       {
         _root: {
           _type: null,
-          oneOfs: [
-            { _type: '_ref', key: 'Foo:1' },
-            { _type: '_ref', key: 'Bar:2' }
-          ]
+          oneOfs: [{ _type: { ref: 'Foo:1' } }, { _type: { ref: 'Bar:2' } }]
         },
         'Foo:1': { _type: 'Foo', shared: 'a', id: 1, name: 'John' },
         'Bar:2': { _type: 'Bar', shared: 'b', id: 2, color: 'blue' }
@@ -147,13 +147,13 @@ export default {
     );
   },
 
-  'with _args': () => {
+  'with _arg': () => {
     assert.deepEqual(
       normalize({
-        data: { field: 'value' },
-        query: { _args: { foo: 'bar' }, field: {} }
+        data: { key: 'value' },
+        query: { _arg: { foo: 'bar' }, key: {} }
       }),
-      { '_root({"foo":"bar"})': { field: 'value' } }
+      { '_root({"foo":"bar"})': { key: 'value' } }
     );
   }
 };

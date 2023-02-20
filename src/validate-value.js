@@ -1,46 +1,65 @@
-import isArray from './is-array.js';
-import isFunction from './is-function.js';
 import isObject from './is-object.js';
 import throwPaveError from './throw-pave-error.js';
-import validateArgs from './validate-args.js';
+
+const { isArray } = Array;
 
 const validateValue = ({
-  context,
+  ctx,
   obj,
   path = [],
   query,
   schema,
   type,
-  typeArgs,
+  typeArg,
   value
 }) => {
   const fail = (code, extra) =>
     throwPaveError(code, {
       code,
-      context,
+      ctx,
       obj,
       path,
       query,
       schema,
       type,
-      typeArgs,
+      typeArg,
       value,
       ...extra
     });
 
+  if (type === undefined) {
+    if (value === undefined) return value;
+
+    fail('unexpectedValue');
+  }
+
+  if (type === null) {
+    if (value === null) return value;
+
+    fail('expectedNull');
+  }
+
+  const validateTypes = [];
+  const validate = value => {
+    for (const type of validateTypes) {
+      if (value == null) break;
+
+      value = type.validate({ ctx, obj, path, query, schema, type, value });
+    }
+    return value;
+  };
+
   let isNullable = false;
   let isOptional = false;
   while (true) {
+    if (isOptional && value === undefined) return undefined;
+
+    if (isNullable && value == null) return null;
+
     if (type == null) {
-      if (value != null) return value;
+      if (value != null) return validate(value);
 
-      if (!isOptional && isNullable) return null;
-
-      if (value === undefined && !isOptional) fail('expectedRequired');
-
-      if (value === null && !isNullable) fail('expectedNonNull');
-
-      return value;
+      fail(value === undefined ? 'expectedRequired' : 'expectedNonNull');
     }
 
     if (!isObject(type)) {
@@ -51,12 +70,13 @@ const validateValue = ({
       continue;
     }
 
-    if (isArray(type)) type = { fields: type };
+    if (isArray(type)) type = { object: type };
 
     if (value === undefined && type.defaultValue !== undefined) {
       value = type.defaultValue;
-      continue;
     }
+
+    if (type.validate && type !== validateTypes[0]) validateTypes.unshift(type);
 
     if (type.optional) {
       type = type.optional;
@@ -87,17 +107,19 @@ const validateValue = ({
         fail('expectedArrayMaxLength');
       }
 
-      return value.map((value, i) =>
-        validateValue({
-          context,
-          obj,
-          path: path.concat(i),
-          query,
-          schema,
-          type: type.arrayOf,
-          typeArgs,
-          value
-        })
+      return validate(
+        value.map((value, i) =>
+          validateValue({
+            ctx,
+            obj,
+            path: [...path, i],
+            query,
+            schema,
+            type: type.arrayOf,
+            typeArg,
+            value
+          })
+        )
       );
     }
 
@@ -109,46 +131,46 @@ const validateValue = ({
       continue;
     }
 
-    if (type.fields) {
+    if (type.object) {
       let check = {};
-      for (const field in type.fields) check[field] = undefined;
+      for (const key in type.object) check[key] = undefined;
       check = { ...check, ...value };
-      const fieldsIsArray = isArray(type.fields);
-      const _value = fieldsIsArray ? [] : {};
+      const objectIsArray = isArray(type.object);
+      const _value = objectIsArray ? [] : {};
       obj = value;
-      for (const field in check) {
-        let value = check[field];
-        const _type = type.fields[field];
-        if (!_type) fail('unknownField', { field });
+      for (const key in check) {
+        let value = check[key];
+        const _type = type.object[key];
+        if (!_type) fail('unknownKey', { key });
 
         value = validateValue({
-          context,
+          ctx,
           obj,
-          path: path.concat(field),
+          path: [...path, key],
           query,
           schema,
           type: _type,
-          typeArgs,
+          typeArg,
           value
         });
-        if (fieldsIsArray) _value.push(value);
-        else if (value !== undefined) _value[field] = value;
+        if (objectIsArray) _value.push(value);
+        else if (value !== undefined) _value[key] = value;
       }
-      return _value;
+      return validate(_value);
     }
 
     if ('resolve' in type) {
-      if (isFunction(type.resolve)) {
+      if (typeof type.resolve === 'function') {
         value = type.resolve({
-          args: validateArgs({
-            args: typeArgs,
-            context,
-            path: path.concat('_args'),
+          arg: validateValue({
+            ctx,
+            path: [...path, '_arg'],
             query,
             schema,
-            type
+            type: type.arg,
+            value: typeArg
           }),
-          context,
+          ctx,
           obj,
           path,
           query,
@@ -159,7 +181,7 @@ const validateValue = ({
       } else value = type.resolve;
     }
 
-    typeArgs = type.typeArgs;
+    typeArg = type.typeArg;
     type = type.type;
   }
 };

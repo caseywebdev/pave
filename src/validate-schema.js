@@ -1,16 +1,18 @@
-import isArray from './is-array.js';
 import isObject from './is-object.js';
-import validateArgs from './validate-args.js';
 import validateValue from './validate-value.js';
 
-export default ({ extraFields, schema }) => {
+const { Set } = globalThis;
+
+const { isArray } = Array;
+
+export default ({ extra, schema }) => {
   const typeObject = {
     resolve: ({ value, ...rest }) => {
       if (isObject(value)) {
         return validateValue({
           ...rest,
           type: {
-            fields: Object.fromEntries(
+            object: Object.fromEntries(
               Object.keys(value).map(key => [key, type])
             )
           },
@@ -41,15 +43,18 @@ export default ({ extraFields, schema }) => {
   };
 
   const seenValues = new Set();
-  const cost = {
-    optional: {
-      oneOf: { fn, positiveNumber },
-      resolveType: value =>
-        typeof value === 'function' ? 'fn' : 'positiveNumber'
-    }
-  };
-  const defaultValue = { optional: {} };
   const type = {};
+  const shared = {
+    cost: {
+      optional: {
+        oneOf: { fn, positiveNumber },
+        resolveType: value =>
+          typeof value === 'function' ? 'fn' : 'positiveNumber'
+      }
+    },
+    defaultValue: { optional: {} },
+    validate: { optional: fn }
+  };
   Object.assign(type, {
     oneOf: {
       recursive: {},
@@ -64,65 +69,45 @@ export default ({ extraFields, schema }) => {
         }
       },
       tuple: { arrayOf: type },
-      optional: {
-        fields: {
-          ...extraFields?.optional,
-          cost,
-          optional: type
-        }
-      },
-      nullable: {
-        fields: { ...extraFields?.nullable, cost, defaultValue, nullable: type }
-      },
+      optional: { object: { ...extra?.optional, ...shared, optional: type } },
+      nullable: { object: { ...extra?.nullable, ...shared, nullable: type } },
       arrayOf: {
-        fields: {
-          ...extraFields?.arrayOf,
+        object: {
+          ...extra?.arrayOf,
+          ...shared,
           arrayOf: type,
-          cost,
-          defaultValue,
           minLength: { optional: positiveNumber },
           maxLength: { optional: positiveNumber }
         }
       },
       oneOf: {
-        fields: {
-          ...extraFields?.oneOf,
-          cost,
-          defaultValue,
+        object: {
+          ...extra?.oneOf,
+          ...shared,
           oneOf: typeObject,
           resolveType: fn
         }
       },
-      fields: {
-        fields: {
-          ...extraFields?.fields,
-          cost,
-          defaultValue,
-          fields: typeObject
-        }
-      },
-      resolve: {
-        fields: {
-          ...extraFields?.resolve,
-          args: { optional: typeObject },
-          cost,
-          defaultValue,
+      object: { object: { ...extra?.object, ...shared, object: typeObject } },
+      type: {
+        object: {
+          ...extra?.type,
+          ...shared,
+          arg: { optional: type },
           resolve: { optional: { nullable: {} } },
           type: { optional: type },
-          typeArgs: {
+          typeArg: {
             optional: {
-              resolve: ({ obj, value, ...rest }) =>
-                validateArgs({
+              resolve: ({ obj, ...rest }) =>
+                validateValue({
                   ...rest,
-                  args: value,
-                  type:
-                    typeof obj.type === 'string'
-                      ? rest.schema[obj.type]
-                      : obj.type
+                  type: (typeof obj.type === 'string'
+                    ? rest.schema[obj.type]
+                    : obj.type
+                  )?.arg
                 })
             }
-          },
-          validateArgs: { optional: fn }
+          }
         }
       }
     },
@@ -145,9 +130,9 @@ export default ({ extraFields, schema }) => {
         ? 'arrayOf'
         : 'oneOf' in value
         ? 'oneOf'
-        : 'fields' in value
-        ? 'fields'
-        : 'resolve';
+        : 'object' in value
+        ? 'object'
+        : 'type';
     }
   });
 

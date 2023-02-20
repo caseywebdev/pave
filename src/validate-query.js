@@ -1,23 +1,24 @@
-import isArray from './is-array.js';
 import isObject from './is-object.js';
 import throwPaveError from './throw-pave-error.js';
-import validateArgs from './validate-args.js';
+import validateValue from './validate-value.js';
 
-const SKIP_ARGS = {};
+const { isArray } = Array;
 
-const validateQuery = ({ context, path = [], query, schema, type }) => {
+const skipArg = {};
+
+const validateQuery = ({ ctx, path = [], query, schema, type }) => {
   const fail = (code, extra) =>
-    throwPaveError(code, { context, path, query, schema, type, ...extra });
+    throwPaveError(code, { ctx, path, query, schema, type, ...extra });
 
   while (true) {
     if (!isObject(query)) fail('invalidQuery');
 
     if (type == null) {
       for (const alias in query) {
-        if (alias !== '_args' && alias !== '_field' && alias !== '_type') {
-          fail('unexpectedField', {
+        if (query[alias] !== skipArg && alias !== '_key' && alias !== '_type') {
+          fail('unexpectedKey', {
             alias,
-            field: query[alias]?._field || alias
+            key: query[alias]?._key || alias
           });
         }
       }
@@ -32,7 +33,7 @@ const validateQuery = ({ context, path = [], query, schema, type }) => {
       continue;
     }
 
-    if (isArray(type)) type = { fields: type };
+    if (isArray(type)) type = { object: type };
 
     if (type.optional) {
       type = type.optional;
@@ -53,25 +54,25 @@ const validateQuery = ({ context, path = [], query, schema, type }) => {
       query = { ...query };
 
       for (const alias in query) {
-        if (alias === '_field' || query[alias] === SKIP_ARGS) continue;
+        if (alias === '_key' || query[alias] === skipArg) continue;
 
         const subQuery = { ...query[alias] };
-        if (!isObject(subQuery)) fail('invalidQuery', { alias, field: alias });
+        if (!isObject(subQuery)) fail('invalidQuery', { alias, key: alias });
 
-        const field = subQuery._field ?? alias;
-        if (field === '_type') {
+        const key = subQuery._key ?? alias;
+        if (key === '_type') {
           delete query[alias];
           continue;
         }
 
-        if (alias === field) delete subQuery._field;
+        if (alias === key) delete subQuery._key;
 
-        const name = field.slice('_on_'.length);
-        if (!type.oneOf[name]) fail('expectedOneOfTypeField', { field: alias });
+        const name = key.slice('_on_'.length);
+        if (!type.oneOf[name]) fail('expectedOneOfTypeKey', { key: alias });
 
         query[alias] = validateQuery({
-          context,
-          path: path.concat(alias),
+          ctx,
+          path: [...path, alias],
           query: subQuery,
           schema,
           type: type.oneOf[name]
@@ -81,36 +82,36 @@ const validateQuery = ({ context, path = [], query, schema, type }) => {
       return query;
     }
 
-    if (type.fields) {
+    if (type.object) {
       query = { ...query };
 
       for (const alias in query) {
-        if (alias === '_field' && path.length > 0) continue;
+        if (alias === '_key' && path.length > 0) continue;
 
-        if (query[alias] === SKIP_ARGS) continue;
+        if (query[alias] === skipArg) continue;
 
         if (!isObject(query[alias])) {
           fail('invalidQuery', {
-            path: path.concat(alias),
+            path: [...path, alias],
             query: query[alias]
           });
         }
 
         const subQuery = { ...query[alias] };
-        const field = subQuery._field ?? alias;
-        if (alias === field) delete subQuery._field;
+        const key = subQuery._key ?? alias;
+        if (alias === key) delete subQuery._key;
 
-        if (field === '_type') {
+        if (key === '_type') {
           query[alias] = {};
           continue;
         }
 
-        const _type = type.fields[field];
-        if (!_type) fail('unknownField', { alias, field });
+        const _type = type.object[key];
+        if (!_type) fail('unknownKey', { alias, key });
 
         query[alias] = validateQuery({
-          context,
-          path: path.concat(alias),
+          ctx,
+          path: [...path, alias],
           query: subQuery,
           schema,
           type: _type
@@ -120,29 +121,29 @@ const validateQuery = ({ context, path = [], query, schema, type }) => {
       return query;
     }
 
-    let { _args, _field, ..._query } = query;
+    let { _arg, _key, ..._query } = query;
     _query = validateQuery({
-      context,
+      ctx,
       path,
-      query: { _args: SKIP_ARGS, ..._query },
+      query: { _arg: skipArg, ..._query },
       schema,
       type: type.type
     });
 
-    if (_field) _query._field = _field;
+    if (_key) _query._key = _key;
 
-    if (_args !== SKIP_ARGS) {
-      _query._args = validateArgs({
-        args: _args,
-        context,
-        path: path.concat('_args'),
-        query: { ..._query, _args },
+    if (_arg !== skipArg) {
+      _query._arg = validateValue({
+        ctx,
+        path: [...path, '_arg'],
+        query,
         schema,
-        type
+        type: type.arg,
+        value: query._arg
       });
     }
 
-    if (!type.args) delete _query._args;
+    if (!('arg' in type)) delete _query._arg;
 
     return _query;
   }

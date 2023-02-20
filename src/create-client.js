@@ -4,26 +4,24 @@ import mergeCaches from './merge-caches.js';
 import mergeRefs from './merge-refs.js';
 import normalize from './normalize.js';
 
-const identity = v => v;
+const { Set } = globalThis;
 
-export default ({
-  cache,
-  execute,
-  getKey,
-  transformQuery = injectType
-} = {}) => {
-  transformQuery ??= identity;
+const noopTransform = ({ query }) => query;
+
+export default ({ cache, execute, getRef, transformQuery } = {}) => {
+  if (transformQuery === undefined) transformQuery = injectType;
+  else if (transformQuery === null) transformQuery = noopTransform;
   const watchers = new Set();
   let currentUpdate;
 
   const client = {
     cache: cache ?? {},
 
-    cacheExecute: ({ key, query }) =>
+    cacheExecute: ({ ref, query }) =>
       cacheExecute({
         cache: client.cache,
-        key,
-        query: key ? query : transformQuery(query)
+        query: transformQuery({ query, ref }),
+        ref
       }),
 
     cacheUpdate: ({ data }) => {
@@ -46,16 +44,16 @@ export default ({
       return client;
     },
 
-    execute: async ({ query, ...args }) => {
-      query = transformQuery(query);
-      const data = await execute({ query, ...args });
+    execute: async ({ query, ...arg }) => {
+      query = transformQuery({ query });
+      const data = await execute({ query, ...arg });
       client.update({ data, query });
       return data;
     },
 
     update: ({ data, query }) => {
-      query = transformQuery(query);
-      data = normalize({ data, getKey, query });
+      query = transformQuery({ query });
+      data = normalize({ data, getRef, query });
       return client.cacheUpdate({ data });
     },
 
@@ -65,7 +63,7 @@ export default ({
       const unwatch = () => watchers.delete(watcher);
       if (!query) return { unwatch };
 
-      watcher.query = query = transformQuery(query);
+      watcher.query = query = transformQuery({ query });
       watcher.data = data = mergeRefs(client.cacheExecute({ query }), data);
       return { data, unwatch };
     }

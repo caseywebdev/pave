@@ -10,19 +10,19 @@ export default () => {
         schema: {
           Root: {
             cost: ({ cost }) => cost * 3,
-            fields: {
+            object: {
               foo: {
                 cost: 5
               },
               bar: { cost: 10 },
               baz: {
-                args: { size: {} },
-                cost: ({ args: { size }, cost, path }) => {
+                arg: { object: { size: {} } },
+                cost: ({ arg: { size }, cost, path }) => {
                   assert.deepEqual(path, ['baz']);
                   return size * cost;
                 },
                 type: {
-                  fields: {
+                  object: {
                     a: { cost: 1 },
                     b: { cost: 2 },
                     c: { cost: 3 }
@@ -34,17 +34,17 @@ export default () => {
                   SuperExpensive: 'SuperExpensive',
                   MediumExpensive: {
                     nullable: {
-                      fields: { ding: { cost: 50 } }
+                      object: { ding: { cost: 50 } }
                     }
                   },
-                  Cheap: { fields: { dong: { cost: 1 } } }
+                  Cheap: { object: { dong: { cost: 1 } } }
                 },
                 resolveType: () => {}
               }
             }
           },
           SuperExpensive: {
-            fields: { doot: { cost: 100 } }
+            object: { doot: { cost: 100 } }
           }
         }
       }),
@@ -52,14 +52,14 @@ export default () => {
       query: {
         foo: {}, // 5
         bar: {}, // 10
-        bar2: { _field: 'bar' }, // 10
-        baz: { _args: { size: 10 }, a: {}, b: {}, c: {} }, // 60
+        bar2: { _key: 'bar' }, // 10
+        baz: { _arg: { size: 10 }, a: {}, b: {}, c: {} }, // 60
         oneOf: {
           _on_SuperExpensive: { doot: {} },
           _on_MediumExpensive: { ding: {} }
         }, // 100
         oneOf2: {
-          _field: 'oneOf',
+          _key: 'oneOf',
           _on_MediumExpensive: { ding: {} },
           _on_Cheap: { dong: {} }
         } // 50

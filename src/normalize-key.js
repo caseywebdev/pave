@@ -1,5 +1,6 @@
-import isArray from './is-array.js';
 import isObject from './is-object.js';
+
+const { isArray } = Array;
 
 const orderObject = obj => {
   if (!isObject(obj)) return obj;
@@ -16,8 +17,8 @@ const orderObject = obj => {
   return val;
 };
 
-export default ({ alias, query: { _args, _field } }) =>
-  (_field ?? alias) +
-  (Object.keys(_args ?? {}).length
-    ? `(${JSON.stringify(orderObject(_args))})`
+export default ({ alias, query: { _arg, _key } }) =>
+  (_key ?? alias) +
+  (Object.keys(_arg ?? {}).length
+    ? `(${JSON.stringify(orderObject(_arg))})`
     : '');

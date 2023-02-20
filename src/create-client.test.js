@@ -61,24 +61,24 @@ export default {
 
   'ref changes': () => {
     const client = createClient({
-      getKey: ({ _type }) => _type
+      getRef: ({ _type }) => _type
     });
     const events = [];
     const onChange = data => events.push(data);
     client.watch({ query: { foo: { id: {} } }, onChange });
     client.watch({
-      query: { _key: { _args: { arg: 1 }, id: {}, name: {} } },
+      query: { alias: { _arg: { arg: 1 }, id: {}, name: {} } },
       onChange
     });
     client.update({
       data: {
         _type: 'Root',
-        _key: { _type: 'Foo:1' },
+        alias: { _type: 'Foo:1' },
         foo: { _type: 'Foo:1', id: 1, name: 'foo' }
       },
       query: {
         _type: {},
-        _key: { _args: { arg: 1 }, _type: {} },
+        alias: { _arg: { arg: 1 }, _type: {} },
         foo: { _type: {}, id: {}, name: {} }
       }
     });
@@ -86,27 +86,27 @@ export default {
     client.cacheUpdate({ data: { 'Foo:1': { _type: 'Foo:1', name: 'FOO' } } });
     assert.deepEqual(events, [
       { _type: 'Root', foo: { _type: 'Foo:1', id: 1 } },
-      { _type: 'Root', _key: { _type: 'Foo:1', id: 1, name: 'foo' } },
+      { _type: 'Root', alias: { _type: 'Foo:1', id: 1, name: 'foo' } },
       { _type: 'Root', foo: { _type: 'Foo:1', id: 2 } },
-      { _type: 'Root', _key: { _type: 'Foo:1', id: 2, name: 'foo' } },
-      { _type: 'Root', _key: { _type: 'Foo:1', id: 2, name: 'FOO' } }
+      { _type: 'Root', alias: { _type: 'Foo:1', id: 2, name: 'foo' } },
+      { _type: 'Root', alias: { _type: 'Foo:1', id: 2, name: 'FOO' } }
     ]);
 
     assert.deepEqual(
-      client.cacheExecute({ key: 'Foo:1', query: { name: {} } }),
-      { name: 'FOO' }
+      client.cacheExecute({ query: { name: {} }, ref: 'Foo:1' }),
+      { _type: 'Foo:1', name: 'FOO' }
     );
   },
 
   'arg ref changes': () => {
     const client = createClient({
-      getKey: ({ _type, id }) =>
+      getRef: ({ _type, id }) =>
         _type === 'Root' ? 'Root' : _type && id ? `${_type}:${id}` : null
     });
     const events = [];
     const onChange = data => events.push(data);
     client.watch({
-      query: { foo: { _args: { id: 1 }, _type: {}, id: {}, name: {} } },
+      query: { foo: { _arg: { id: 1 }, _type: {}, id: {}, name: {} } },
       onChange
     });
     client.update({
@@ -118,7 +118,7 @@ export default {
         _type: {},
         id: {},
         foo: {
-          _args: { id: 1 },
+          _arg: { id: 1 },
           _type: {},
           id: {},
           name: { _type: {}, id: {} }

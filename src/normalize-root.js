@@ -1,4 +1,4 @@
-import normalizeField from './normalize-field.js';
+import normalizeKey from './normalize-key.js';
 
-export default ({ query: { _args } }) =>
-  normalizeField({ alias: '_root', query: { _args } });
+export default ({ query: { _arg } }) =>
+  normalizeKey({ alias: '_root', query: { _arg } });

@@ -1,6 +1,7 @@
-import isArray from './is-array.js';
 import isObject from './is-object.js';
 import mergeRefs from './merge-refs.js';
+
+const { isArray } = Array;
 
 const merge = (a, b, isCacheRoot) => {
   if (
@@ -9,7 +10,7 @@ const merge = (a, b, isCacheRoot) => {
     isArray(a) ||
     isArray(b) ||
     (b._type === undefined && !isCacheRoot) ||
-    b._type === '_ref'
+    b._type?.ref
   ) {
     return mergeRefs(b, a);
   }

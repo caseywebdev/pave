@@ -1,46 +1,68 @@
-import isArray from './is-array.js';
-import isFunction from './is-function.js';
 import isObject from './is-object.js';
 import throwPaveError from './throw-pave-error.js';
-import validateArgs from './validate-args.js';
+import validateValue from './validate-value.js';
+
+const { Promise } = globalThis;
+
+const { isArray } = Array;
 
 const execute = async ({
-  context,
+  ctx,
+  isNullable = false,
+  name = null,
   obj,
   path = [],
   query,
   schema,
   type,
-  typeArgs,
-  value
+  typeArg,
+  value,
+  isOptional = false
 }) => {
   const fail = (code, extra) =>
     throwPaveError(code, {
-      context,
+      ctx,
       obj,
       path,
       query,
       schema,
       type,
-      typeArgs,
+      typeArg,
       value,
       ...extra
     });
 
-  let isNullable = false;
-  let isOptional = false;
-  let name = null;
+  if (type === undefined) {
+    if (value === undefined) return value;
+
+    fail('unexpectedValue');
+  }
+
+  if (type === null) {
+    if (value === null) return value;
+
+    fail('expectedNull');
+  }
+
+  const validates = [];
+  const validate = value => {
+    for (const { obj, path, type, query } of validates) {
+      if (value == null) break;
+
+      value = type.validate({ ctx, obj, path, query, schema, type, value });
+    }
+    return value;
+  };
+
   while (true) {
+    if (isOptional && value === undefined) return undefined;
+
+    if (isNullable && value == null) return null;
+
     if (type == null) {
-      if (value != null) return value;
+      if (value != null) return validate(value);
 
-      if (!isOptional && isNullable) return null;
-
-      if (value === undefined && !isOptional) fail('expectedRequired');
-
-      if (value === null && !isNullable) fail('expectedNonNull');
-
-      return value;
+      fail(value === undefined ? 'expectedRequired' : 'expectedNonNull');
     }
 
     if (!isObject(type)) {
@@ -52,11 +74,14 @@ const execute = async ({
       continue;
     }
 
-    if (isArray(type)) type = { fields: type };
+    if (isArray(type)) type = { object: type };
+
+    if (type.validate && type !== validates[0]?.type) {
+      validates.unshift({ type, obj, path, query });
+    }
 
     if (value === undefined && type.defaultValue !== undefined) {
       value = type.defaultValue;
-      continue;
     }
 
     if (type.optional) {
@@ -72,7 +97,7 @@ const execute = async ({
     }
 
     if (
-      (obj == null || type.arrayOf || type.oneOf || type.fields) &&
+      (obj == null || type.arrayOf || type.oneOf || type.object) &&
       value == null
     ) {
       type = null;
@@ -91,18 +116,21 @@ const execute = async ({
         fail('expectedArrayMaxLength');
       }
 
-      return Promise.all(
-        value.map((value, i) =>
-          execute({
-            context,
-            obj,
-            path: path.concat(i),
-            query,
-            schema,
-            type: type.arrayOf,
-            typeArgs,
-            value
-          })
+      return await validate(
+        await Promise.all(
+          value.map(
+            async (value, i) =>
+              await execute({
+                ctx,
+                obj,
+                path: [...path, i],
+                query,
+                schema,
+                type: type.arrayOf,
+                typeArg,
+                value
+              })
+          )
         )
       );
     }
@@ -113,53 +141,55 @@ const execute = async ({
 
       type = type.oneOf[name];
       const onKey = `_on_${name}`;
-      path = path.concat(onKey);
+      path = [...path, onKey];
       query = query[onKey] ?? {};
       continue;
     }
 
-    if (type.fields) {
-      return Object.fromEntries(
-        await Promise.all(
-          Object.entries(query).map(async ([alias, query]) => {
-            const { _field, ..._query } = query;
-            const field = _field ?? alias;
-            if (field === '_type') return [alias, name];
+    if (type.object) {
+      return await validate(
+        Object.fromEntries(
+          await Promise.all(
+            Object.entries(query).map(async ([alias, query]) => {
+              const { _key, ..._query } = query;
+              const key = _key ?? alias;
+              if (key === '_type') return [alias, name];
 
-            return [
-              alias,
-              await execute({
-                context,
-                obj: value,
-                path: path.concat(alias),
-                query: _query,
-                schema,
-                type: type.fields[field],
-                value: value[field]
-              })
-            ];
-          })
+              return [
+                alias,
+                await execute({
+                  ctx,
+                  obj: value,
+                  path: [...path, alias],
+                  query: _query,
+                  schema,
+                  type: type.object[key],
+                  value: value[key]
+                })
+              ];
+            })
+          )
         )
       );
     }
 
-    query = { ...query };
     if ('resolve' in type) {
-      if (isFunction(type.resolve)) {
-        if (typeArgs) {
-          query._args = validateArgs({
-            args: typeArgs,
-            context,
+      if (typeof type.resolve === 'function') {
+        query = { ...query };
+        if ('arg' in type && !('_arg' in query)) {
+          query._arg = validateValue({
+            ctx,
             path,
             query,
             schema,
-            type
+            type: type.arg,
+            value: typeArg
           });
         }
 
         value = await type.resolve({
-          args: query._args,
-          context,
+          arg: query._arg,
+          ctx,
           obj,
           path,
           query,
@@ -167,11 +197,11 @@ const execute = async ({
           type,
           value
         });
+        delete query._arg;
       } else value = type.resolve;
     }
 
-    delete query._args;
-    typeArgs = type.typeArgs ?? {};
+    typeArg = type.typeArg;
     type = type.type;
   }
 };

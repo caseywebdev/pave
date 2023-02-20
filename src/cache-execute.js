@@ -1,7 +1,8 @@
-import isArray from './is-array.js';
 import isObject from './is-object.js';
-import normalizeField from './normalize-field.js';
+import normalizeKey from './normalize-key.js';
 import normalizeRoot from './normalize-root.js';
+
+const { isArray } = Array;
 
 const walk = ({ cache, query, value }) => {
   while (true) {
@@ -19,20 +20,20 @@ const walk = ({ cache, query, value }) => {
 
     if (!isObject(value) || value._type === undefined) return value;
 
-    if (value._type === '_ref') {
-      value = cache[value.key];
+    if (value._type?.ref) {
+      value = cache[value._type.ref];
       continue;
     }
 
     // eslint-disable-next-line no-unused-vars
-    const { _args, _field, ..._query } = query[`_on_${value._type}`] ?? query;
+    const { _arg, _key, ..._query } = query[`_on_${value._type}`] ?? query;
     const data = {};
     for (const alias in _query) {
       if (alias.startsWith('_on_')) continue;
 
       const query = _query[alias];
-      const field = normalizeField({ alias, query });
-      const resolved = walk({ cache, query, value: value[field] });
+      const key = normalizeKey({ alias, query });
+      const resolved = walk({ cache, query, value: value[key] });
       if (resolved === undefined) return;
 
       data[alias] = resolved;
@@ -41,5 +42,5 @@ const walk = ({ cache, query, value }) => {
   }
 };
 
-export default ({ cache, key, query }) =>
-  walk({ cache, query, value: cache[key ?? normalizeRoot({ query })] });
+export default ({ cache, query, ref }) =>
+  walk({ cache, query, value: cache[ref ?? normalizeRoot({ query })] });

@@ -1,5 +1,6 @@
-import isArray from './is-array.js';
 import isObject from './is-object.js';
+
+const { isArray } = Array;
 
 const merge = (a, b) => {
   if (a === b || !isObject(a) || !isObject(b)) return a;

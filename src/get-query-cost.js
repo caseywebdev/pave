@@ -1,13 +1,13 @@
-import isArray from './is-array.js';
-import isFunction from './is-function.js';
 import isObject from './is-object.js';
 
-const getQueryCost = ({ context, path = [], query, schema, type }) => {
+const { isArray } = Array;
+
+const getQueryCost = ({ ctx, path = [], query, schema, type }) => {
   let cost = 0;
   while (true) {
     if (type == null) return cost;
 
-    if (isArray(type)) type = { fields: type };
+    if (isArray(type)) type = { object: type };
 
     let nextType;
     if (!isObject(type)) nextType = schema[type];
@@ -19,34 +19,34 @@ const getQueryCost = ({ context, path = [], query, schema, type }) => {
         ...Object.entries(type.oneOf).map(([name, type]) => {
           const onKey = `_on_${name}`;
           return getQueryCost({
-            context,
-            path: path.concat(onKey),
+            ctx,
+            path: [...path, onKey],
             query: query[onKey] ?? {},
             schema,
             type
           });
         })
       );
-    } else if (type.fields) {
+    } else if (type.object) {
       for (const alias in query) {
         const _query = query[alias];
-        const _type = type.fields[_query._field ?? alias];
+        const _type = type.object[_query._key ?? alias];
         cost += getQueryCost({
-          context,
-          path: path.concat(alias),
+          ctx,
+          path: [...path, alias],
           query: _query,
           schema,
           type: _type
         });
       }
     } else {
-      cost += getQueryCost({ context, path, query, schema, type: type.type });
+      cost += getQueryCost({ ctx, path, query, schema, type: type.type });
     }
 
-    if (isFunction(type.cost)) {
+    if (typeof type.cost === 'function') {
       return type.cost({
-        args: query._args,
-        context,
+        arg: query._arg,
+        ctx,
         cost,
         path,
         query,

@@ -8,9 +8,9 @@ export default {
       validateQuery({
         schema: {
           Root: {
-            fields: {
+            object: {
               sum: {
-                args: { a: 'Int', b: 'Int' },
+                arg: { object: { a: 'Int', b: 'Int' } },
                 type: 'Int'
               }
             }
@@ -20,14 +20,14 @@ export default {
         type: 'Root',
         query: {
           total: {
-            _field: 'sum',
-            _type: { _args: 'foo' },
-            _args: { a: 1, b: 2 }
+            _key: 'sum',
+            _type: { _arg: 'foo' },
+            _arg: { a: 1, b: 2 }
           }
         }
       }),
       {
-        total: { _field: 'sum', _args: { a: 1, b: 2 } }
+        total: { _key: 'sum', _arg: { a: 1, b: 2 } }
       }
     );
   },
@@ -37,25 +37,30 @@ export default {
       validateQuery({
         schema: {
           Root: {
-            fields: {
+            object: {
               sum: {
-                args: {
-                  a: 'Int',
-                  b: {
-                    defaultValue: 1,
-                    type: { typeArgs: { min: 1 }, type: 'Int' }
+                arg: {
+                  object: {
+                    a: 'Int',
+                    b: {
+                      defaultValue: 1,
+                      type: { typeArg: { min: 1 }, type: 'Int' }
+                    }
                   }
                 },
                 type: { notNull: 'Int' }
               },
               def: {
-                args: {
-                  a: { defaultValue: 3, type: 'Int' }
+                arg: {
+                  object: {
+                    a: { defaultValue: 3, type: 'Int' }
+                  },
+                  defaultValue: {}
                 }
               },
               obj: {
                 type: 'Obj',
-                args: { id: 'Int' }
+                arg: { object: { id: 'Int' } }
               },
               oneOf: {
                 oneOf: { Foo: 'Foo', Bar: 'Bar' }
@@ -63,27 +68,30 @@ export default {
             }
           },
           Obj: {
-            fields: {
+            object: {
               name: 'String',
               obj: 'Obj'
             }
           },
           Foo: {
-            fields: {
-              id: { args: { name: 'String' } },
-              fooField: {}
+            object: {
+              id: { arg: { object: { name: 'String' } } },
+              fooKey: {}
             }
           },
           Bar: {
-            fields: {
+            object: {
               id: {},
-              barField: {},
+              barKey: {},
               status: 'Status'
             }
           },
           Int: {
-            args: { min: { defaultValue: 2 }, max: { optional: 'Int' } },
-            resolve: ({ args: { min, max }, value }) => {
+            arg: {
+              object: { min: { defaultValue: 2 }, max: { optional: 'Int' } },
+              defaultValue: {}
+            },
+            resolve: ({ arg: { min, max }, value }) => {
               if (!Number.isInteger(value)) {
                 throw new Error(`Not an int: ${value}`);
               }
@@ -104,8 +112,8 @@ export default {
           },
           Enum: {
             type: 'String',
-            args: { values: { noNull: { arrayOf: 'String' } } },
-            resolve: ({ args: { values }, value }) => {
+            arg: { object: { values: { arrayOf: 'String' } } },
+            resolve: ({ arg: { values }, value }) => {
               if (values.includes(value)) return value;
 
               throw new Error(
@@ -117,27 +125,27 @@ export default {
           },
           Status: {
             type: 'Enum',
-            typeArgs: { values: ['pending', 'complete', 'failed'] }
+            typeArg: { values: ['pending', 'complete', 'failed'] }
           }
         },
         query: {
           _type: {},
           objAlias: {
-            _args: { id: 3 },
-            _field: 'obj',
+            _arg: { id: 3 },
+            _key: 'obj',
             name: {},
-            objAlias2: { _field: 'obj', name: {} }
+            objAlias2: { _key: 'obj', name: {} }
           },
-          sum: { _args: { a: 3 } },
+          sum: { _arg: { a: 3 } },
           def: {},
           oneOf: {
-            _field: 'oneOf',
+            _key: 'oneOf',
             _type: {},
             _on_Bar: { id: { _type: {} }, status: {} },
             _on_Foo: {
               _type: {},
-              id: { _args: { name: 'foo' }, _type: {} },
-              fooField: {}
+              id: { _arg: { name: 'foo' }, _type: {} },
+              fooKey: {}
             }
           }
         },
@@ -146,19 +154,19 @@ export default {
       {
         _type: {},
         objAlias: {
-          _args: { id: 3 },
-          _field: 'obj',
+          _arg: { id: 3 },
+          _key: 'obj',
           name: {},
-          objAlias2: { _field: 'obj', name: {} }
+          objAlias2: { _key: 'obj', name: {} }
         },
-        sum: { _args: { a: 3, b: 1 } },
-        def: { _args: { a: 3 } },
+        sum: { _arg: { a: 3, b: 1 } },
+        def: { _arg: { a: 3 } },
         oneOf: {
           _on_Bar: { id: {}, status: {} },
           _on_Foo: {
-            id: { _args: { name: 'foo' } },
+            id: { _arg: { name: 'foo' } },
             _type: {},
-            fooField: {}
+            fooKey: {}
           }
         }
       }
