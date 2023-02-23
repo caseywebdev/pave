@@ -100,7 +100,7 @@ export default {
     assert.equal(isEqual([], {}), false);
   },
 
-  object: () => {
+  obj: () => {
     assert.equal(isEqual({}, {}), true);
     assert.equal(isEqual({ a: 1 }, { a: 1 }), true);
     assert.equal(isEqual({ a: 1, b: 2 }, { b: 2, a: 1 }), true);

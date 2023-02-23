@@ -12,9 +12,7 @@ export default ({ extra, schema }) => {
         return validateValue({
           ...rest,
           type: {
-            object: Object.fromEntries(
-              Object.keys(value).map(key => [key, type])
-            )
+            obj: Object.fromEntries(Object.keys(value).map(key => [key, type]))
           },
           value
         });
@@ -69,10 +67,10 @@ export default ({ extra, schema }) => {
         }
       },
       tuple: { arrayOf: type },
-      optional: { object: { ...extra?.optional, ...shared, optional: type } },
-      nullable: { object: { ...extra?.nullable, ...shared, nullable: type } },
+      optional: { obj: { ...extra?.optional, ...shared, optional: type } },
+      nullable: { obj: { ...extra?.nullable, ...shared, nullable: type } },
       arrayOf: {
-        object: {
+        obj: {
           ...extra?.arrayOf,
           ...shared,
           arrayOf: type,
@@ -81,16 +79,16 @@ export default ({ extra, schema }) => {
         }
       },
       oneOf: {
-        object: {
+        obj: {
           ...extra?.oneOf,
           ...shared,
           oneOf: typeObject,
           resolveType: fn
         }
       },
-      object: { object: { ...extra?.object, ...shared, object: typeObject } },
+      obj: { obj: { ...extra?.obj, ...shared, obj: typeObject } },
       type: {
-        object: {
+        obj: {
           ...extra?.type,
           ...shared,
           arg: { optional: type },
@@ -130,8 +128,8 @@ export default ({ extra, schema }) => {
         ? 'arrayOf'
         : 'oneOf' in value
         ? 'oneOf'
-        : 'object' in value
-        ? 'object'
+        : 'obj' in value
+        ? 'obj'
         : 'type';
     }
   });

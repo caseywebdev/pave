@@ -7,7 +7,7 @@ const getQueryCost = ({ ctx, path = [], query, schema, type }) => {
   while (true) {
     if (type == null) return cost;
 
-    if (isArray(type)) type = { object: type };
+    if (isArray(type)) type = { obj: type };
 
     let nextType;
     if (!isObject(type)) nextType = schema[type];
@@ -27,10 +27,10 @@ const getQueryCost = ({ ctx, path = [], query, schema, type }) => {
           });
         })
       );
-    } else if (type.object) {
+    } else if (type.obj) {
       for (const alias in query) {
         const _query = query[alias];
-        const _type = type.object[_query._key ?? alias];
+        const _type = type.obj[_query._key ?? alias];
         cost += getQueryCost({
           ctx,
           path: [...path, alias],

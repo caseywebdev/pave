@@ -10,19 +10,19 @@ export default () => {
         schema: {
           Root: {
             cost: ({ cost }) => cost * 3,
-            object: {
+            obj: {
               foo: {
                 cost: 5
               },
               bar: { cost: 10 },
               baz: {
-                arg: { object: { size: {} } },
+                arg: { obj: { size: {} } },
                 cost: ({ arg: { size }, cost, path }) => {
                   assert.deepEqual(path, ['baz']);
                   return size * cost;
                 },
                 type: {
-                  object: {
+                  obj: {
                     a: { cost: 1 },
                     b: { cost: 2 },
                     c: { cost: 3 }
@@ -34,17 +34,17 @@ export default () => {
                   SuperExpensive: 'SuperExpensive',
                   MediumExpensive: {
                     nullable: {
-                      object: { ding: { cost: 50 } }
+                      obj: { ding: { cost: 50 } }
                     }
                   },
-                  Cheap: { object: { dong: { cost: 1 } } }
+                  Cheap: { obj: { dong: { cost: 1 } } }
                 },
                 resolveType: () => {}
               }
             }
           },
           SuperExpensive: {
-            object: { doot: { cost: 100 } }
+            obj: { doot: { cost: 100 } }
           }
         }
       }),

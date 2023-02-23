@@ -70,7 +70,7 @@ const validateValue = ({
       continue;
     }
 
-    if (isArray(type)) type = { object: type };
+    if (isArray(type)) type = { obj: type };
 
     if (value === undefined && type.defaultValue !== undefined) {
       value = type.defaultValue;
@@ -131,16 +131,16 @@ const validateValue = ({
       continue;
     }
 
-    if (type.object) {
+    if (type.obj) {
       let check = {};
-      for (const key in type.object) check[key] = undefined;
+      for (const key in type.obj) check[key] = undefined;
       check = { ...check, ...value };
-      const objectIsArray = isArray(type.object);
-      const _value = objectIsArray ? [] : {};
+      const objIsArray = isArray(type.obj);
+      const _value = objIsArray ? [] : {};
       obj = value;
       for (const key in check) {
         let value = check[key];
-        const _type = type.object[key];
+        const _type = type.obj[key];
         if (!_type) fail('unknownKey', { key });
 
         value = validateValue({
@@ -153,7 +153,7 @@ const validateValue = ({
           typeArg,
           value
         });
-        if (objectIsArray) _value.push(value);
+        if (objIsArray) _value.push(value);
         else if (value !== undefined) _value[key] = value;
       }
       return validate(_value);

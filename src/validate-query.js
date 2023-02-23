@@ -33,7 +33,7 @@ const validateQuery = ({ ctx, path = [], query, schema, type }) => {
       continue;
     }
 
-    if (isArray(type)) type = { object: type };
+    if (isArray(type)) type = { obj: type };
 
     if (type.optional) {
       type = type.optional;
@@ -82,7 +82,7 @@ const validateQuery = ({ ctx, path = [], query, schema, type }) => {
       return query;
     }
 
-    if (type.object) {
+    if (type.obj) {
       query = { ...query };
 
       for (const alias in query) {
@@ -106,7 +106,7 @@ const validateQuery = ({ ctx, path = [], query, schema, type }) => {
           continue;
         }
 
-        const _type = type.object[key];
+        const _type = type.obj[key];
         if (!_type) fail('unknownKey', { alias, key });
 
         query[alias] = validateQuery({

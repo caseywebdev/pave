@@ -74,7 +74,7 @@ const execute = async ({
       continue;
     }
 
-    if (isArray(type)) type = { object: type };
+    if (isArray(type)) type = { obj: type };
 
     if (type.validate && type !== validates[0]?.type) {
       validates.unshift({ type, obj, path, query });
@@ -97,7 +97,7 @@ const execute = async ({
     }
 
     if (
-      (obj == null || type.arrayOf || type.oneOf || type.object) &&
+      (obj == null || type.arrayOf || type.oneOf || type.obj) &&
       value == null
     ) {
       type = null;
@@ -146,7 +146,7 @@ const execute = async ({
       continue;
     }
 
-    if (type.object) {
+    if (type.obj) {
       return await validate(
         Object.fromEntries(
           await Promise.all(
@@ -163,7 +163,7 @@ const execute = async ({
                   path: [...path, alias],
                   query: _query,
                   schema,
-                  type: type.object[key],
+                  type: type.obj[key],
                   value: value[key]
                 })
               ];

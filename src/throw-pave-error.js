@@ -74,10 +74,10 @@ const messages = {
       path
     )} but no value is ever expected there`,
 
-  unknownKey: ({ type: { object }, path, key }) =>
+  unknownKey: ({ type: { obj }, path, key }) =>
     `The key ${JSON.stringify(key)} does not exist at ${formatPath(
       path
-    )}${getSuggestion(key, Object.keys(object))}`,
+    )}${getSuggestion(key, Object.keys(obj))}`,
 
   unknownType: ({ path, type }) =>
     `The type ${JSON.stringify(type)} at ${formatPath(path)} does not exist`

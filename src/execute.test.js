@@ -10,7 +10,7 @@ export default async () => {
       schema: {
         Root: {
           defaultValue: {},
-          object: {
+          obj: {
             a: { resolve: async () => 1 }
           }
         }
@@ -22,43 +22,43 @@ export default async () => {
   );
 
   const ThingA = {
-    object: {
+    obj: {
       a: 'String',
       a2: 'String'
     }
   };
 
   const ThingB = {
-    object: {
+    obj: {
       b: 'String',
       b2: 'String'
     }
   };
 
   const recursiveType = {};
-  recursiveType.optional = { nullable: { object: { recursiveType } } };
+  recursiveType.optional = { nullable: { obj: { recursiveType } } };
 
   const schema = validateSchema({
     schema: {
       Root: {
         defaultValue: {},
-        object: {
+        obj: {
           addition: 'Boolean',
           nullableString: {
             arg: {
-              object: { string: { nullable: 'String' } },
+              obj: { string: { nullable: 'String' } },
               validate: ({ value: { string } }) => ({ rename: string })
             },
             type: { nullable: 'NullableString' },
             resolve: ({ arg: { rename } }) => rename
           },
           nonNullableNullableString: {
-            arg: { object: { string: 'String' } },
+            arg: { obj: { string: 'String' } },
             type: 'NullableString',
             resolve: ({ arg: { string } }) => string
           },
           nullableStringArg: {
-            arg: { object: { string: { nullable: 'NullableString' } } },
+            arg: { obj: { string: { nullable: 'NullableString' } } },
             type: { nullable: 'String' },
             resolve: ({ arg: { string } }) => string
           },
@@ -84,7 +84,7 @@ export default async () => {
           },
           oneOfArg: {
             arg: {
-              object: {
+              obj: {
                 thing: {
                   oneOf: { String: 'String', ThingA, ThingB },
                   resolveType: val =>
@@ -110,7 +110,7 @@ export default async () => {
           nullableObject: {
             type: {
               nullable: {
-                object: {
+                obj: {
                   a: 'String'
                 }
               }
@@ -145,7 +145,7 @@ export default async () => {
         }
       },
       Foo: {
-        object: {
+        obj: {
           id: {
             type: {
               oneOf: { number: 'Number', string: 'String' },
@@ -160,7 +160,7 @@ export default async () => {
           name: {
             defaultValue: 'Default name',
             arg: {
-              object: {
+              obj: {
                 separator: { type: 'String', typeArg: { maxLength: 3 } }
               }
             },
@@ -171,7 +171,7 @@ export default async () => {
         }
       },
       Bar: {
-        object: {
+        obj: {
           color: { type: 'String' }
         }
       },
@@ -182,7 +182,7 @@ export default async () => {
       },
       String: {
         arg: {
-          object: {
+          obj: {
             maxLength: { optional: 'Number' },
             validate: { optional: {} }
           },

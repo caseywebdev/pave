@@ -7,7 +7,7 @@ export default () => {
     validateValue({
       type: [
         {},
-        [{}, { optional: {} }, { object: { key: {} } }, { nullable: {} }]
+        [{}, { optional: {} }, { obj: { key: {} } }, { nullable: {} }]
       ],
       value: [1, [2, undefined, { key: 1 }]]
     }),
@@ -16,7 +16,7 @@ export default () => {
 
   assert.deepEqual(
     validateValue({
-      type: { object: { undef: { optional: {} } } },
+      type: { obj: { undef: { optional: {} } } },
       value: {}
     }),
     {}

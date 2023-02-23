@@ -8,9 +8,9 @@ export default {
       validateQuery({
         schema: {
           Root: {
-            object: {
+            obj: {
               sum: {
-                arg: { object: { a: 'Int', b: 'Int' } },
+                arg: { obj: { a: 'Int', b: 'Int' } },
                 type: 'Int'
               }
             }
@@ -37,10 +37,10 @@ export default {
       validateQuery({
         schema: {
           Root: {
-            object: {
+            obj: {
               sum: {
                 arg: {
-                  object: {
+                  obj: {
                     a: 'Int',
                     b: {
                       defaultValue: 1,
@@ -52,7 +52,7 @@ export default {
               },
               def: {
                 arg: {
-                  object: {
+                  obj: {
                     a: { defaultValue: 3, type: 'Int' }
                   },
                   defaultValue: {}
@@ -60,7 +60,7 @@ export default {
               },
               obj: {
                 type: 'Obj',
-                arg: { object: { id: 'Int' } }
+                arg: { obj: { id: 'Int' } }
               },
               oneOf: {
                 oneOf: { Foo: 'Foo', Bar: 'Bar' }
@@ -68,19 +68,19 @@ export default {
             }
           },
           Obj: {
-            object: {
+            obj: {
               name: 'String',
               obj: 'Obj'
             }
           },
           Foo: {
-            object: {
-              id: { arg: { object: { name: 'String' } } },
+            obj: {
+              id: { arg: { obj: { name: 'String' } } },
               fooKey: {}
             }
           },
           Bar: {
-            object: {
+            obj: {
               id: {},
               barKey: {},
               status: 'Status'
@@ -88,7 +88,7 @@ export default {
           },
           Int: {
             arg: {
-              object: { min: { defaultValue: 2 }, max: { optional: 'Int' } },
+              obj: { min: { defaultValue: 2 }, max: { optional: 'Int' } },
               defaultValue: {}
             },
             resolve: ({ arg: { min, max }, value }) => {
@@ -112,7 +112,7 @@ export default {
           },
           Enum: {
             type: 'String',
-            arg: { object: { values: { arrayOf: 'String' } } },
+            arg: { obj: { values: { arrayOf: 'String' } } },
             resolve: ({ arg: { values }, value }) => {
               if (values.includes(value)) return value;
 
