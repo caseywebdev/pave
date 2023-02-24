@@ -39,9 +39,9 @@ const validateValue = ({
     fail('expectedNull');
   }
 
-  const validateTypes = [];
+  const validateQueue = [];
   const validate = value => {
-    for (const type of validateTypes) {
+    for (const { type } of validateQueue) {
       if (value == null) break;
 
       value = type.validate({ ctx, obj, path, query, schema, type, value });
@@ -76,7 +76,9 @@ const validateValue = ({
       value = type.defaultValue;
     }
 
-    if (type.validate && type !== validateTypes[0]) validateTypes.unshift(type);
+    if (type.validate && type !== validateQueue[0]?.type) {
+      validateQueue.unshift({ type });
+    }
 
     if (type.optional) {
       type = type.optional;

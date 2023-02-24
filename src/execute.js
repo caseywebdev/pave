@@ -41,9 +41,9 @@ const execute = async ({
     fail('expectedNull');
   }
 
-  const validates = [];
+  const validateQueue = [];
   const validate = value => {
-    for (const { obj, path, type, query } of validates) {
+    for (const { obj, path, query, type } of validateQueue) {
       if (value == null) break;
 
       value = type.validate({ ctx, obj, path, query, schema, type, value });
@@ -76,8 +76,8 @@ const execute = async ({
 
     if (isArray(type)) type = { obj: type };
 
-    if (type.validate && type !== validates[0]?.type) {
-      validates.unshift({ type, obj, path, query });
+    if (type.validate && type !== validateQueue[0]?.type) {
+      validateQueue.unshift({ obj, path, query, type });
     }
 
     if (value === undefined && type.defaultValue !== undefined) {
