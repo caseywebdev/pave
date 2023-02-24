@@ -5,18 +5,16 @@ import injectType from './inject-type.js';
 export default () => {
   assert.deepEqual(
     injectType({
-      query: {
-        _arg: { a: 1 },
-        _key: 'foo',
-        id: {},
-        a: {
-          _type: { _key: 'not overridden' },
-          name: { _arg: { formal: true } },
-          b: {},
-          c: {
-            d: {},
-            e: {}
-          }
+      _arg: { a: 1 },
+      _key: 'foo',
+      id: {},
+      a: {
+        _type: { _key: 'not overridden' },
+        name: { _arg: { formal: true } },
+        b: {},
+        c: {
+          d: {},
+          e: {}
         }
       }
     }),

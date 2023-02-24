@@ -36,21 +36,19 @@ export default {
           }
         },
         query: injectType({
-          query: {
-            foo: {
-              id: {},
-              last: {},
-              nested: { a: {} },
-              list: { id: {}, foo: { id: {}, color: {} } }
-            },
-            bar: {
-              _key: 'foo',
-              _arg: { id: 1 },
-              id: {},
-              name: {},
-              nested: { b: {} },
-              list: { id: {}, foo: { id: {}, color: {} } }
-            }
+          foo: {
+            id: {},
+            last: {},
+            nested: { a: {} },
+            list: { id: {}, foo: { id: {}, color: {} } }
+          },
+          bar: {
+            _key: 'foo',
+            _arg: { id: 1 },
+            id: {},
+            name: {},
+            nested: { b: {} },
+            list: { id: {}, foo: { id: {}, color: {} } }
           }
         })
       }),
@@ -90,11 +88,9 @@ export default {
           }
         },
         query: injectType({
-          query: {
-            id: {},
-            name: {},
-            bar: { id: {}, name: {} }
-          }
+          id: {},
+          name: {},
+          bar: { id: {}, name: {} }
         })
       }),
       {
@@ -127,12 +123,10 @@ export default {
           ]
         },
         query: injectType({
-          query: {
-            oneOfs: {
-              shared: {},
-              _on_Foo: { id: {}, name: {} },
-              _on_Bar: { id: {}, color: {} }
-            }
+          oneOfs: {
+            shared: {},
+            _on_Foo: { id: {}, name: {} },
+            _on_Bar: { id: {}, color: {} }
           }
         })
       }),

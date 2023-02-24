@@ -6,10 +6,11 @@ import normalize from './normalize.js';
 
 const { Set } = globalThis;
 
+const defaultTransform = ({ query }) => injectType(query);
 const noopTransform = ({ query }) => query;
 
 export default ({ cache, execute, getRef, transformQuery } = {}) => {
-  if (transformQuery === undefined) transformQuery = injectType;
+  if (transformQuery === undefined) transformQuery = defaultTransform;
   else if (transformQuery === null) transformQuery = noopTransform;
   const watchers = new Set();
   let currentUpdate;
@@ -17,7 +18,7 @@ export default ({ cache, execute, getRef, transformQuery } = {}) => {
   const client = {
     cache: cache ?? {},
 
-    cacheExecute: ({ ref, query }) =>
+    cacheExecute: ({ query, ref }) =>
       cacheExecute({
         cache: client.cache,
         query: transformQuery({ query, ref }),
