@@ -8,16 +8,13 @@ const { isArray } = Array;
 
 const execute = async ({
   ctx,
-  isNullable = false,
-  name = null,
   obj,
   path = [],
   query,
   schema,
   type,
   typeArg,
-  value,
-  isOptional = false
+  value
 }) => {
   const fail = (code, extra) =>
     throwPaveError(code, {
@@ -54,6 +51,9 @@ const execute = async ({
     return value;
   };
 
+  let isNullable = false;
+  let isOptional = false;
+  let name = null;
   while (true) {
     if (isOptional && value === undefined) return undefined;
 
