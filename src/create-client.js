@@ -45,9 +45,9 @@ export default ({ cache, execute, getRef, transformQuery } = {}) => {
       return client;
     },
 
-    execute: async ({ query, ...arg }) => {
+    execute: async ({ query, ...rest }) => {
       query = transformQuery({ query });
-      const data = await execute({ query, ...arg });
+      const data = await execute({ query, ...rest });
       client.update({ data, query });
       return data;
     },

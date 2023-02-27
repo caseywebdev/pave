@@ -10,7 +10,7 @@ const validateValue = ({
   query,
   schema,
   type,
-  typeArg,
+  type$,
   value
 }) => {
   const fail = (code, extra) =>
@@ -22,7 +22,7 @@ const validateValue = ({
       query,
       schema,
       type,
-      typeArg,
+      type$,
       value,
       ...extra
     });
@@ -118,7 +118,7 @@ const validateValue = ({
             query,
             schema,
             type: type.arrayOf,
-            typeArg,
+            type$,
             value
           })
         )
@@ -152,7 +152,7 @@ const validateValue = ({
           query,
           schema,
           type: _type,
-          typeArg,
+          type$,
           value
         });
         if (objIsArray) _value.push(value);
@@ -164,13 +164,13 @@ const validateValue = ({
     if ('resolve' in type) {
       if (typeof type.resolve === 'function') {
         value = type.resolve({
-          arg: validateValue({
+          $: validateValue({
             ctx,
-            path: [...path, '_arg'],
+            path: [...path, '$'],
             query,
             schema,
-            type: type.arg,
-            value: typeArg
+            type: type.$,
+            value: type$
           }),
           ctx,
           obj,
@@ -183,7 +183,7 @@ const validateValue = ({
       } else value = type.resolve;
     }
 
-    typeArg = type.typeArg;
+    type$ = type.type$;
     type = type.type;
   }
 };

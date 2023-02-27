@@ -4,7 +4,7 @@ import validateValue from './validate-value.js';
 
 const { isArray } = Array;
 
-const skipArg = {};
+const skip$ = {};
 
 const validateQuery = ({ ctx, path = [], query, schema, type }) => {
   const fail = (code, extra) =>
@@ -15,10 +15,10 @@ const validateQuery = ({ ctx, path = [], query, schema, type }) => {
 
     if (type == null) {
       for (const alias in query) {
-        if (query[alias] !== skipArg && alias !== '_key' && alias !== '_type') {
+        if (query[alias] !== skip$ && alias !== '_' && alias !== '_type') {
           fail('unexpectedKey', {
             alias,
-            key: query[alias]?._key || alias
+            key: query[alias]?._ || alias
           });
         }
       }
@@ -54,18 +54,18 @@ const validateQuery = ({ ctx, path = [], query, schema, type }) => {
       query = { ...query };
 
       for (const alias in query) {
-        if (alias === '_key' || query[alias] === skipArg) continue;
+        if (alias === '_' || query[alias] === skip$) continue;
 
         const subQuery = { ...query[alias] };
         if (!isObject(subQuery)) fail('invalidQuery', { alias, key: alias });
 
-        const key = subQuery._key ?? alias;
+        const key = subQuery._ ?? alias;
         if (key === '_type') {
           delete query[alias];
           continue;
         }
 
-        if (alias === key) delete subQuery._key;
+        if (alias === key) delete subQuery._;
 
         const name = key.slice('_on_'.length);
         if (!type.oneOf[name]) fail('expectedOneOfTypeKey', { key: alias });
@@ -86,9 +86,9 @@ const validateQuery = ({ ctx, path = [], query, schema, type }) => {
       query = { ...query };
 
       for (const alias in query) {
-        if (alias === '_key' && path.length > 0) continue;
+        if (alias === '_' && path.length > 0) continue;
 
-        if (query[alias] === skipArg) continue;
+        if (query[alias] === skip$) continue;
 
         if (!isObject(query[alias])) {
           fail('invalidQuery', {
@@ -98,8 +98,8 @@ const validateQuery = ({ ctx, path = [], query, schema, type }) => {
         }
 
         const subQuery = { ...query[alias] };
-        const key = subQuery._key ?? alias;
-        if (alias === key) delete subQuery._key;
+        const key = subQuery._ ?? alias;
+        if (alias === key) delete subQuery._;
 
         if (key === '_type') {
           query[alias] = {};
@@ -121,29 +121,29 @@ const validateQuery = ({ ctx, path = [], query, schema, type }) => {
       return query;
     }
 
-    let { _arg, _key, ..._query } = query;
+    let { _, $, ..._query } = query;
     _query = validateQuery({
       ctx,
       path,
-      query: { _arg: skipArg, ..._query },
+      query: { $: skip$, ..._query },
       schema,
       type: type.type
     });
 
-    if (_key) _query._key = _key;
+    if (_) _query._ = _;
 
-    if (_arg !== skipArg) {
-      _query._arg = validateValue({
+    if ($ !== skip$) {
+      _query.$ = validateValue({
         ctx,
-        path: [...path, '_arg'],
+        path: [...path, '$'],
         query,
         schema,
-        type: type.arg,
-        value: query._arg
+        type: type.$,
+        value: query.$
       });
     }
 
-    if (!('arg' in type)) delete _query._arg;
+    if (!('$' in type)) delete _query.$;
 
     return _query;
   }

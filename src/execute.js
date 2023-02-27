@@ -13,7 +13,7 @@ const execute = async ({
   query,
   schema,
   type,
-  typeArg,
+  type$,
   value
 }) => {
   const fail = (code, extra) =>
@@ -24,7 +24,7 @@ const execute = async ({
       query,
       schema,
       type,
-      typeArg,
+      type$,
       value,
       ...extra
     });
@@ -127,7 +127,7 @@ const execute = async ({
                 query,
                 schema,
                 type: type.arrayOf,
-                typeArg,
+                type$,
                 value
               })
           )
@@ -151,8 +151,8 @@ const execute = async ({
         Object.fromEntries(
           await Promise.all(
             Object.entries(query).map(async ([alias, query]) => {
-              const { _key, ..._query } = query;
-              const key = _key ?? alias;
+              const { _, ..._query } = query;
+              const key = _ ?? alias;
               if (key === '_type') return [alias, name];
 
               return [
@@ -176,19 +176,19 @@ const execute = async ({
     if ('resolve' in type) {
       if (typeof type.resolve === 'function') {
         query = { ...query };
-        if ('arg' in type && !('_arg' in query)) {
-          query._arg = validateValue({
+        if ('$' in type && !('$' in query)) {
+          query.$ = validateValue({
             ctx,
             path,
             query,
             schema,
-            type: type.arg,
-            value: typeArg
+            type: type.$,
+            value: type$
           });
         }
 
         value = await type.resolve({
-          arg: query._arg,
+          $: query.$,
           ctx,
           obj,
           path,
@@ -197,11 +197,11 @@ const execute = async ({
           type,
           value
         });
-        delete query._arg;
+        delete query.$;
       } else value = type.resolve;
     }
 
-    typeArg = type.typeArg;
+    type$ = type.type$;
     type = type.type;
   }
 };

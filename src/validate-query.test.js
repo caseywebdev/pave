@@ -10,7 +10,7 @@ export default {
           Root: {
             obj: {
               sum: {
-                arg: { obj: { a: 'Int', b: 'Int' } },
+                $: { obj: { a: 'Int', b: 'Int' } },
                 type: 'Int'
               }
             }
@@ -20,14 +20,14 @@ export default {
         type: 'Root',
         query: {
           total: {
-            _key: 'sum',
-            _type: { _arg: 'foo' },
-            _arg: { a: 1, b: 2 }
+            _: 'sum',
+            _type: { $: 'foo' },
+            $: { a: 1, b: 2 }
           }
         }
       }),
       {
-        total: { _key: 'sum', _arg: { a: 1, b: 2 } }
+        total: { _: 'sum', $: { a: 1, b: 2 } }
       }
     );
   },
@@ -39,19 +39,19 @@ export default {
           Root: {
             obj: {
               sum: {
-                arg: {
+                $: {
                   obj: {
                     a: 'Int',
                     b: {
                       defaultValue: 1,
-                      type: { typeArg: { min: 1 }, type: 'Int' }
+                      type: { type$: { min: 1 }, type: 'Int' }
                     }
                   }
                 },
                 type: { notNull: 'Int' }
               },
               def: {
-                arg: {
+                $: {
                   obj: {
                     a: { defaultValue: 3, type: 'Int' }
                   },
@@ -60,7 +60,7 @@ export default {
               },
               obj: {
                 type: 'Obj',
-                arg: { obj: { id: 'Int' } }
+                $: { obj: { id: 'Int' } }
               },
               oneOf: {
                 oneOf: { Foo: 'Foo', Bar: 'Bar' }
@@ -75,7 +75,7 @@ export default {
           },
           Foo: {
             obj: {
-              id: { arg: { obj: { name: 'String' } } },
+              id: { $: { obj: { name: 'String' } } },
               fooKey: {}
             }
           },
@@ -87,11 +87,11 @@ export default {
             }
           },
           Int: {
-            arg: {
+            $: {
               obj: { min: { defaultValue: 2 }, max: { optional: 'Int' } },
               defaultValue: {}
             },
-            resolve: ({ arg: { min, max }, value }) => {
+            resolve: ({ $: { min, max }, value }) => {
               if (!Number.isInteger(value)) {
                 throw new Error(`Not an int: ${value}`);
               }
@@ -112,8 +112,8 @@ export default {
           },
           Enum: {
             type: 'String',
-            arg: { obj: { values: { arrayOf: 'String' } } },
-            resolve: ({ arg: { values }, value }) => {
+            $: { obj: { values: { arrayOf: 'String' } } },
+            resolve: ({ $: { values }, value }) => {
               if (values.includes(value)) return value;
 
               throw new Error(
@@ -125,26 +125,26 @@ export default {
           },
           Status: {
             type: 'Enum',
-            typeArg: { values: ['pending', 'complete', 'failed'] }
+            type$: { values: ['pending', 'complete', 'failed'] }
           }
         },
         query: {
           _type: {},
           objAlias: {
-            _arg: { id: 3 },
-            _key: 'obj',
+            $: { id: 3 },
+            _: 'obj',
             name: {},
-            objAlias2: { _key: 'obj', name: {} }
+            objAlias2: { _: 'obj', name: {} }
           },
-          sum: { _arg: { a: 3 } },
+          sum: { $: { a: 3 } },
           def: {},
           oneOf: {
-            _key: 'oneOf',
+            _: 'oneOf',
             _type: {},
             _on_Bar: { id: { _type: {} }, status: {} },
             _on_Foo: {
               _type: {},
-              id: { _arg: { name: 'foo' }, _type: {} },
+              id: { $: { name: 'foo' }, _type: {} },
               fooKey: {}
             }
           }
@@ -154,17 +154,17 @@ export default {
       {
         _type: {},
         objAlias: {
-          _arg: { id: 3 },
-          _key: 'obj',
+          $: { id: 3 },
+          _: 'obj',
           name: {},
-          objAlias2: { _key: 'obj', name: {} }
+          objAlias2: { _: 'obj', name: {} }
         },
-        sum: { _arg: { a: 3, b: 1 } },
-        def: { _arg: { a: 3 } },
+        sum: { $: { a: 3, b: 1 } },
+        def: { $: { a: 3 } },
         oneOf: {
           _on_Bar: { id: {}, status: {} },
           _on_Foo: {
-            id: { _arg: { name: 'foo' } },
+            id: { $: { name: 'foo' } },
             _type: {},
             fooKey: {}
           }

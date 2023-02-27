@@ -30,7 +30,7 @@ const getQueryCost = ({ ctx, path = [], query, schema, type }) => {
     } else if (type.obj) {
       for (const alias in query) {
         const _query = query[alias];
-        const _type = type.obj[_query._key ?? alias];
+        const _type = type.obj[_query._ ?? alias];
         cost += getQueryCost({
           ctx,
           path: [...path, alias],
@@ -45,7 +45,7 @@ const getQueryCost = ({ ctx, path = [], query, schema, type }) => {
 
     if (typeof type.cost === 'function') {
       return type.cost({
-        arg: query._arg,
+        $: query.$,
         ctx,
         cost,
         path,
