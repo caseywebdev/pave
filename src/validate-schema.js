@@ -79,12 +79,7 @@ export default ({ extra, schema }) => {
         }
       },
       oneOf: {
-        obj: {
-          ...extra?.oneOf,
-          ...shared,
-          oneOf: typeObject,
-          resolveType: fn
-        }
+        obj: { ...extra?.oneOf, ...shared, oneOf: typeObject, resolveType: fn }
       },
       obj: { obj: { ...extra?.obj, ...shared, obj: typeObject } },
       type: {

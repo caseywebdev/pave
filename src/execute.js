@@ -6,16 +6,12 @@ const { Promise } = globalThis;
 
 const { isArray } = Array;
 
-const execute = async ({
-  ctx,
-  obj,
-  path = [],
-  query,
-  schema,
-  type,
-  type$,
-  value
-}) => {
+const execute = async ({ ctx, obj, path = [], query, schema, type, value }) => {
+  let type$;
+  let isNullable = false;
+  let isOptional = false;
+  let name = null;
+
   const fail = (code, extra) =>
     throwPaveError(code, {
       ctx,
@@ -43,17 +39,14 @@ const execute = async ({
 
   const validateQueue = [];
   const validate = value => {
-    for (const { obj, path, query, type } of validateQueue) {
+    for (const { $, obj, path, query, type } of validateQueue) {
       if (value == null) break;
 
-      value = type.validate({ ctx, obj, path, query, schema, type, value });
+      value = type.validate({ $, ctx, obj, path, query, schema, type, value });
     }
     return value;
   };
 
-  let isNullable = false;
-  let isOptional = false;
-  let name = null;
   while (true) {
     if (isOptional && value === undefined) return undefined;
 
@@ -127,7 +120,6 @@ const execute = async ({
                 query,
                 schema,
                 type: type.arrayOf,
-                type$,
                 value
               })
           )
@@ -173,22 +165,25 @@ const execute = async ({
       );
     }
 
+    let $;
+    if ('$' in query) $ = query.$;
+    else if ('$' in type) {
+      $ = validateValue({
+        ctx,
+        path,
+        query,
+        schema,
+        type: type.$,
+        value: type$
+      });
+    }
+
+    if (type === validateQueue[0]?.type) validateQueue[0].$ = $;
+
     if ('resolve' in type) {
       if (typeof type.resolve === 'function') {
-        query = { ...query };
-        if ('$' in type && !('$' in query)) {
-          query.$ = validateValue({
-            ctx,
-            path,
-            query,
-            schema,
-            type: type.$,
-            value: type$
-          });
-        }
-
         value = await type.resolve({
-          $: query.$,
+          $,
           ctx,
           obj,
           path,
@@ -197,10 +192,11 @@ const execute = async ({
           type,
           value
         });
-        delete query.$;
       } else value = type.resolve;
     }
 
+    query = { ...query };
+    delete query.$;
     type$ = type.type$;
     type = type.type;
   }

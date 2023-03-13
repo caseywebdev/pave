@@ -3,16 +3,11 @@ import throwPaveError from './throw-pave-error.js';
 
 const { isArray } = Array;
 
-const validateValue = ({
-  ctx,
-  obj,
-  path = [],
-  query,
-  schema,
-  type,
-  type$,
-  value
-}) => {
+const validateValue = ({ ctx, obj, path = [], query, schema, type, value }) => {
+  let type$;
+  let isNullable = false;
+  let isOptional = false;
+
   const fail = (code, extra) =>
     throwPaveError(code, {
       code,
@@ -41,16 +36,14 @@ const validateValue = ({
 
   const validateQueue = [];
   const validate = value => {
-    for (const { type } of validateQueue) {
+    for (const { $, type } of validateQueue) {
       if (value == null) break;
 
-      value = type.validate({ ctx, obj, path, query, schema, type, value });
+      value = type.validate({ $, ctx, obj, path, query, schema, type, value });
     }
     return value;
   };
 
-  let isNullable = false;
-  let isOptional = false;
   while (true) {
     if (isOptional && value === undefined) return undefined;
 
@@ -118,7 +111,6 @@ const validateValue = ({
             query,
             schema,
             type: type.arrayOf,
-            type$,
             value
           })
         )
@@ -152,7 +144,6 @@ const validateValue = ({
           query,
           schema,
           type: _type,
-          type$,
           value
         });
         if (objIsArray) _value.push(value);
@@ -161,25 +152,20 @@ const validateValue = ({
       return validate(_value);
     }
 
+    const $ = validateValue({
+      ctx,
+      path: [...path, '$'],
+      query,
+      schema,
+      type: type.$,
+      value: type$
+    });
+
+    if (type === validateQueue[0]?.type) validateQueue[0].$ = $;
+
     if ('resolve' in type) {
       if (typeof type.resolve === 'function') {
-        value = type.resolve({
-          $: validateValue({
-            ctx,
-            path: [...path, '$'],
-            query,
-            schema,
-            type: type.$,
-            value: type$
-          }),
-          ctx,
-          obj,
-          path,
-          query,
-          schema,
-          type,
-          value
-        });
+        value = type.resolve({ $, ctx, obj, path, query, schema, type, value });
       } else value = type.resolve;
     }
 

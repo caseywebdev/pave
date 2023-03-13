@@ -117,25 +117,15 @@ export default async () => {
             },
             resolve: () => {}
           },
-          nullableArrayOf: {
-            type: {
-              nullable: {
-                arrayOf: 'String'
-              }
-            }
-          },
+          nullableArrayOf: { nullable: { arrayOf: 'String' } },
           nullableOneOf: {
-            type: {
-              nullable: {
-                oneOf: { string: 'String', number: 'Number' },
-                resolveType: value => typeof value
-              }
+            nullable: {
+              oneOf: { string: 'String', number: 'Number' },
+              resolveType: value => typeof value
             }
           },
           arrayOfStrings: {
-            type: {
-              arrayOf: 'String'
-            },
+            type: { arrayOf: 'String' },
             resolve: ['a', 'b', 'c']
           },
           tuple: {
@@ -160,9 +150,7 @@ export default async () => {
           name: {
             defaultValue: 'Default name',
             $: {
-              obj: {
-                separator: { type: 'String', type$: { maxLength: 3 } }
-              }
+              obj: { separator: { type: 'String', type$: { maxLength: 3 } } }
             },
             type: 'String',
             resolve: ({ $: { separator }, value }) =>
@@ -170,11 +158,7 @@ export default async () => {
           }
         }
       },
-      Bar: {
-        obj: {
-          color: { type: 'String' }
-        }
-      },
+      Bar: { obj: { color: { type: 'String' } } },
       Boolean: {
         resolve: ({ value }) => {
           if (typeof value === 'boolean') return value;
@@ -182,13 +166,10 @@ export default async () => {
       },
       String: {
         $: {
-          obj: {
-            maxLength: { optional: 'Number' },
-            validate: { optional: {} }
-          },
+          obj: { maxLength: { optional: 'Number' } },
           defaultValue: {}
         },
-        resolve: ({ $: { maxLength, validate }, path, value }) => {
+        resolve: ({ $: { maxLength }, path, value }) => {
           if (typeof value !== 'string') {
             throw new Error(
               `Expected a "String" but got ${JSON.stringify(value)} ${path}`
@@ -199,8 +180,6 @@ export default async () => {
             throw new Error(`String cannot be more than ${maxLength} ${path}`);
           }
 
-          if (validate) value = validate(value);
-
           return value;
         }
       },
@@ -209,7 +188,8 @@ export default async () => {
         validate: ({ value }) => value.trim()
       },
       NullableString: {
-        validate: ({ value }) => value.trim() || null
+        type: 'TrimmedString',
+        validate: ({ value }) => value || null
       },
       Number: {
         validate: ({ value, path }) => {
@@ -227,10 +207,7 @@ export default async () => {
   const query = validateQuery({
     query: {
       _type: {},
-      nullableStringA: {
-        _: 'nullableString',
-        $: { string: 'not null' }
-      },
+      nullableStringA: { _: 'nullableString', $: { string: 'not null' } },
       nullableStringB: { _: 'nullableString', $: { string: '   ' } },
       nullableStringC: {
         _: 'nonNullableNullableString',
@@ -240,61 +217,28 @@ export default async () => {
         _: 'nonNullableNullableString',
         $: { string: '  a  ' }
       },
-      nullableStringE: {
-        _: 'nullableString$',
-        $: { string: 'not null' }
-      },
-      nullableStringF: {
-        _: 'nullableString$',
-        $: { string: '   ' }
-      },
-      selfLink: {
-        selfLinkWithAddition: {
-          addition: {}
-        }
-      },
+      nullableStringE: { _: 'nullableString$', $: { string: 'not null' } },
+      nullableStringF: { _: 'nullableString$', $: { string: '   ' } },
+      selfLink: { selfLinkWithAddition: { addition: {} } },
       things: {
         _on_f: {
           _type: {},
           id: {},
-          name: {
-            $: {
-              separator: ' '
-            }
-          },
-          sub: {
-            _: 'subFoo',
-            id: {},
-            subSub: {
-              _: 'subFoo',
-              id: {}
-            }
-          }
+          name: { $: { separator: ' ' } },
+          sub: { _: 'subFoo', id: {}, subSub: { _: 'subFoo', id: {} } }
         },
-        _on_b: {
-          _type: {},
-          color: {}
-        }
+        _on_b: { _type: {}, color: {} }
       },
-      oneOf$String: {
-        $: { thing: 'str' },
-        _: 'oneOf$'
-      },
+      oneOf$String: { _: 'oneOf$', $: { thing: 'str' } },
       oneOf$A: {
-        $: { thing: { a: 'A', a2: 'A2' } },
         _: 'oneOf$',
-        _on_ThingA: {
-          _type: {},
-          a: {}
-        }
+        $: { thing: { a: 'A', a2: 'A2' } },
+        _on_ThingA: { _type: {}, a: {} }
       },
       oneOf$B: {
-        $: { thing: { b: 'B', b2: 'B2' } },
         _: 'oneOf$',
-        _on_ThingB: {
-          _type: {},
-          b2: {}
-        }
+        $: { thing: { b: 'B', b2: 'B2' } },
+        _on_ThingB: { _type: {}, b2: {} }
       },
       nullableObject: { a: {} },
       nullableArrayOf: {},
@@ -314,11 +258,7 @@ export default async () => {
     nullableStringD: 'a',
     nullableStringE: 'not null',
     nullableStringF: null,
-    selfLink: {
-      selfLinkWithAddition: {
-        addition: true
-      }
-    },
+    selfLink: { selfLinkWithAddition: { addition: true } },
     things: [
       {
         _type: 'Foo',
