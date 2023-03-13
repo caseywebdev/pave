@@ -136,7 +136,7 @@ const validateQuery = ({ ctx, path = [], query, schema, type }) => {
       _query.$ = validateValue({
         ctx,
         path: [...path, '$'],
-        query,
+        query: _query,
         schema,
         type: type.$,
         value: query.$

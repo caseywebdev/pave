@@ -10,24 +10,41 @@ export default {
           Root: {
             obj: {
               sum: {
-                $: { obj: { a: 'Int', b: 'Int' } },
-                type: 'Int'
+                $: {
+                  obj: { a: 'Int', b: 'Int' },
+                  validate: ({ query, value }) => {
+                    if (query.root) {
+                      assert.deepEqual(query.root.sum.$, { a: 3, b: 4 });
+                    }
+                    return value;
+                  }
+                },
+                type: { obj: { result: 'Int', root: 'Root' } }
               }
-            }
+            },
+            defaultValue: {}
           },
-          Int: {}
+          Int: { resolve: ({ value }) => +value }
         },
         type: 'Root',
         query: {
           total: {
             _: 'sum',
             _type: { $: 'foo' },
-            $: { a: 1, b: 2 }
+            $: { a: '1', b: 2 },
+            result: {},
+            root: { sum: { $: { a: 3, b: '4' } } }
           }
         }
       }),
       {
-        total: { _: 'sum', $: { a: 1, b: 2 } }
+        total: {
+          _: 'sum',
+          _type: {},
+          $: { a: 1, b: 2 },
+          result: {},
+          root: { sum: { $: { a: 3, b: 4 } } }
+        }
       }
     );
   },
