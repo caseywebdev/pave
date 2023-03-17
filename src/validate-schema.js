@@ -97,7 +97,7 @@ export default ({ extraFields, schema }) => {
       },
       resolve: {
         fields: {
-          ...extraFields?.type,
+          ...extraFields?.resolve,
           ...shared,
           args: { optional: type },
           resolve: { optional: { nullable: {} } },
