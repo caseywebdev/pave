@@ -12,7 +12,9 @@ export default ({ extra, schema }) => {
         return validateValue({
           ...rest,
           type: {
-            obj: Object.fromEntries(Object.keys(value).map(key => [key, type]))
+            fields: Object.fromEntries(
+              Object.keys(value).map(key => [key, type])
+            )
           },
           value
         });
@@ -67,10 +69,10 @@ export default ({ extra, schema }) => {
         }
       },
       tuple: { arrayOf: type },
-      optional: { obj: { ...extra?.optional, ...shared, optional: type } },
-      nullable: { obj: { ...extra?.nullable, ...shared, nullable: type } },
+      optional: { fields: { ...extra?.optional, ...shared, optional: type } },
+      nullable: { fields: { ...extra?.nullable, ...shared, nullable: type } },
       arrayOf: {
-        obj: {
+        fields: {
           ...extra?.arrayOf,
           ...shared,
           arrayOf: type,
@@ -79,25 +81,30 @@ export default ({ extra, schema }) => {
         }
       },
       oneOf: {
-        obj: { ...extra?.oneOf, ...shared, oneOf: typeObject, resolveType: fn }
+        fields: {
+          ...extra?.oneOf,
+          ...shared,
+          oneOf: typeObject,
+          resolveType: fn
+        }
       },
-      obj: { obj: { ...extra?.obj, ...shared, obj: typeObject } },
+      fields: { fields: { ...extra?.fields, ...shared, fields: typeObject } },
       type: {
-        obj: {
+        fields: {
           ...extra?.type,
           ...shared,
-          $: { optional: type },
+          args: { optional: type },
           resolve: { optional: { nullable: {} } },
           type: { optional: type },
-          type$: {
+          typeArgs: {
             optional: {
-              resolve: ({ obj, ...rest }) =>
+              resolve: ({ parent, ...rest }) =>
                 validateValue({
                   ...rest,
-                  type: (typeof obj.type === 'string'
-                    ? rest.schema[obj.type]
-                    : obj.type
-                  )?.$
+                  type: (typeof parent.type === 'string'
+                    ? rest.schema[parent.type]
+                    : parent.type
+                  )?.args
                 })
             }
           }
@@ -123,8 +130,8 @@ export default ({ extra, schema }) => {
         ? 'arrayOf'
         : 'oneOf' in value
         ? 'oneOf'
-        : 'obj' in value
-        ? 'obj'
+        : 'fields' in value
+        ? 'fields'
         : 'type';
     }
   });

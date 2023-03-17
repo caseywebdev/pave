@@ -49,12 +49,12 @@ const messages = {
       path
     )} does not resolve to ${formatOr(Object.keys(oneOf))}`,
 
-  expectedOneOfTypeKey: ({ type: { oneOf }, path, key }) =>
-    `The key ${JSON.stringify(key)} does not exist at ${formatPath(
+  expectedOneOfTypefield: ({ type: { oneOf }, path, field }) =>
+    `The field ${JSON.stringify(field)} does not exist at ${formatPath(
       path
     )}${getSuggestion(
-      key,
-      Object.keys(oneOf).map(key => `_on_${key}`)
+      field,
+      Object.keys(oneOf).map(field => `_on_${field}`)
     )}`,
 
   expectedRequired: ({ path }) => `A value is required at ${formatPath(path)}`,
@@ -64,28 +64,28 @@ const messages = {
       path
     )} is invalid`,
 
-  unexpectedKey: ({ key, path }) =>
-    `The key ${JSON.stringify(
-      key
-    )} (or any other key) is not expected at ${formatPath(path)}`,
+  unexpectedField: ({ field, path }) =>
+    `The field ${JSON.stringify(
+      field
+    )} (or any other field) is not expected at ${formatPath(path)}`,
 
   unexpectedValue: ({ path, value }) =>
     `The value ${JSON.stringify(value)} was found at ${formatPath(
       path
     )} but no value is ever expected there`,
 
-  unknownKey: ({ type: { obj }, path, key }) =>
-    `The key ${JSON.stringify(key)} does not exist at ${formatPath(
+  unknownField: ({ type: { fields }, path, field }) =>
+    `The field ${JSON.stringify(field)} does not exist at ${formatPath(
       path
-    )}${getSuggestion(key, Object.keys(obj))}`,
+    )}${getSuggestion(field, Object.keys(fields))}`,
 
   unknownType: ({ path, type }) =>
     `The type ${JSON.stringify(type)} at ${formatPath(path)} does not exist`
 };
 
-export default (code, ctx) => {
-  throw Object.assign(new PaveError(messages[code](ctx)), {
-    ...ctx,
+export default (code, context) => {
+  throw Object.assign(new PaveError(messages[code](context)), {
+    ...context,
     code
   });
 };

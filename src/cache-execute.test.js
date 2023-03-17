@@ -25,32 +25,32 @@ export default {
     assert.deepEqual(
       cacheExecute({
         cache: { _root: { _type: null, one: 1 } },
-        query: { uno: { _: 'one' } }
+        query: { uno: { _field: 'one' } }
       }),
       { uno: 1 }
     );
   },
-  $: () => {
+  _args: () => {
     assert.deepEqual(
       cacheExecute({
         cache: { _root: { _type: null, 'sum({"a":1,"b":2})': 3 } },
-        query: { sum: { $: { b: 2, a: 1 } } }
+        query: { sum: { _args: { b: 2, a: 1 } } }
       }),
       { sum: 3 }
     );
   },
-  'root $': () => {
+  'root _args': () => {
     assert.deepEqual(
       cacheExecute({
         cache: { '_root({"foo":"bar"})': { key: 'value' } },
-        query: { $: { foo: 'bar' }, key: {} }
+        query: { _args: { foo: 'bar' }, key: {} }
       }),
       { key: 'value' }
     );
     assert.deepEqual(
       cacheExecute({
         cache: { _root: { key: 'value' } },
-        query: { $: { foo: 'bar' }, key: {} }
+        query: { _args: { foo: 'bar' }, key: {} }
       }),
       undefined
     );

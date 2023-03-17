@@ -15,7 +15,7 @@ const walk = ({ normalized = {}, data, getRef, query }) => {
   const obj = ref ? (normalized[ref] ??= {}) : {};
 
   // eslint-disable-next-line no-unused-vars
-  const { _, $, ..._query } = query;
+  const { _args, _field, ..._query } = query;
   Object.assign(_query, _query[`_on_${data._type}`]);
   for (const alias in _query) {
     if (data[alias] === undefined) continue;

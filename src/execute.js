@@ -6,21 +6,29 @@ const { Promise } = globalThis;
 
 const { isArray } = Array;
 
-const execute = async ({ ctx, obj, path = [], query, schema, type, value }) => {
-  let type$;
+const execute = async ({
+  context,
+  parent,
+  path = [],
+  query,
+  schema,
+  type,
+  value
+}) => {
+  let typeArgs;
   let isNullable = false;
   let isOptional = false;
   let name = null;
 
   const fail = (code, extra) =>
     throwPaveError(code, {
-      ctx,
-      obj,
+      context,
+      parent,
       path,
       query,
       schema,
       type,
-      type$,
+      typeArgs,
       value,
       ...extra
     });
@@ -39,10 +47,19 @@ const execute = async ({ ctx, obj, path = [], query, schema, type, value }) => {
 
   const validateQueue = [];
   const validate = value => {
-    for (const { $, obj, path, query, type } of validateQueue) {
+    for (const { args, parent, path, query, type } of validateQueue) {
       if (value == null) break;
 
-      value = type.validate({ $, ctx, obj, path, query, schema, type, value });
+      value = type.validate({
+        args,
+        context,
+        parent,
+        path,
+        query,
+        schema,
+        type,
+        value
+      });
     }
     return value;
   };
@@ -62,15 +79,15 @@ const execute = async ({ ctx, obj, path = [], query, schema, type, value }) => {
       if (!schema[type]) fail('unknownType');
 
       name = type;
-      obj = null;
+      parent = null;
       type = schema[type];
       continue;
     }
 
-    if (isArray(type)) type = { obj: type };
+    if (isArray(type)) type = { fields: type };
 
     if (type.validate && type !== validateQueue[0]?.type) {
-      validateQueue.unshift({ obj, path, query, type });
+      validateQueue.unshift({ parent, path, query, type });
     }
 
     if (value === undefined && type.defaultValue !== undefined) {
@@ -90,7 +107,7 @@ const execute = async ({ ctx, obj, path = [], query, schema, type, value }) => {
     }
 
     if (
-      (obj == null || type.arrayOf || type.oneOf || type.obj) &&
+      (parent == null || type.arrayOf || type.oneOf || type.fields) &&
       value == null
     ) {
       type = null;
@@ -114,8 +131,8 @@ const execute = async ({ ctx, obj, path = [], query, schema, type, value }) => {
           value.map(
             async (value, i) =>
               await execute({
-                ctx,
-                obj,
+                context,
+                parent,
                 path: [...path, i],
                 query,
                 schema,
@@ -132,31 +149,31 @@ const execute = async ({ ctx, obj, path = [], query, schema, type, value }) => {
       if (!(name in type.oneOf)) fail('expectedOneOfType');
 
       type = type.oneOf[name];
-      const onKey = `_on_${name}`;
-      path = [...path, onKey];
-      query = query[onKey] ?? {};
+      const onField = `_on_${name}`;
+      path = [...path, onField];
+      query = query[onField] ?? {};
       continue;
     }
 
-    if (type.obj) {
+    if (type.fields) {
       return await validate(
         Object.fromEntries(
           await Promise.all(
             Object.entries(query).map(async ([alias, query]) => {
-              const { _, ..._query } = query;
-              const key = _ ?? alias;
-              if (key === '_type') return [alias, name];
+              const { _field, ..._query } = query;
+              const field = _field ?? alias;
+              if (field === '_type') return [alias, name];
 
               return [
                 alias,
                 await execute({
-                  ctx,
-                  obj: value,
+                  context,
+                  parent: value,
                   path: [...path, alias],
                   query: _query,
                   schema,
-                  type: type.obj[key],
-                  value: value[key]
+                  type: type.fields[field],
+                  value: value[field]
                 })
               ];
             })
@@ -165,27 +182,27 @@ const execute = async ({ ctx, obj, path = [], query, schema, type, value }) => {
       );
     }
 
-    let $;
-    if ('$' in query) $ = query.$;
-    else if ('$' in type) {
-      $ = validateValue({
-        ctx,
+    let args;
+    if ('_args' in query) args = query._args;
+    else if ('args' in type) {
+      args = validateValue({
+        context,
         path,
         query,
         schema,
-        type: type.$,
-        value: type$
+        type: type.args,
+        value: typeArgs
       });
     }
 
-    if (type === validateQueue[0]?.type) validateQueue[0].$ = $;
+    if (type === validateQueue[0]?.type) validateQueue[0].args = args;
 
     if ('resolve' in type) {
       if (typeof type.resolve === 'function') {
         value = await type.resolve({
-          $,
-          ctx,
-          obj,
+          args,
+          context,
+          parent,
           path,
           query,
           schema,
@@ -196,8 +213,8 @@ const execute = async ({ ctx, obj, path = [], query, schema, type, value }) => {
     }
 
     query = { ...query };
-    delete query.$;
-    type$ = type.type$;
+    delete query._args;
+    typeArgs = type.typeArgs;
     type = type.type;
   }
 };

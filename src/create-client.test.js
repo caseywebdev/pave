@@ -67,7 +67,7 @@ export default {
     const onChange = data => events.push(data);
     client.watch({ query: { foo: { id: {} } }, onChange });
     client.watch({
-      query: { alias: { $: { $: 1 }, id: {}, name: {} } },
+      query: { alias: { _args: { _args: 1 }, id: {}, name: {} } },
       onChange
     });
     client.update({
@@ -78,7 +78,7 @@ export default {
       },
       query: {
         _type: {},
-        alias: { $: { $: 1 }, _type: {} },
+        alias: { _args: { _args: 1 }, _type: {} },
         foo: { _type: {}, id: {}, name: {} }
       }
     });
@@ -98,7 +98,7 @@ export default {
     );
   },
 
-  '$ ref changes': () => {
+  '_args ref changes': () => {
     const client = createClient({
       getRef: ({ _type, id }) =>
         _type === 'Root' ? 'Root' : _type && id ? `${_type}:${id}` : null
@@ -106,7 +106,7 @@ export default {
     const events = [];
     const onChange = data => events.push(data);
     client.watch({
-      query: { foo: { $: { id: 1 }, _type: {}, id: {}, name: {} } },
+      query: { foo: { _args: { id: 1 }, _type: {}, id: {}, name: {} } },
       onChange
     });
     client.update({
@@ -118,7 +118,7 @@ export default {
         _type: {},
         id: {},
         foo: {
-          $: { id: 1 },
+          _args: { id: 1 },
           _type: {},
           id: {},
           name: { _type: {}, id: {} }

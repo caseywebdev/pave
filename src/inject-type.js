@@ -5,17 +5,9 @@ const injectType = query => {
 
   const initial = query;
   for (const key in initial) {
-    if (key === '_' || key === '$' || key === '_type') continue;
+    if (key === '_args' || key === '_field' || key === '_type') continue;
 
-    if (query === initial) {
-      const { _, $, ...rest } = query;
-      query = {
-        ...('_' in query && { _ }),
-        ...('$' in query && { $ }),
-        _type: {},
-        ...rest
-      };
-    }
+    if (query === initial) query = { _type: {}, ...query };
     query[key] = injectType(query[key]);
   }
 

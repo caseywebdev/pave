@@ -8,18 +8,18 @@ export default {
       validateQuery({
         schema: {
           Root: {
-            obj: {
+            fields: {
               sum: {
-                $: {
-                  obj: { a: 'Int', b: 'Int' },
+                args: {
+                  fields: { a: 'Int', b: 'Int' },
                   validate: ({ query, value }) => {
                     if (query.root) {
-                      assert.deepEqual(query.root.sum.$, { a: 3, b: 4 });
+                      assert.deepEqual(query.root.sum._args, { a: 3, b: 4 });
                     }
                     return value;
                   }
                 },
-                type: { obj: { result: 'Int', root: 'Root' } }
+                type: { fields: { result: 'Int', root: 'Root' } }
               }
             },
             defaultValue: {}
@@ -29,21 +29,21 @@ export default {
         type: 'Root',
         query: {
           total: {
-            _: 'sum',
-            _type: { $: 'foo' },
-            $: { a: '1', b: 2 },
+            _field: 'sum',
+            _type: { _args: 'foo' },
+            _args: { a: '1', b: 2 },
             result: {},
-            root: { sum: { $: { a: 3, b: '4' } } }
+            root: { sum: { _args: { a: 3, b: '4' } } }
           }
         }
       }),
       {
         total: {
-          _: 'sum',
+          _field: 'sum',
           _type: {},
-          $: { a: 1, b: 2 },
+          _args: { a: 1, b: 2 },
           result: {},
-          root: { sum: { $: { a: 3, b: 4 } } }
+          root: { sum: { _args: { a: 3, b: 4 } } }
         }
       }
     );
@@ -54,22 +54,22 @@ export default {
       validateQuery({
         schema: {
           Root: {
-            obj: {
+            fields: {
               sum: {
-                $: {
-                  obj: {
+                args: {
+                  fields: {
                     a: 'Int',
                     b: {
                       defaultValue: 1,
-                      type: { type$: { min: 1 }, type: 'Int' }
+                      type: { typeArgs: { min: 1 }, type: 'Int' }
                     }
                   }
                 },
                 type: { notNull: 'Int' }
               },
               def: {
-                $: {
-                  obj: {
+                args: {
+                  fields: {
                     a: { defaultValue: 3, type: 'Int' }
                   },
                   defaultValue: {}
@@ -77,7 +77,7 @@ export default {
               },
               obj: {
                 type: 'Obj',
-                $: { obj: { id: 'Int' } }
+                args: { fields: { id: 'Int' } }
               },
               oneOf: {
                 oneOf: { Foo: 'Foo', Bar: 'Bar' }
@@ -85,30 +85,30 @@ export default {
             }
           },
           Obj: {
-            obj: {
+            fields: {
               name: 'String',
               obj: 'Obj'
             }
           },
           Foo: {
-            obj: {
-              id: { $: { obj: { name: 'String' } } },
+            fields: {
+              id: { args: { fields: { name: 'String' } } },
               fooKey: {}
             }
           },
           Bar: {
-            obj: {
+            fields: {
               id: {},
               barKey: {},
               status: 'Status'
             }
           },
           Int: {
-            $: {
-              obj: { min: { defaultValue: 2 }, max: { optional: 'Int' } },
+            args: {
+              fields: { min: { defaultValue: 2 }, max: { optional: 'Int' } },
               defaultValue: {}
             },
-            resolve: ({ $: { min, max }, value }) => {
+            resolve: ({ args: { min, max }, value }) => {
               if (!Number.isInteger(value)) {
                 throw new Error(`Not an int: ${value}`);
               }
@@ -129,8 +129,8 @@ export default {
           },
           Enum: {
             type: 'String',
-            $: { obj: { values: { arrayOf: 'String' } } },
-            resolve: ({ $: { values }, value }) => {
+            args: { fields: { values: { arrayOf: 'String' } } },
+            resolve: ({ args: { values }, value }) => {
               if (values.includes(value)) return value;
 
               throw new Error(
@@ -142,26 +142,26 @@ export default {
           },
           Status: {
             type: 'Enum',
-            type$: { values: ['pending', 'complete', 'failed'] }
+            typeArgs: { values: ['pending', 'complete', 'failed'] }
           }
         },
         query: {
           _type: {},
           objAlias: {
-            $: { id: 3 },
-            _: 'obj',
+            _args: { id: 3 },
+            _field: 'obj',
             name: {},
-            objAlias2: { _: 'obj', name: {} }
+            objAlias2: { _field: 'obj', name: {} }
           },
-          sum: { $: { a: 3 } },
+          sum: { _args: { a: 3 } },
           def: {},
           oneOf: {
-            _: 'oneOf',
+            _field: 'oneOf',
             _type: {},
             _on_Bar: { id: { _type: {} }, status: {} },
             _on_Foo: {
               _type: {},
-              id: { $: { name: 'foo' }, _type: {} },
+              id: { _args: { name: 'foo' }, _type: {} },
               fooKey: {}
             }
           }
@@ -171,20 +171,16 @@ export default {
       {
         _type: {},
         objAlias: {
-          $: { id: 3 },
-          _: 'obj',
+          _args: { id: 3 },
+          _field: 'obj',
           name: {},
-          objAlias2: { _: 'obj', name: {} }
+          objAlias2: { _field: 'obj', name: {} }
         },
-        sum: { $: { a: 3, b: 1 } },
-        def: { $: { a: 3 } },
+        sum: { _args: { a: 3, b: 1 } },
+        def: { _args: { a: 3 } },
         oneOf: {
           _on_Bar: { id: {}, status: {} },
-          _on_Foo: {
-            id: { $: { name: 'foo' } },
-            _type: {},
-            fooKey: {}
-          }
+          _on_Foo: { id: { _args: { name: 'foo' } }, _type: {}, fooKey: {} }
         }
       }
     );

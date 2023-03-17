@@ -10,7 +10,7 @@ export default async () => {
       schema: {
         Root: {
           defaultValue: {},
-          obj: {
+          fields: {
             a: { resolve: async () => 1 }
           }
         }
@@ -22,45 +22,45 @@ export default async () => {
   );
 
   const ThingA = {
-    obj: {
+    fields: {
       a: 'String',
       a2: 'String'
     }
   };
 
   const ThingB = {
-    obj: {
+    fields: {
       b: 'String',
       b2: 'String'
     }
   };
 
   const recursiveType = {};
-  recursiveType.optional = { nullable: { obj: { recursiveType } } };
+  recursiveType.optional = { nullable: { fields: { recursiveType } } };
 
   const schema = validateSchema({
     schema: {
       Root: {
         defaultValue: {},
-        obj: {
+        fields: {
           addition: 'Boolean',
           nullableString: {
-            $: {
-              obj: { string: { nullable: 'String' } },
+            args: {
+              fields: { string: { nullable: 'String' } },
               validate: ({ value: { string } }) => ({ rename: string })
             },
             type: { nullable: 'NullableString' },
-            resolve: ({ $: { rename } }) => rename
+            resolve: ({ args: { rename } }) => rename
           },
           nonNullableNullableString: {
-            $: { obj: { string: 'String' } },
+            args: { fields: { string: 'String' } },
             type: 'NullableString',
-            resolve: ({ $: { string } }) => string
+            resolve: ({ args: { string } }) => string
           },
-          nullableString$: {
-            $: { obj: { string: { nullable: 'NullableString' } } },
+          nullableStringArgs: {
+            args: { fields: { string: { nullable: 'NullableString' } } },
             type: { nullable: 'String' },
-            resolve: ({ $: { string } }) => string
+            resolve: ({ args: { string } }) => string
           },
           selfLink: 'Root',
           selfLinkWithAddition: {
@@ -82,9 +82,9 @@ export default async () => {
               { color: 'blue' }
             ]
           },
-          oneOf$: {
-            $: {
-              obj: {
+          oneOfArgs: {
+            args: {
+              fields: {
                 thing: {
                   oneOf: { String: 'String', ThingA, ThingB },
                   resolveType: val =>
@@ -98,19 +98,19 @@ export default async () => {
             },
             type: {
               oneOf: {
-                String: { type: 'String', type$: { maxLength: 3 } },
+                String: { type: 'String', typeArgs: { maxLength: 3 } },
                 ThingA,
                 ThingB
               },
               resolveType: val =>
                 typeof val === 'string' ? 'String' : val.a ? 'ThingA' : 'ThingB'
             },
-            resolve: ({ $: { thing } }) => thing
+            resolve: ({ args: { thing } }) => thing
           },
           nullableObject: {
             type: {
               nullable: {
-                obj: {
+                fields: {
                   a: 'String'
                 }
               }
@@ -135,7 +135,7 @@ export default async () => {
         }
       },
       Foo: {
-        obj: {
+        fields: {
           id: {
             type: {
               oneOf: { number: 'Number', string: 'String' },
@@ -149,27 +149,29 @@ export default async () => {
           },
           name: {
             defaultValue: 'Default name',
-            $: {
-              obj: { separator: { type: 'String', type$: { maxLength: 3 } } }
+            args: {
+              fields: {
+                separator: { type: 'String', typeArgs: { maxLength: 3 } }
+              }
             },
             type: 'String',
-            resolve: ({ $: { separator }, value }) =>
+            resolve: ({ args: { separator }, value }) =>
               `${value}${separator}${value}`
           }
         }
       },
-      Bar: { obj: { color: { type: 'String' } } },
+      Bar: { fields: { color: { type: 'String' } } },
       Boolean: {
         resolve: ({ value }) => {
           if (typeof value === 'boolean') return value;
         }
       },
       String: {
-        $: {
-          obj: { maxLength: { optional: 'Number' } },
+        args: {
+          fields: { maxLength: { optional: 'Number' } },
           defaultValue: {}
         },
-        resolve: ({ $: { maxLength }, path, value }) => {
+        resolve: ({ args: { maxLength }, path, value }) => {
           if (typeof value !== 'string') {
             throw new Error(
               `Expected a "String" but got ${JSON.stringify(value)} ${path}`
@@ -207,37 +209,50 @@ export default async () => {
   const query = validateQuery({
     query: {
       _type: {},
-      nullableStringA: { _: 'nullableString', $: { string: 'not null' } },
-      nullableStringB: { _: 'nullableString', $: { string: '   ' } },
+      nullableStringA: {
+        _field: 'nullableString',
+        _args: { string: 'not null' }
+      },
+      nullableStringB: { _field: 'nullableString', _args: { string: '   ' } },
       nullableStringC: {
-        _: 'nonNullableNullableString',
-        $: { string: 'not null' }
+        _field: 'nonNullableNullableString',
+        _args: { string: 'not null' }
       },
       nullableStringD: {
-        _: 'nonNullableNullableString',
-        $: { string: '  a  ' }
+        _field: 'nonNullableNullableString',
+        _args: { string: '  a  ' }
       },
-      nullableStringE: { _: 'nullableString$', $: { string: 'not null' } },
-      nullableStringF: { _: 'nullableString$', $: { string: '   ' } },
+      nullableStringE: {
+        _field: 'nullableStringArgs',
+        _args: { string: 'not null' }
+      },
+      nullableStringF: {
+        _field: 'nullableStringArgs',
+        _args: { string: '   ' }
+      },
       selfLink: { selfLinkWithAddition: { addition: {} } },
       things: {
         _on_f: {
           _type: {},
           id: {},
-          name: { $: { separator: ' ' } },
-          sub: { _: 'subFoo', id: {}, subSub: { _: 'subFoo', id: {} } }
+          name: { _args: { separator: ' ' } },
+          sub: {
+            _field: 'subFoo',
+            id: {},
+            subSub: { _field: 'subFoo', id: {} }
+          }
         },
         _on_b: { _type: {}, color: {} }
       },
-      oneOf$String: { _: 'oneOf$', $: { thing: 'str' } },
-      oneOf$A: {
-        _: 'oneOf$',
-        $: { thing: { a: 'A', a2: 'A2' } },
+      oneOfArgsString: { _field: 'oneOfArgs', _args: { thing: 'str' } },
+      oneOfArgsA: {
+        _field: 'oneOfArgs',
+        _args: { thing: { a: 'A', a2: 'A2' } },
         _on_ThingA: { _type: {}, a: {} }
       },
-      oneOf$B: {
-        _: 'oneOf$',
-        $: { thing: { b: 'B', b2: 'B2' } },
+      oneOfArgsB: {
+        _field: 'oneOfArgs',
+        _args: { thing: { b: 'B', b2: 'B2' } },
         _on_ThingB: { _type: {}, b2: {} }
       },
       nullableObject: { a: {} },
@@ -274,9 +289,9 @@ export default async () => {
       },
       { _type: 'Bar', color: 'blue' }
     ],
-    oneOf$String: 'str',
-    oneOf$A: { _type: 'ThingA', a: 'A' },
-    oneOf$B: { _type: 'ThingB', b2: 'B2' },
+    oneOfArgsString: 'str',
+    oneOfArgsA: { _type: 'ThingA', a: 'A' },
+    oneOfArgsB: { _type: 'ThingB', b2: 'B2' },
     nullableObject: null,
     nullableArrayOf: null,
     nullableOneOf: null,

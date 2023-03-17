@@ -3,21 +3,29 @@ import throwPaveError from './throw-pave-error.js';
 
 const { isArray } = Array;
 
-const validateValue = ({ ctx, obj, path = [], query, schema, type, value }) => {
-  let type$;
+const validateValue = ({
+  context,
+  parent,
+  path = [],
+  query,
+  schema,
+  type,
+  value
+}) => {
+  let typeArgs;
   let isNullable = false;
   let isOptional = false;
 
   const fail = (code, extra) =>
     throwPaveError(code, {
       code,
-      ctx,
-      obj,
+      context,
+      parent,
       path,
       query,
       schema,
       type,
-      type$,
+      typeArgs,
       value,
       ...extra
     });
@@ -36,10 +44,19 @@ const validateValue = ({ ctx, obj, path = [], query, schema, type, value }) => {
 
   const validateQueue = [];
   const validate = value => {
-    for (const { $, type } of validateQueue) {
+    for (const { args, type } of validateQueue) {
       if (value == null) break;
 
-      value = type.validate({ $, ctx, obj, path, query, schema, type, value });
+      value = type.validate({
+        args,
+        context,
+        parent,
+        path,
+        query,
+        schema,
+        type,
+        value
+      });
     }
     return value;
   };
@@ -58,12 +75,12 @@ const validateValue = ({ ctx, obj, path = [], query, schema, type, value }) => {
     if (!isObject(type)) {
       if (!schema[type]) fail('unknownType');
 
-      obj = null;
+      parent = null;
       type = schema[type];
       continue;
     }
 
-    if (isArray(type)) type = { obj: type };
+    if (isArray(type)) type = { fields: type };
 
     if (value === undefined && type.defaultValue !== undefined) {
       value = type.defaultValue;
@@ -105,8 +122,8 @@ const validateValue = ({ ctx, obj, path = [], query, schema, type, value }) => {
       return validate(
         value.map((value, i) =>
           validateValue({
-            ctx,
-            obj,
+            context,
+            parent,
             path: [...path, i],
             query,
             schema,
@@ -125,51 +142,60 @@ const validateValue = ({ ctx, obj, path = [], query, schema, type, value }) => {
       continue;
     }
 
-    if (type.obj) {
+    if (type.fields) {
       let check = {};
-      for (const key in type.obj) check[key] = undefined;
+      for (const field in type.fields) check[field] = undefined;
       check = { ...check, ...value };
-      const objIsArray = isArray(type.obj);
-      const _value = objIsArray ? [] : {};
-      obj = value;
-      for (const key in check) {
-        let value = check[key];
-        const _type = type.obj[key];
-        if (!_type) fail('unknownKey', { key });
+      const fieldsIsArray = isArray(type.fields);
+      const _value = fieldsIsArray ? [] : {};
+      const _parent = value;
+      for (const field in check) {
+        let value = check[field];
+        const _type = type.fields[field];
+        if (!_type) fail('unknownField', { field });
 
         value = validateValue({
-          ctx,
-          obj,
-          path: [...path, key],
+          context,
+          parent: _parent,
+          path: [...path, field],
           query,
           schema,
           type: _type,
           value
         });
-        if (objIsArray) _value.push(value);
-        else if (value !== undefined) _value[key] = value;
+        if (fieldsIsArray) _value.push(value);
+        else if (value !== undefined) _value[field] = value;
       }
       return validate(_value);
     }
 
-    const $ = validateValue({
-      ctx,
-      path: [...path, '$'],
+    const args = validateValue({
+      context,
+      path: [...path, '_args'],
       query,
       schema,
-      type: type.$,
-      value: type$
+      type: type.args,
+      value: typeArgs
     });
 
-    if (type === validateQueue[0]?.type) validateQueue[0].$ = $;
+    if (type === validateQueue[0]?.type) validateQueue[0].args = args;
 
     if ('resolve' in type) {
       if (typeof type.resolve === 'function') {
-        value = type.resolve({ $, ctx, obj, path, query, schema, type, value });
+        value = type.resolve({
+          args,
+          context,
+          parent,
+          path,
+          query,
+          schema,
+          type,
+          value
+        });
       } else value = type.resolve;
     }
 
-    type$ = type.type$;
+    typeArgs = type.typeArgs;
     type = type.type;
   }
 };

@@ -17,5 +17,6 @@ const orderObject = obj => {
   return val;
 };
 
-export default ({ alias, query: { _, $ } }) =>
-  (_ ?? alias) + ($ === undefined ? '' : `(${JSON.stringify(orderObject($))})`);
+export default ({ alias, query: { _args, _field } }) =>
+  (_field ?? alias) +
+  (_args === undefined ? '' : `(${JSON.stringify(orderObject(_args))})`);
