@@ -5,7 +5,7 @@ const { Set } = globalThis;
 
 const { isArray } = Array;
 
-export default ({ extra, schema }) => {
+export default ({ extraFields, schema }) => {
   const typeObject = {
     resolve: ({ value, ...rest }) => {
       if (isObject(value)) {
@@ -69,11 +69,15 @@ export default ({ extra, schema }) => {
         }
       },
       tuple: { arrayOf: type },
-      optional: { fields: { ...extra?.optional, ...shared, optional: type } },
-      nullable: { fields: { ...extra?.nullable, ...shared, nullable: type } },
+      optional: {
+        fields: { ...extraFields?.optional, ...shared, optional: type }
+      },
+      nullable: {
+        fields: { ...extraFields?.nullable, ...shared, nullable: type }
+      },
       arrayOf: {
         fields: {
-          ...extra?.arrayOf,
+          ...extraFields?.arrayOf,
           ...shared,
           arrayOf: type,
           minLength: { optional: positiveNumber },
@@ -82,16 +86,18 @@ export default ({ extra, schema }) => {
       },
       oneOf: {
         fields: {
-          ...extra?.oneOf,
+          ...extraFields?.oneOf,
           ...shared,
           oneOf: typeObject,
           resolveType: fn
         }
       },
-      fields: { fields: { ...extra?.fields, ...shared, fields: typeObject } },
-      type: {
+      fields: {
+        fields: { ...extraFields?.fields, ...shared, fields: typeObject }
+      },
+      resolve: {
         fields: {
-          ...extra?.type,
+          ...extraFields?.type,
           ...shared,
           args: { optional: type },
           resolve: { optional: { nullable: {} } },
@@ -132,7 +138,7 @@ export default ({ extra, schema }) => {
         ? 'oneOf'
         : 'fields' in value
         ? 'fields'
-        : 'type';
+        : 'resolve';
     }
   });
 
