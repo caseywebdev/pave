@@ -84,12 +84,6 @@ const validateValue = ({
       validateQueue.unshift({ type });
     }
 
-    if (type.constant !== undefined) {
-      if (value === type.constant) return validate(value);
-
-      fail('expectedConstant');
-    }
-
     if (type.optional) {
       type = type.optional;
       isOptional = true;

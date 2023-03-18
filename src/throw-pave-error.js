@@ -8,20 +8,18 @@ const formatOr = values =>
     type: 'disjunction'
   }).format(values.map(value => `"${value}"`));
 
+const formatPath = path =>
+  path.length === 0 ? 'the query root' : `"${path.join('"."')}"`;
+
 const getSuggestion = (provided, expected) => {
-  const suggestion = new Intl.ListFormat(undefined, {
-    type: 'disjunction'
-  }).format(
+  const suggestion = formatOr(
     expected
       .map(value => ({ distance: levenshtein(provided, value), value }))
       .sort((a, b) => (a.distance < b.distance ? -1 : 1))
-      .flatMap(({ distance, value }) => (distance <= 2 ? `"${value}"` : []))
+      .flatMap(({ distance, value }) => (distance <= 2 ? value : []))
   );
   return suggestion && `. Did you mean ${suggestion}?`;
 };
-
-const formatPath = path =>
-  path.length === 0 ? 'the query root' : `"${path.join('"."')}"`;
 
 const messages = {
   expectedArray: ({ path, value }) =>
@@ -38,11 +36,6 @@ const messages = {
     `The array with length ${length} at ${formatPath(
       path
     )} must be at least length ${minLength}`,
-
-  expectedConstant: ({ type: { constant }, path, value }) =>
-    `The value ${JSON.stringify(value)} was expected to be ${JSON.stringify(
-      constant
-    )} at ${formatPath(path)}`,
 
   expectedNonNull: ({ path }) =>
     `A non-null value is required at ${formatPath(path)}`,

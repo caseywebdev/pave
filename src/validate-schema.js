@@ -52,13 +52,6 @@ export default ({ extensions, schema }) => {
         }
       },
       tuple: { arrayOf: type },
-      constant: {
-        object: {
-          ...extensions?.constant,
-          ...shared,
-          constant: { nullable: {} }
-        }
-      },
       optional: {
         object: { ...extensions?.optional, ...shared, optional: type }
       },
@@ -123,9 +116,7 @@ export default ({ extensions, schema }) => {
 
       seenValues.add(value);
 
-      return value.constant !== undefined
-        ? 'constant'
-        : value.optional
+      return value.optional
         ? 'optional'
         : value.nullable
         ? 'nullable'

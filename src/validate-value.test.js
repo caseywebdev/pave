@@ -10,20 +10,13 @@ export default () => {
         [
           {},
           { optional: {} },
-          {
-            object: { key: { constant: null } },
-            defaultType: { optional: {} }
-          },
-          { nullable: {} },
-          { constant: 123 }
+          { object: { key: [] }, defaultType: { optional: {} } },
+          { nullable: {} }
         ]
       ],
-      value: [
-        1,
-        [2, undefined, { key: null, foo: 123, bar: undefined }, null, 123]
-      ]
+      value: [1, [2, undefined, { key: [], foo: 123, bar: undefined }]]
     }),
-    [1, [2, undefined, { key: null, foo: 123 }, null, 123]]
+    [1, [2, undefined, { key: [], foo: 123 }, null]]
   );
 
   assert.deepEqual(

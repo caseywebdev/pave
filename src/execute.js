@@ -88,12 +88,6 @@ const execute = async ({
       value = type.defaultValue;
     }
 
-    if (type.constant !== undefined) {
-      if (value === type.constant) return value;
-
-      fail('expectedConstant');
-    }
-
     if (type.optional) {
       type = type.optional;
       isOptional = true;
