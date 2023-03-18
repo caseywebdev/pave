@@ -43,7 +43,7 @@ export default {
             list: { id: {}, foo: { id: {}, color: {} } }
           },
           bar: {
-            _field: 'foo',
+            _key: 'foo',
             _args: { id: 1 },
             id: {},
             name: {},

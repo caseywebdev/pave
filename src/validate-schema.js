@@ -5,25 +5,7 @@ const { Set } = globalThis;
 
 const { isArray } = Array;
 
-export default ({ extraFields, schema }) => {
-  const typeObject = {
-    resolve: ({ value, ...rest }) => {
-      if (isObject(value)) {
-        return validateValue({
-          ...rest,
-          type: {
-            fields: Object.fromEntries(
-              Object.keys(value).map(key => [key, type])
-            )
-          },
-          value
-        });
-      }
-
-      throw new Error(`Expected ${JSON.stringify(value)} to be a type object`);
-    }
-  };
-
+export default ({ extensions, schema }) => {
   const positiveNumber = {
     resolve: ({ value }) => {
       if (typeof value === 'number' && value >= 0) return value;
@@ -44,6 +26,7 @@ export default ({ extraFields, schema }) => {
 
   const seenValues = new Set();
   const type = {};
+  const typeObject = { object: {}, defaultType: type };
   const shared = {
     cost: {
       optional: {
@@ -52,7 +35,7 @@ export default ({ extraFields, schema }) => {
           typeof value === 'function' ? 'fn' : 'positiveNumber'
       }
     },
-    defaultValue: { optional: {} },
+    defaultValue: { optional: { nullable: {} } },
     validate: { optional: fn }
   };
   Object.assign(type, {
@@ -69,15 +52,22 @@ export default ({ extraFields, schema }) => {
         }
       },
       tuple: { arrayOf: type },
+      constant: {
+        object: {
+          ...extensions?.constant,
+          ...shared,
+          constant: { nullable: {} }
+        }
+      },
       optional: {
-        fields: { ...extraFields?.optional, ...shared, optional: type }
+        object: { ...extensions?.optional, ...shared, optional: type }
       },
       nullable: {
-        fields: { ...extraFields?.nullable, ...shared, nullable: type }
+        object: { ...extensions?.nullable, ...shared, nullable: type }
       },
       arrayOf: {
-        fields: {
-          ...extraFields?.arrayOf,
+        object: {
+          ...extensions?.arrayOf,
           ...shared,
           arrayOf: type,
           minLength: { optional: positiveNumber },
@@ -85,31 +75,36 @@ export default ({ extraFields, schema }) => {
         }
       },
       oneOf: {
-        fields: {
-          ...extraFields?.oneOf,
+        object: {
+          ...extensions?.oneOf,
           ...shared,
           oneOf: typeObject,
           resolveType: fn
         }
       },
-      fields: {
-        fields: { ...extraFields?.fields, ...shared, fields: typeObject }
+      object: {
+        object: {
+          ...extensions?.object,
+          ...shared,
+          object: typeObject,
+          defaultType: { optional: type }
+        }
       },
       resolve: {
-        fields: {
-          ...extraFields?.resolve,
+        object: {
+          ...extensions?.resolve,
           ...shared,
           args: { optional: type },
           resolve: { optional: { nullable: {} } },
           type: { optional: type },
           typeArgs: {
             optional: {
-              resolve: ({ parent, ...rest }) =>
+              resolve: ({ object, ...rest }) =>
                 validateValue({
                   ...rest,
-                  type: (typeof parent.type === 'string'
-                    ? rest.schema[parent.type]
-                    : parent.type
+                  type: (typeof object.type === 'string'
+                    ? rest.schema[object.type]
+                    : object.type
                   )?.args
                 })
             }
@@ -128,16 +123,18 @@ export default ({ extraFields, schema }) => {
 
       seenValues.add(value);
 
-      return 'optional' in value
+      return value.constant !== undefined
+        ? 'constant'
+        : value.optional
         ? 'optional'
-        : 'nullable' in value
+        : value.nullable
         ? 'nullable'
-        : 'arrayOf' in value
+        : value.arrayOf
         ? 'arrayOf'
-        : 'oneOf' in value
+        : value.oneOf
         ? 'oneOf'
-        : 'fields' in value
-        ? 'fields'
+        : value.object
+        ? 'object'
         : 'resolve';
     }
   });

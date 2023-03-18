@@ -5,7 +5,7 @@ const { isArray } = Array;
 
 const validateValue = ({
   context,
-  parent,
+  object,
   path = [],
   query,
   schema,
@@ -20,7 +20,7 @@ const validateValue = ({
     throwPaveError(code, {
       code,
       context,
-      parent,
+      object,
       path,
       query,
       schema,
@@ -30,16 +30,10 @@ const validateValue = ({
       ...extra
     });
 
-  if (type === undefined) {
+  if (!type) {
     if (value === undefined) return value;
 
     fail('unexpectedValue');
-  }
-
-  if (type === null) {
-    if (value === null) return value;
-
-    fail('expectedNull');
   }
 
   const validateQueue = [];
@@ -50,7 +44,7 @@ const validateValue = ({
       value = type.validate({
         args,
         context,
-        parent,
+        object,
         path,
         query,
         schema,
@@ -66,7 +60,7 @@ const validateValue = ({
 
     if (isNullable && value == null) return null;
 
-    if (type == null) {
+    if (!type) {
       if (value != null) return validate(value);
 
       fail(value === undefined ? 'expectedRequired' : 'expectedNonNull');
@@ -75,12 +69,12 @@ const validateValue = ({
     if (!isObject(type)) {
       if (!schema[type]) fail('unknownType');
 
-      parent = null;
+      object = null;
       type = schema[type];
       continue;
     }
 
-    if (isArray(type)) type = { fields: type };
+    if (isArray(type)) type = { object: type };
 
     if (value === undefined && type.defaultValue !== undefined) {
       value = type.defaultValue;
@@ -88,6 +82,12 @@ const validateValue = ({
 
     if (type.validate && type !== validateQueue[0]?.type) {
       validateQueue.unshift({ type });
+    }
+
+    if (type.constant !== undefined) {
+      if (value === type.constant) return validate(value);
+
+      fail('expectedConstant');
     }
 
     if (type.optional) {
@@ -123,7 +123,7 @@ const validateValue = ({
         value.map((value, i) =>
           validateValue({
             context,
-            parent,
+            object,
             path: [...path, i],
             query,
             schema,
@@ -136,35 +136,31 @@ const validateValue = ({
 
     if (type.oneOf) {
       const name = type.resolveType(value);
-      if (!(name in type.oneOf)) fail('expectedOneOfType');
+      if (!type.oneOf[name]) fail('expectedOneOfType');
 
       type = type.oneOf[name];
       continue;
     }
 
-    if (type.fields) {
+    if (type.object) {
       let check = {};
-      for (const field in type.fields) check[field] = undefined;
+      for (const key in type.object) check[key] = undefined;
       check = { ...check, ...value };
-      const fieldsIsArray = isArray(type.fields);
-      const _value = fieldsIsArray ? [] : {};
-      const _parent = value;
-      for (const field in check) {
-        let value = check[field];
-        const _type = type.fields[field];
-        if (!_type) fail('unknownField', { field });
-
-        value = validateValue({
+      const objectIsArray = isArray(type.object);
+      const _value = objectIsArray ? [] : {};
+      const _object = value;
+      for (const key in check) {
+        const value = validateValue({
           context,
-          parent: _parent,
-          path: [...path, field],
+          object: _object,
+          path: [...path, key],
           query,
           schema,
-          type: _type,
-          value
+          type: type.object[key] ?? type.defaultType,
+          value: check[key]
         });
-        if (fieldsIsArray) _value.push(value);
-        else if (value !== undefined) _value[field] = value;
+        if (objectIsArray) _value.push(value);
+        else if (value !== undefined) _value[key] = value;
       }
       return validate(_value);
     }
@@ -180,12 +176,12 @@ const validateValue = ({
 
     if (type === validateQueue[0]?.type) validateQueue[0].args = args;
 
-    if ('resolve' in type) {
+    if (type.resolve !== undefined) {
       if (typeof type.resolve === 'function') {
         value = type.resolve({
           args,
           context,
-          parent,
+          object,
           path,
           query,
           schema,

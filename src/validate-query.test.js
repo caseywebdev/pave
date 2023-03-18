@@ -8,10 +8,10 @@ export default {
       validateQuery({
         schema: {
           Root: {
-            fields: {
+            object: {
               sum: {
                 args: {
-                  fields: { a: 'Int', b: 'Int' },
+                  object: { a: 'Int', b: 'Int' },
                   validate: ({ query, value }) => {
                     if (query.root) {
                       assert.deepEqual(query.root.sum._args, { a: 3, b: 4 });
@@ -19,7 +19,7 @@ export default {
                     return value;
                   }
                 },
-                type: { fields: { result: 'Int', root: 'Root' } }
+                type: { object: { result: 'Int', root: 'Root' } }
               }
             },
             defaultValue: {}
@@ -29,7 +29,7 @@ export default {
         type: 'Root',
         query: {
           total: {
-            _field: 'sum',
+            _key: 'sum',
             _type: { _args: 'foo' },
             _args: { a: '1', b: 2 },
             result: {},
@@ -39,7 +39,7 @@ export default {
       }),
       {
         total: {
-          _field: 'sum',
+          _key: 'sum',
           _type: {},
           _args: { a: 1, b: 2 },
           result: {},
@@ -54,10 +54,10 @@ export default {
       validateQuery({
         schema: {
           Root: {
-            fields: {
+            object: {
               sum: {
                 args: {
-                  fields: {
+                  object: {
                     a: 'Int',
                     b: {
                       defaultValue: 1,
@@ -69,7 +69,7 @@ export default {
               },
               def: {
                 args: {
-                  fields: {
+                  object: {
                     a: { defaultValue: 3, type: 'Int' }
                   },
                   defaultValue: {}
@@ -77,7 +77,7 @@ export default {
               },
               obj: {
                 type: 'Obj',
-                args: { fields: { id: 'Int' } }
+                args: { object: { id: 'Int' } }
               },
               oneOf: {
                 oneOf: { Foo: 'Foo', Bar: 'Bar' }
@@ -85,19 +85,19 @@ export default {
             }
           },
           Obj: {
-            fields: {
+            object: {
               name: 'String',
               obj: 'Obj'
             }
           },
           Foo: {
-            fields: {
-              id: { args: { fields: { name: 'String' } } },
+            object: {
+              id: { args: { object: { name: 'String' } } },
               fooKey: {}
             }
           },
           Bar: {
-            fields: {
+            object: {
               id: {},
               barKey: {},
               status: 'Status'
@@ -105,7 +105,7 @@ export default {
           },
           Int: {
             args: {
-              fields: { min: { defaultValue: 2 }, max: { optional: 'Int' } },
+              object: { min: { defaultValue: 2 }, max: { optional: 'Int' } },
               defaultValue: {}
             },
             resolve: ({ args: { min, max }, value }) => {
@@ -129,7 +129,7 @@ export default {
           },
           Enum: {
             type: 'String',
-            args: { fields: { values: { arrayOf: 'String' } } },
+            args: { object: { values: { arrayOf: 'String' } } },
             resolve: ({ args: { values }, value }) => {
               if (values.includes(value)) return value;
 
@@ -149,14 +149,14 @@ export default {
           _type: {},
           objAlias: {
             _args: { id: 3 },
-            _field: 'obj',
+            _key: 'obj',
             name: {},
-            objAlias2: { _field: 'obj', name: {} }
+            objAlias2: { _key: 'obj', name: {} }
           },
           sum: { _args: { a: 3 } },
           def: {},
           oneOf: {
-            _field: 'oneOf',
+            _key: 'oneOf',
             _type: {},
             _on_Bar: { id: { _type: {} }, status: {} },
             _on_Foo: {
@@ -172,9 +172,9 @@ export default {
         _type: {},
         objAlias: {
           _args: { id: 3 },
-          _field: 'obj',
+          _key: 'obj',
           name: {},
-          objAlias2: { _field: 'obj', name: {} }
+          objAlias2: { _key: 'obj', name: {} }
         },
         sum: { _args: { a: 3, b: 1 } },
         def: { _args: { a: 3 } },

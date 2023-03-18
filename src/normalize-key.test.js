@@ -6,8 +6,8 @@ export default {
   'without _args': () =>
     assert.equal(normalizeKey({ alias: 'foo', query: {} }), 'foo'),
 
-  'with _field': () =>
-    assert.equal(normalizeKey({ alias: 'bar', query: { _field: 'foo' } }), 'foo'),
+  'with _key': () =>
+    assert.equal(normalizeKey({ alias: 'bar', query: { _key: 'foo' } }), 'foo'),
 
   'with _args': () =>
     assert.equal(
@@ -15,11 +15,11 @@ export default {
       'foo({"a":1,"b":2})'
     ),
 
-  'with _args and _field': () =>
+  'with _args and _key': () =>
     assert.equal(
       normalizeKey({
         alias: 'bar',
-        query: { _field: 'foo', _args: { b: 2, a: 1 } }
+        query: { _key: 'foo', _args: { b: 2, a: 1 } }
       }),
       'foo({"a":1,"b":2})'
     ),

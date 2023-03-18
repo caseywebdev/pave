@@ -39,22 +39,25 @@ const messages = {
       path
     )} must be at least length ${minLength}`,
 
+  expectedConstant: ({ type: { constant }, path, value }) =>
+    `The value ${JSON.stringify(value)} was expected to be ${JSON.stringify(
+      constant
+    )} at ${formatPath(path)}`,
+
   expectedNonNull: ({ path }) =>
     `A non-null value is required at ${formatPath(path)}`,
-
-  expectedNull: ({ path }) => `A null value is required at ${formatPath(path)}`,
 
   expectedOneOfType: ({ type: { oneOf }, path, value }) =>
     `The value ${JSON.stringify(value)} at ${formatPath(
       path
     )} does not resolve to ${formatOr(Object.keys(oneOf))}`,
 
-  expectedOneOfTypefield: ({ type: { oneOf }, path, field }) =>
-    `The field ${JSON.stringify(field)} does not exist at ${formatPath(
+  expectedOneOfTypeKey: ({ type: { oneOf }, path, key }) =>
+    `The key ${JSON.stringify(key)} does not exist at ${formatPath(
       path
     )}${getSuggestion(
-      field,
-      Object.keys(oneOf).map(field => `_on_${field}`)
+      key,
+      Object.keys(oneOf).map(key => `_on_${key}`)
     )}`,
 
   expectedRequired: ({ path }) => `A value is required at ${formatPath(path)}`,
@@ -64,20 +67,20 @@ const messages = {
       path
     )} is invalid`,
 
-  unexpectedField: ({ field, path }) =>
-    `The field ${JSON.stringify(
-      field
-    )} (or any other field) is not expected at ${formatPath(path)}`,
+  unexpectedKey: ({ key, path }) =>
+    `The key ${JSON.stringify(
+      key
+    )} (or any other key) is not expected at ${formatPath(path)}`,
 
   unexpectedValue: ({ path, value }) =>
     `The value ${JSON.stringify(value)} was found at ${formatPath(
       path
     )} but no value is ever expected there`,
 
-  unknownField: ({ type: { fields }, path, field }) =>
-    `The field ${JSON.stringify(field)} does not exist at ${formatPath(
+  unknownKey: ({ type: { object }, path, key }) =>
+    `The key ${JSON.stringify(key)} does not exist at ${formatPath(
       path
-    )}${getSuggestion(field, Object.keys(fields))}`,
+    )}${getSuggestion(key, Object.keys(object))}`,
 
   unknownType: ({ path, type }) =>
     `The type ${JSON.stringify(type)} at ${formatPath(path)} does not exist`

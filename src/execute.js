@@ -8,7 +8,7 @@ const { isArray } = Array;
 
 const execute = async ({
   context,
-  parent,
+  object,
   path = [],
   query,
   schema,
@@ -23,7 +23,7 @@ const execute = async ({
   const fail = (code, extra) =>
     throwPaveError(code, {
       context,
-      parent,
+      object,
       path,
       query,
       schema,
@@ -33,27 +33,21 @@ const execute = async ({
       ...extra
     });
 
-  if (type === undefined) {
+  if (!type) {
     if (value === undefined) return value;
 
     fail('unexpectedValue');
   }
 
-  if (type === null) {
-    if (value === null) return value;
-
-    fail('expectedNull');
-  }
-
   const validateQueue = [];
   const validate = value => {
-    for (const { args, parent, path, query, type } of validateQueue) {
+    for (const { args, object, path, query, type } of validateQueue) {
       if (value == null) break;
 
       value = type.validate({
         args,
         context,
-        parent,
+        object,
         path,
         query,
         schema,
@@ -69,7 +63,7 @@ const execute = async ({
 
     if (isNullable && value == null) return null;
 
-    if (type == null) {
+    if (!type) {
       if (value != null) return validate(value);
 
       fail(value === undefined ? 'expectedRequired' : 'expectedNonNull');
@@ -79,19 +73,25 @@ const execute = async ({
       if (!schema[type]) fail('unknownType');
 
       name = type;
-      parent = null;
+      object = null;
       type = schema[type];
       continue;
     }
 
-    if (isArray(type)) type = { fields: type };
+    if (isArray(type)) type = { object: type };
 
     if (type.validate && type !== validateQueue[0]?.type) {
-      validateQueue.unshift({ parent, path, query, type });
+      validateQueue.unshift({ object, path, query, type });
     }
 
     if (value === undefined && type.defaultValue !== undefined) {
       value = type.defaultValue;
+    }
+
+    if (type.constant !== undefined) {
+      if (value === type.constant) return value;
+
+      fail('expectedConstant');
     }
 
     if (type.optional) {
@@ -107,7 +107,7 @@ const execute = async ({
     }
 
     if (
-      (parent == null || type.arrayOf || type.oneOf || type.fields) &&
+      (object == null || type.arrayOf || type.oneOf || type.object) &&
       value == null
     ) {
       type = null;
@@ -132,7 +132,7 @@ const execute = async ({
             async (value, i) =>
               await execute({
                 context,
-                parent,
+                object,
                 path: [...path, i],
                 query,
                 schema,
@@ -146,34 +146,53 @@ const execute = async ({
 
     if (type.oneOf) {
       name = type.resolveType(value);
-      if (!(name in type.oneOf)) fail('expectedOneOfType');
+      if (!type.oneOf[name]) fail('expectedOneOfType');
 
       type = type.oneOf[name];
-      const onField = `_on_${name}`;
-      path = [...path, onField];
-      query = query[onField] ?? {};
+      const onKey = `_on_${name}`;
+      path = [...path, onKey];
+      query = query[onKey] ?? {};
       continue;
     }
 
-    if (type.fields) {
+    if (type.object) {
+      if (!Object.keys(type.object).length && type.defaultType) {
+        return validate(
+          Object.fromEntries(
+            Object.keys(value).map(key => [
+              key,
+              validateValue({
+                context,
+                object: value,
+                path: [...path, key],
+                query,
+                schema,
+                type: type.defaultType,
+                value: value[key]
+              })
+            ])
+          )
+        );
+      }
+
       return await validate(
         Object.fromEntries(
           await Promise.all(
             Object.entries(query).map(async ([alias, query]) => {
-              const { _field, ..._query } = query;
-              const field = _field ?? alias;
-              if (field === '_type') return [alias, name];
+              const { _key, ..._query } = query;
+              const key = _key ?? alias;
+              if (key === '_type') return [alias, name];
 
               return [
                 alias,
                 await execute({
                   context,
-                  parent: value,
+                  object: value,
                   path: [...path, alias],
                   query: _query,
                   schema,
-                  type: type.fields[field],
-                  value: value[field]
+                  type: type.object[key],
+                  value: value[key]
                 })
               ];
             })
@@ -183,8 +202,8 @@ const execute = async ({
     }
 
     let args;
-    if ('_args' in query) args = query._args;
-    else if ('args' in type) {
+    if (query._args !== undefined) args = query._args;
+    else if (type.args) {
       args = validateValue({
         context,
         path,
@@ -197,12 +216,12 @@ const execute = async ({
 
     if (type === validateQueue[0]?.type) validateQueue[0].args = args;
 
-    if ('resolve' in type) {
+    if (type.resolve !== undefined) {
       if (typeof type.resolve === 'function') {
         value = await type.resolve({
           args,
           context,
-          parent,
+          object,
           path,
           query,
           schema,
