@@ -53,11 +53,11 @@ export default {
         })
       }),
       {
-        _root: { _type: { ref: 'Root' } },
+        _root: { _type: ['Root'] },
         Root: {
           _type: 'Root',
-          'foo({"id":1})': { _type: { ref: 'Foo:1' } },
-          foo: { _type: { ref: 'Foo:1' } }
+          'foo({"id":1})': { _type: ['Foo:1'] },
+          foo: { _type: ['Foo:1'] }
         },
         'Foo:1': {
           _type: 'Foo',
@@ -66,7 +66,7 @@ export default {
           last: 'Last',
           color: 'blue',
           nested: { _type: null, a: 1, b: 2 },
-          list: [{ _type: { ref: 'Root' } }, { _type: { ref: 'Root' } }]
+          list: [{ _type: ['Root'] }, { _type: ['Root'] }]
         }
       }
     );
@@ -94,12 +94,12 @@ export default {
         })
       }),
       {
-        _root: { _type: { ref: 'Foo:1' } },
+        _root: { _type: ['Foo:1'] },
         'Foo:1': {
           _type: 'Foo',
           id: 1,
           name: 'foo',
-          bar: { _type: { ref: 'Bar:2' } }
+          bar: { _type: ['Bar:2'] }
         },
         'Bar:2': {
           _type: 'Bar',
@@ -133,7 +133,7 @@ export default {
       {
         _root: {
           _type: null,
-          oneOfs: [{ _type: { ref: 'Foo:1' } }, { _type: { ref: 'Bar:2' } }]
+          oneOfs: [{ _type: ['Foo:1'] }, { _type: ['Bar:2'] }]
         },
         'Foo:1': { _type: 'Foo', shared: 'a', id: 1, name: 'John' },
         'Bar:2': { _type: 'Bar', shared: 'b', id: 2, color: 'blue' }

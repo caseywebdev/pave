@@ -15,8 +15,8 @@ export default () => {
 
   assert.equal(mergeCaches(data, { _root: { _type: null } }), data);
   assert.deepEqual(
-    mergeCaches(data, { _root: { baz: { _type: { ref: 1 } } } })._root.baz,
-    { _type: { ref: 1 } }
+    mergeCaches(data, { _root: { baz: { _type: [1] } } })._root.baz,
+    { _type: [1] }
   );
   assert.equal(mergeCaches(data, { _root: { _type: null, foo: 1 } }), data);
   assert.equal(

@@ -20,8 +20,8 @@ const walk = ({ cache, query, value }) => {
 
     if (!isObject(value) || value._type === undefined) return value;
 
-    if (value._type?.ref) {
-      value = cache[value._type.ref];
+    if (isArray(value._type)) {
+      value = cache[value._type[0]];
       continue;
     }
 

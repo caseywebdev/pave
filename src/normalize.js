@@ -24,12 +24,12 @@ const walk = ({ normalized = {}, data, getRef, query }) => {
     const key = normalizeKey({ alias, query });
     const value = walk({ normalized, data: data[alias], getRef, query });
     obj[key] =
-      isObject(value) && !isArray(value) && !value._type?.ref
+      isObject(value) && !isArray(value) && !isArray(value._type)
         ? { ...obj[key], ...value }
         : value;
   }
 
-  return ref ? { _type: { ref } } : obj;
+  return ref ? { _type: [ref] } : obj;
 };
 
 export default ({ data, getRef, query }) => {

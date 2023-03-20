@@ -1,8 +1,8 @@
 import { strict as assert } from 'assert';
 
-import mergeRefs from './merge-refs.js';
+import merge from './merge.js';
 
-const isEqual = (a, b) => mergeRefs(a, b) === b;
+const isEqual = (a, b) => merge(a, b) === b;
 
 let seed = 0;
 const getRandom = () => {
@@ -38,15 +38,15 @@ export default {
       e: [{ a: 1 }, { b: 2 }]
     };
 
-    assert.equal(mergeRefs({ ...data, e: [...data.e] }, data), data);
+    assert.equal(merge({ ...data, e: [...data.e] }, data), data);
 
     let data2 = { a: { b: 1 } };
-    let merged = mergeRefs(data2, data);
+    let merged = merge(data2, data);
     assert.deepEqual(merged, data2);
     assert.equal(merged.a, data.a);
 
     data2 = { e: [{ a: 1 }] };
-    merged = mergeRefs(data2, data);
+    merged = merge(data2, data);
     assert.deepEqual(merged, data2);
     assert.equal(merged.e[0], data.e[0]);
   },
@@ -110,5 +110,5 @@ export default {
     assert.equal(isEqual({}, []), false);
   },
 
-  'bench #times=10': () => mergeRefs(createRandomObj(), createRandomObj())
+  'bench #times=10': () => merge(createRandomObj(), createRandomObj())
 };

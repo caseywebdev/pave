@@ -1,7 +1,7 @@
 import cacheExecute from './cache-execute.js';
 import injectType from './inject-type.js';
 import mergeCaches from './merge-caches.js';
-import mergeRefs from './merge-refs.js';
+import merge from './merge.js';
 import normalize from './normalize.js';
 
 const { Set } = globalThis;
@@ -38,7 +38,7 @@ export default ({ cache, execute, getRef, transformQuery } = {}) => {
         const { data, onChange, query } = watcher;
         if (!query) return onChange(client.cache);
 
-        const newData = mergeRefs(client.cacheExecute({ query }), data);
+        const newData = merge(client.cacheExecute({ query }), data);
         if (newData !== data) onChange((watcher.data = newData));
       });
 
@@ -65,7 +65,7 @@ export default ({ cache, execute, getRef, transformQuery } = {}) => {
       if (!query) return { unwatch };
 
       watcher.query = query = transformQuery({ query });
-      watcher.data = data = mergeRefs(client.cacheExecute({ query }), data);
+      watcher.data = data = merge(client.cacheExecute({ query }), data);
       return { data, unwatch };
     }
   };

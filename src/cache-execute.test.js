@@ -61,7 +61,7 @@ export default {
         cache: {
           _root: {
             _type: null,
-            oneOfs: [{ _type: { ref: 'Foo:1' } }, { _type: { ref: 'Bar:2' } }]
+            oneOfs: [{ _type: ['Foo:1'] }, { _type: ['Bar:2'] }]
           },
           'Foo:1': { _type: 'Foo', shared: 'a', id: 1, name: 'John' },
           'Bar:2': { _type: 'Bar', shared: 'b', id: 2, color: 'blue' }
@@ -87,7 +87,7 @@ export default {
         cache: {
           _root: {
             _type: null,
-            oneOfs: [{ _type: { ref: 'Foo:1' } }, { _type: { ref: 'Bar:2' } }]
+            oneOfs: [{ _type: ['Foo:1'] }, { _type: ['Bar:2'] }]
           },
           'Foo:1': { _type: 'Foo', shared: 'a', id: 1, name: 'John' },
           'Bar:2': { _type: 'Bar', shared: 'b', id: 2, color: 'blue' }
@@ -102,13 +102,13 @@ export default {
     assert.deepEqual(
       cacheExecute({
         cache: {
-          _root: { _type: { ref: 'Root' } },
-          Root: { _type: null, foo: { _type: { ref: 'Foo:1' } } },
+          _root: { _type: ['Root'] },
+          Root: { _type: null, foo: { _type: ['Foo:1'] } },
           'Foo:1': {
             _type: 'Foo',
             id: 1,
             name: 'foo',
-            root: { _type: { ref: 'Root' } }
+            root: { _type: ['Root'] }
           }
         },
         query: {
