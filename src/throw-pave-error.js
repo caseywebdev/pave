@@ -70,10 +70,13 @@ const messages = {
       path
     )} but no value is ever expected there`,
 
-  unknownKey: ({ type: { object }, path, key }) =>
-    `The key ${JSON.stringify(key)} does not exist at ${formatPath(
-      path
-    )}${getSuggestion(key, Object.keys(object))}`,
+  unknownKey: ({ alias, type: { object }, path, key }) =>
+    `The key ${JSON.stringify(key)}${
+      alias === key ? '' : ` (aliased as ${JSON.stringify(alias)})`
+    } does not exist at ${formatPath(path)}${getSuggestion(
+      key,
+      Object.keys(object)
+    )}`,
 
   unknownType: ({ path, type }) =>
     `The type ${JSON.stringify(type)} at ${formatPath(path)} does not exist`

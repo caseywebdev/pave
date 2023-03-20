@@ -20,10 +20,7 @@ const validateQuery = ({ context, path = [], query, schema, type }) => {
           alias !== '_key' &&
           alias !== '_type'
         ) {
-          fail('unexpectedKey', {
-            alias,
-            key: query[alias]?._key || alias
-          });
+          fail('unexpectedKey', { key: alias });
         }
       }
 
