@@ -17,11 +17,11 @@ const getQueryCost = ({ context, path = [], query, schema, type }) => {
     else if (type.oneOf) {
       cost += Math.max(
         ...Object.entries(type.oneOf).map(([name, type]) => {
-          const onKey = `_on_${name}`;
+          const onField = `_on_${name}`;
           return getQueryCost({
             context,
-            path: [...path, onKey],
-            query: query[onKey] ?? {},
+            path: [...path, onField],
+            query: query[onField] ?? {},
             schema,
             type
           });
@@ -30,7 +30,7 @@ const getQueryCost = ({ context, path = [], query, schema, type }) => {
     } else if (type.object) {
       for (const alias in query) {
         const _query = query[alias];
-        const _type = type.object[_query._key ?? alias];
+        const _type = type.object[_query._field ?? alias];
         cost += getQueryCost({
           context,
           path: [...path, alias],

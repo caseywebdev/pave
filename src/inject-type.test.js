@@ -6,10 +6,10 @@ export default () => {
   assert.deepEqual(
     injectType({
       _args: { a: 1 },
-      _key: 'foo',
+      _field: 'foo',
       id: {},
       a: {
-        _type: { _key: 'not overridden' },
+        _type: { _field: 'not overridden' },
         name: { _args: { formal: true } },
         b: {},
         c: {
@@ -21,10 +21,10 @@ export default () => {
     {
       _type: {},
       _args: { a: 1 },
-      _key: 'foo',
+      _field: 'foo',
       id: {},
       a: {
-        _type: { _key: 'not overridden' },
+        _type: { _field: 'not overridden' },
         name: { _args: { formal: true } },
         b: {},
         c: {

@@ -210,24 +210,24 @@ export default async () => {
     query: {
       _type: {},
       nullableStringA: {
-        _key: 'nullableString',
+        _field: 'nullableString',
         _args: { string: 'not null' }
       },
-      nullableStringB: { _key: 'nullableString', _args: { string: '   ' } },
+      nullableStringB: { _field: 'nullableString', _args: { string: '   ' } },
       nullableStringC: {
-        _key: 'nonNullableNullableString',
+        _field: 'nonNullableNullableString',
         _args: { string: 'not null' }
       },
       nullableStringD: {
-        _key: 'nonNullableNullableString',
+        _field: 'nonNullableNullableString',
         _args: { string: '  a  ' }
       },
       nullableStringE: {
-        _key: 'nullableStringArgs',
+        _field: 'nullableStringArgs',
         _args: { string: 'not null' }
       },
       nullableStringF: {
-        _key: 'nullableStringArgs',
+        _field: 'nullableStringArgs',
         _args: { string: '   ' }
       },
       selfLink: { selfLinkWithAddition: { addition: {} } },
@@ -237,21 +237,21 @@ export default async () => {
           id: {},
           name: { _args: { separator: ' ' } },
           sub: {
-            _key: 'subFoo',
+            _field: 'subFoo',
             id: {},
-            subSub: { _key: 'subFoo', id: {} }
+            subSub: { _field: 'subFoo', id: {} }
           }
         },
         _on_b: { _type: {}, color: {} }
       },
-      oneOfArgsString: { _key: 'oneOfArgs', _args: { thing: 'str' } },
+      oneOfArgsString: { _field: 'oneOfArgs', _args: { thing: 'str' } },
       oneOfArgsA: {
-        _key: 'oneOfArgs',
+        _field: 'oneOfArgs',
         _args: { thing: { a: 'A', a2: 'A2' } },
         _on_ThingA: { _type: {}, a: {} }
       },
       oneOfArgsB: {
-        _key: 'oneOfArgs',
+        _field: 'oneOfArgs',
         _args: { thing: { b: 'B', b2: 'B2' } },
         _on_ThingB: { _type: {}, b2: {} }
       },

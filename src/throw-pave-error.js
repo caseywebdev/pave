@@ -40,17 +40,17 @@ const messages = {
   expectedNonNull: ({ path }) =>
     `A non-null value is required at ${formatPath(path)}`,
 
-  expectedOneOfType: ({ type: { oneOf }, path, value }) =>
+  expectedOneOfType: ({ path, type: { oneOf }, value }) =>
     `The value ${JSON.stringify(value)} at ${formatPath(
       path
     )} does not resolve to ${formatOr(Object.keys(oneOf))}`,
 
-  expectedOneOfTypeKey: ({ type: { oneOf }, path, key }) =>
-    `The key ${JSON.stringify(key)} does not exist at ${formatPath(
+  expectedOneOfTypeField: ({ field, path, type: { oneOf } }) =>
+    `The field ${JSON.stringify(field)} does not exist at ${formatPath(
       path
     )}${getSuggestion(
-      key,
-      Object.keys(oneOf).map(key => `_on_${key}`)
+      field,
+      Object.keys(oneOf).map(name => `_on_${name}`)
     )}`,
 
   expectedRequired: ({ path }) => `A value is required at ${formatPath(path)}`,
@@ -60,21 +60,21 @@ const messages = {
       path
     )} is invalid`,
 
-  unexpectedKey: ({ key, path }) =>
-    `The key ${JSON.stringify(
-      key
-    )} (or any other key) is not expected at ${formatPath(path)}`,
+  unexpectedField: ({ field, path }) =>
+    `The field ${JSON.stringify(
+      field
+    )} (or any other field) is not expected at ${formatPath(path)}`,
 
   unexpectedValue: ({ path, value }) =>
     `The value ${JSON.stringify(value)} was found at ${formatPath(
       path
     )} but no value is ever expected there`,
 
-  unknownKey: ({ alias, type: { object }, path, key }) =>
-    `The key ${JSON.stringify(key)}${
-      alias === key ? '' : ` (aliased as ${JSON.stringify(alias)})`
+  unknownField: ({ alias, field, path, type: { object } }) =>
+    `The field ${JSON.stringify(field)}${
+      alias === field ? '' : ` (aliased as ${JSON.stringify(alias)})`
     } does not exist at ${formatPath(path)}${getSuggestion(
-      key,
+      field,
       Object.keys(object)
     )}`,
 

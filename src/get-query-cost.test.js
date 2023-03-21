@@ -52,14 +52,14 @@ export default () => {
       query: {
         foo: {}, // 5
         bar: {}, // 10
-        bar2: { _key: 'bar' }, // 10
+        bar2: { _field: 'bar' }, // 10
         baz: { _args: { size: 10 }, a: {}, b: {}, c: {} }, // 60
         oneOf: {
           _on_SuperExpensive: { doot: {} },
           _on_MediumExpensive: { ding: {} }
         }, // 100
         oneOf2: {
-          _key: 'oneOf',
+          _field: 'oneOf',
           _on_MediumExpensive: { ding: {} },
           _on_Cheap: { dong: {} }
         } // 50

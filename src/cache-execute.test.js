@@ -25,7 +25,7 @@ export default {
     assert.deepEqual(
       cacheExecute({
         cache: { _root: { _type: null, one: 1 } },
-        query: { uno: { _key: 'one' } }
+        query: { uno: { _field: 'one' } }
       }),
       { uno: 1 }
     );
@@ -93,7 +93,7 @@ export default {
           'Bar:2': { _type: 'Bar', shared: 'b', id: 2, color: 'blue' }
         },
         query: { id: {}, name: {} },
-        ref: 'Foo:1'
+        key: 'Foo:1'
       }),
       { id: 1, name: 'John' }
     );

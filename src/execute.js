@@ -143,9 +143,9 @@ const execute = async ({
       if (!type.oneOf[name]) fail('expectedOneOfType');
 
       type = type.oneOf[name];
-      const onKey = `_on_${name}`;
-      path = [...path, onKey];
-      query = query[onKey] ?? {};
+      const onField = `_on_${name}`;
+      path = [...path, onField];
+      query = query[onField] ?? {};
       continue;
     }
 
@@ -173,9 +173,9 @@ const execute = async ({
         Object.fromEntries(
           await Promise.all(
             Object.entries(query).map(async ([alias, query]) => {
-              const { _key, ..._query } = query;
-              const key = _key ?? alias;
-              if (key === '_type') return [alias, name];
+              const { _field, ..._query } = query;
+              const field = _field ?? alias;
+              if (field === '_type') return [alias, name];
 
               return [
                 alias,
@@ -185,8 +185,8 @@ const execute = async ({
                   path: [...path, alias],
                   query: _query,
                   schema,
-                  type: type.object[key],
-                  value: value[key]
+                  type: type.object[field],
+                  value: value[field]
                 })
               ];
             })

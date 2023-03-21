@@ -26,7 +26,8 @@ const walk = ({ cache, query, value }) => {
     }
 
     // eslint-disable-next-line no-unused-vars
-    const { _args, _key, ..._query } = query[`_on_${value._type}`] ?? query;
+    let { _args, _field, ..._query } = query;
+    _query = _query[`_on_${value._type}`] ?? _query;
     const data = {};
     for (const alias in _query) {
       if (alias.startsWith('_on_')) continue;
@@ -42,5 +43,5 @@ const walk = ({ cache, query, value }) => {
   }
 };
 
-export default ({ cache, query, ref }) =>
-  walk({ cache, query, value: cache[ref ?? normalizeRoot({ query })] });
+export default ({ cache, key, query }) =>
+  walk({ cache, query, value: cache[key ?? normalizeRoot({ query })] });

@@ -29,7 +29,7 @@ export default {
         type: 'Root',
         query: {
           total: {
-            _key: 'sum',
+            _field: 'sum',
             _type: { _args: 'foo' },
             _args: { a: '1', b: 2 },
             result: {},
@@ -39,7 +39,7 @@ export default {
       }),
       {
         total: {
-          _key: 'sum',
+          _field: 'sum',
           _type: {},
           _args: { a: 1, b: 2 },
           result: {},
@@ -149,14 +149,14 @@ export default {
           _type: {},
           objAlias: {
             _args: { id: 3 },
-            _key: 'obj',
+            _field: 'obj',
             name: {},
-            objAlias2: { _key: 'obj', name: {} }
+            objAlias2: { _field: 'obj', name: {} }
           },
           sum: { _args: { a: 3 } },
           def: {},
           oneOf: {
-            _key: 'oneOf',
+            _field: 'oneOf',
             _type: {},
             _on_Bar: { id: { _type: {} }, status: {} },
             _on_Foo: {
@@ -172,9 +172,9 @@ export default {
         _type: {},
         objAlias: {
           _args: { id: 3 },
-          _key: 'obj',
+          _field: 'obj',
           name: {},
-          objAlias2: { _key: 'obj', name: {} }
+          objAlias2: { _field: 'obj', name: {} }
         },
         sum: { _args: { a: 3, b: 1 } },
         def: { _args: { a: 3 } },

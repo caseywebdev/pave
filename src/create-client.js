@@ -9,7 +9,7 @@ const { Set } = globalThis;
 const defaultTransform = ({ query }) => injectType(query);
 const noopTransform = ({ query }) => query;
 
-export default ({ cache, execute, getRef, transformQuery } = {}) => {
+export default ({ cache, execute, getKey, transformQuery } = {}) => {
   if (transformQuery === undefined) transformQuery = defaultTransform;
   else if (transformQuery === null) transformQuery = noopTransform;
   const watchers = new Set();
@@ -18,11 +18,11 @@ export default ({ cache, execute, getRef, transformQuery } = {}) => {
   const client = {
     cache: cache ?? {},
 
-    cacheExecute: ({ query, ref }) =>
+    cacheExecute: ({ key, query }) =>
       cacheExecute({
         cache: client.cache,
-        query: transformQuery({ query, ref }),
-        ref
+        key,
+        query: transformQuery({ key, query })
       }),
 
     cacheUpdate: ({ data }) => {
@@ -54,7 +54,7 @@ export default ({ cache, execute, getRef, transformQuery } = {}) => {
 
     update: ({ data, query }) => {
       query = transformQuery({ query });
-      data = normalize({ data, getRef, query });
+      data = normalize({ data, getKey, query });
       return client.cacheUpdate({ data });
     },
 

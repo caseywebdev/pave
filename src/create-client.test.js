@@ -61,7 +61,7 @@ export default {
 
   'ref changes': () => {
     const client = createClient({
-      getRef: ({ _type }) => _type
+      getKey: ({ _type }) => _type
     });
     const events = [];
     const onChange = data => events.push(data);
@@ -93,14 +93,14 @@ export default {
     ]);
 
     assert.deepEqual(
-      client.cacheExecute({ query: { name: {} }, ref: 'Foo:1' }),
+      client.cacheExecute({ key: 'Foo:1', query: { name: {} } }),
       { _type: 'Foo:1', name: 'FOO' }
     );
   },
 
   '_args ref changes': () => {
     const client = createClient({
-      getRef: ({ _type, id }) =>
+      getKey: ({ _type, id }) =>
         _type === 'Root' ? 'Root' : _type && id ? `${_type}:${id}` : null
     });
     const events = [];

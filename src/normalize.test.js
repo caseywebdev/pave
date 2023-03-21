@@ -7,7 +7,7 @@ export default {
   'from _root': () => {
     assert.deepEqual(
       normalize({
-        getRef: ({ _type, id }) =>
+        getKey: ({ _type, id }) =>
           _type === 'Root' ? 'Root' : _type && id ? `${_type}:${id}` : null,
         data: {
           _type: 'Root',
@@ -43,7 +43,7 @@ export default {
             list: { id: {}, foo: { id: {}, color: {} } }
           },
           bar: {
-            _key: 'foo',
+            _field: 'foo',
             _args: { id: 1 },
             id: {},
             name: {},
@@ -75,7 +75,7 @@ export default {
   'from key': () => {
     assert.deepEqual(
       normalize({
-        getRef: ({ _type, id }) =>
+        getKey: ({ _type, id }) =>
           _type === 'Root' ? 'Root' : _type && id ? `${_type}:${id}` : null,
         data: {
           _type: 'Foo',
@@ -113,7 +113,7 @@ export default {
   'one of': () => {
     assert.deepEqual(
       normalize({
-        getRef: ({ _type, id }) =>
+        getKey: ({ _type, id }) =>
           _type === 'Root' ? 'Root' : _type && id ? `${_type}:${id}` : null,
         data: {
           _type: null,
@@ -124,9 +124,8 @@ export default {
         },
         query: injectType({
           oneOfs: {
-            shared: {},
-            _on_Foo: { id: {}, name: {} },
-            _on_Bar: { id: {}, color: {} }
+            _on_Foo: { id: {}, name: {}, shared: {} },
+            _on_Bar: { id: {}, color: {}, shared: {} }
           }
         })
       }),
