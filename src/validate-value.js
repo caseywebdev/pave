@@ -56,12 +56,12 @@ const validateValue = ({
   };
 
   while (true) {
-    if (isOptional && value === undefined) return undefined;
-
-    if (isNullable && value == null) return null;
-
     if (!type) {
       if (value != null) return validate(value);
+
+      if (isOptional && value === undefined) return undefined;
+
+      if (isNullable) return null;
 
       fail(value === undefined ? 'expectedRequired' : 'expectedNonNull');
     }

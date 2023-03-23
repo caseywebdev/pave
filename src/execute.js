@@ -59,12 +59,12 @@ const execute = async ({
   };
 
   while (true) {
-    if (isOptional && value === undefined) return undefined;
-
-    if (isNullable && value == null) return null;
-
     if (!type) {
       if (value != null) return validate(value);
+
+      if (isOptional && value === undefined) return undefined;
+
+      if (isNullable) return null;
 
       fail(value === undefined ? 'expectedRequired' : 'expectedNonNull');
     }
@@ -101,8 +101,8 @@ const execute = async ({
     }
 
     if (
-      (object == null || type.arrayOf || type.oneOf || type.object) &&
-      value == null
+      value == null &&
+      (type.arrayOf || type.oneOf || type.object || object == null)
     ) {
       type = null;
       continue;
