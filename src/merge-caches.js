@@ -1,5 +1,5 @@
 import isObject from './is-object.js';
-import merge from './merge.js';
+import mergeRefs from './merge-refs.js';
 
 const { isArray } = Array;
 
@@ -12,7 +12,7 @@ const mergeCaches = (a, b, isCacheRoot) => {
     (b._type === undefined && !isCacheRoot) ||
     isArray(b._type)
   ) {
-    return merge(b, a);
+    return mergeRefs(b, a);
   }
 
   let c = a;
