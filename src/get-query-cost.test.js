@@ -16,8 +16,8 @@ export default () => {
               },
               bar: { cost: 10 },
               baz: {
-                args: { object: { size: {} } },
-                cost: ({ args: { size }, cost, path }) => {
+                input: { object: { size: {} } },
+                cost: ({ input: { size }, cost, path }) => {
                   assert.deepEqual(path, ['baz']);
                   return size * cost;
                 },
@@ -52,14 +52,14 @@ export default () => {
       query: {
         foo: {}, // 5
         bar: {}, // 10
-        bar2: { _field: 'bar' }, // 10
-        baz: { _args: { size: 10 }, a: {}, b: {}, c: {} }, // 60
+        bar2: { _: 'bar' }, // 10
+        baz: { $: { size: 10 }, a: {}, b: {}, c: {} }, // 60
         oneOf: {
           _on_SuperExpensive: { doot: {} },
           _on_MediumExpensive: { ding: {} }
         }, // 100
         oneOf2: {
-          _field: 'oneOf',
+          _: 'oneOf',
           _on_MediumExpensive: { ding: {} },
           _on_Cheap: { dong: {} }
         } // 50

@@ -43,8 +43,8 @@ export default {
             list: { id: {}, foo: { id: {}, color: {} } }
           },
           bar: {
-            _field: 'foo',
-            _args: { id: 1 },
+            _: 'foo',
+            $: { id: 1 },
             id: {},
             name: {},
             nested: { b: {} },
@@ -140,11 +140,11 @@ export default {
     );
   },
 
-  'with _args': () => {
+  'with $': () => {
     assert.deepEqual(
       normalize({
         data: { key: 'value' },
-        query: { _args: { foo: 'bar' }, key: {} }
+        query: { $: { foo: 'bar' }, key: {} }
       }),
       { '_root({"foo":"bar"})': { key: 'value' } }
     );

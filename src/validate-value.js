@@ -12,7 +12,7 @@ const validateValue = ({
   type,
   value
 }) => {
-  let typeArgs;
+  let typeInput;
   let isNullable = false;
   let isOptional = false;
 
@@ -25,7 +25,7 @@ const validateValue = ({
       query,
       schema,
       type,
-      typeArgs,
+      typeInput,
       value,
       ...extra
     });
@@ -38,12 +38,12 @@ const validateValue = ({
 
   const validateQueue = [];
   const validate = value => {
-    for (const { args, type } of validateQueue) {
+    for (const { input, type } of validateQueue) {
       if (value == null) break;
 
       value = type.validate({
-        args,
         context,
+        input,
         object,
         path,
         query,
@@ -159,22 +159,22 @@ const validateValue = ({
       return validate(_value);
     }
 
-    const args = validateValue({
+    const input = validateValue({
       context,
-      path: [...path, '_args'],
+      path: [...path, '$'],
       query,
       schema,
-      type: type.args,
-      value: typeArgs
+      type: type.input,
+      value: typeInput
     });
 
-    if (type === validateQueue[0]?.type) validateQueue[0].args = args;
+    if (type === validateQueue[0]?.type) validateQueue[0].input = input;
 
     if (type.resolve !== undefined) {
       if (typeof type.resolve === 'function') {
         value = type.resolve({
-          args,
           context,
+          input,
           object,
           path,
           query,
@@ -185,7 +185,7 @@ const validateValue = ({
       } else value = type.resolve;
     }
 
-    typeArgs = type.typeArgs;
+    typeInput = type.typeInput;
     type = type.type;
   }
 };

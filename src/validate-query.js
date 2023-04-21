@@ -4,7 +4,7 @@ import validateValue from './validate-value.js';
 
 const { isArray } = Array;
 
-const skipArgs = {};
+const skipInput = {};
 
 const validateQuery = ({ context, path = [], query, schema, type }) => {
   const fail = (code, extra) =>
@@ -15,7 +15,7 @@ const validateQuery = ({ context, path = [], query, schema, type }) => {
 
     if (!type) {
       for (const alias in query) {
-        if (query[alias] !== skipArgs && alias !== '_type') {
+        if (query[alias] !== skipInput && alias !== '_type') {
           fail('unexpectedField', { field: alias });
         }
       }
@@ -51,7 +51,7 @@ const validateQuery = ({ context, path = [], query, schema, type }) => {
       query = { ...query };
 
       for (const field in query) {
-        if (query[field] === skipArgs) continue;
+        if (query[field] === skipInput) continue;
 
         if (field === '_type') {
           delete query._type;
@@ -79,19 +79,19 @@ const validateQuery = ({ context, path = [], query, schema, type }) => {
       query = { ...query };
 
       for (const alias in query) {
-        if (query[alias] === skipArgs) continue;
+        if (query[alias] === skipInput) continue;
 
         if (alias === '_type') {
           query[alias] = {};
           continue;
         }
 
-        const { _field, ..._query } = { ...query[alias] };
-        const field = _field ?? alias;
+        const { _, ..._query } = { ...query[alias] };
+        const field = _ ?? alias;
         if (!type.object[field]) fail('unknownField', { alias, field });
 
         query[alias] = {
-          ...(alias !== field && { _field }),
+          ...(alias !== field && { _ }),
           ...validateQuery({
             context,
             path: [...path, alias],
@@ -105,29 +105,29 @@ const validateQuery = ({ context, path = [], query, schema, type }) => {
       return query;
     }
 
-    let { _args, _field, ..._query } = query;
+    let { _, $, ..._query } = query;
     _query = validateQuery({
       context,
       path,
-      query: { _args: skipArgs, ..._query },
+      query: { $: skipInput, ..._query },
       schema,
       type: type.type
     });
 
-    if (_field) _query._field = _field;
+    if (_) _query._ = _;
 
-    if (_args !== skipArgs) {
-      _query._args = validateValue({
+    if ($ !== skipInput) {
+      _query.$ = validateValue({
         context,
-        path: [...path, '_args'],
+        path: [...path, '$'],
         query: _query,
         schema,
-        type: type.args,
-        value: _args
+        type: type.input,
+        value: $
       });
     }
 
-    if (!type.args) delete _query._args;
+    if (!type.input) delete _query.$;
 
     return _query;
   }

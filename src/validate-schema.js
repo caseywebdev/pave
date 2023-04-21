@@ -87,10 +87,10 @@ export default ({ extensions, schema }) => {
         object: {
           ...extensions?.resolve,
           ...shared,
-          args: { optional: type },
+          input: { optional: type },
           resolve: { optional: { nullable: {} } },
           type: { optional: type },
-          typeArgs: {
+          typeInput: {
             optional: {
               resolve: ({ object, ...rest }) =>
                 validateValue({
@@ -98,7 +98,7 @@ export default ({ extensions, schema }) => {
                   type: (typeof object.type === 'string'
                     ? rest.schema[object.type]
                     : object.type
-                  )?.args
+                  )?.input
                 })
             }
           }

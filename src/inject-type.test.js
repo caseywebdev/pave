@@ -5,12 +5,12 @@ import injectType from './inject-type.js';
 export default () => {
   assert.deepEqual(
     injectType({
-      _args: { a: 1 },
-      _field: 'foo',
+      _: 'foo',
+      $: { a: 1 },
       id: {},
       a: {
-        _type: { _field: 'not overridden' },
-        name: { _args: { formal: true } },
+        _type: { _: 'not overridden' },
+        name: { $: { formal: true } },
         b: {},
         c: {
           d: {},
@@ -20,12 +20,12 @@ export default () => {
     }),
     {
       _type: {},
-      _args: { a: 1 },
-      _field: 'foo',
+      _: 'foo',
+      $: { a: 1 },
       id: {},
       a: {
-        _type: { _field: 'not overridden' },
-        name: { _args: { formal: true } },
+        _type: { _: 'not overridden' },
+        name: { $: { formal: true } },
         b: {},
         c: {
           _type: {},

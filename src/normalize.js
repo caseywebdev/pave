@@ -15,7 +15,7 @@ const walk = ({ data, getKey, normalized = {}, query }) => {
   const obj = key ? (normalized[key] ??= {}) : {};
 
   // eslint-disable-next-line no-unused-vars
-  let { _args, _field, ..._query } = query;
+  let { _, $, ..._query } = query;
   _query = _query[`_on_${data._type}`] ?? _query;
   for (const alias in _query) {
     if (data[alias] === undefined) continue;

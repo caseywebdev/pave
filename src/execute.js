@@ -15,7 +15,7 @@ const execute = async ({
   type,
   value
 }) => {
-  let typeArgs;
+  let typeInput;
   let isNullable = false;
   let isOptional = false;
   let name = null;
@@ -28,7 +28,7 @@ const execute = async ({
       query,
       schema,
       type,
-      typeArgs,
+      typeInput,
       value,
       ...extra
     });
@@ -41,12 +41,12 @@ const execute = async ({
 
   const validateQueue = [];
   const validate = value => {
-    for (const { args, object, path, query, type } of validateQueue) {
+    for (const { input, object, path, query, type } of validateQueue) {
       if (value == null) break;
 
       value = type.validate({
-        args,
         context,
+        input,
         object,
         path,
         query,
@@ -173,8 +173,8 @@ const execute = async ({
         Object.fromEntries(
           await Promise.all(
             Object.entries(query).map(async ([alias, query]) => {
-              const { _field, ..._query } = query;
-              const field = _field ?? alias;
+              const { _, ..._query } = query;
+              const field = _ ?? alias;
               if (field === '_type') return [alias, name];
 
               return [
@@ -195,26 +195,26 @@ const execute = async ({
       );
     }
 
-    let args;
-    if (query._args !== undefined) args = query._args;
-    else if (type.args) {
-      args = validateValue({
+    let input;
+    if (query.$ !== undefined) input = query.$;
+    else if (type.input) {
+      input = validateValue({
         context,
         path,
         query,
         schema,
-        type: type.args,
-        value: typeArgs
+        type: type.input,
+        value: typeInput
       });
     }
 
-    if (type === validateQueue[0]?.type) validateQueue[0].args = args;
+    if (type === validateQueue[0]?.type) validateQueue[0].input = input;
 
     if (type.resolve !== undefined) {
       if (typeof type.resolve === 'function') {
         value = await type.resolve({
-          args,
           context,
+          input,
           object,
           path,
           query,
@@ -226,8 +226,8 @@ const execute = async ({
     }
 
     query = { ...query };
-    delete query._args;
-    typeArgs = type.typeArgs;
+    delete query.$;
+    typeInput = type.typeInput;
     type = type.type;
   }
 };
