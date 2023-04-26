@@ -66,7 +66,7 @@ const execute = async ({
 
       if (isNullable) return null;
 
-      fail(value === undefined ? 'expectedRequired' : 'expectedNonNull');
+      fail('expectedNonNull');
     }
 
     if (!isObject(type)) {

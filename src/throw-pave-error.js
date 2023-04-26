@@ -53,8 +53,6 @@ const messages = {
       Object.keys(oneOf).map(name => `_on_${name}`)
     )}`,
 
-  expectedRequired: ({ path }) => `A value is required at ${formatPath(path)}`,
-
   invalidQuery: ({ path, query }) =>
     `The query object ${JSON.stringify(query)} at ${formatPath(
       path
