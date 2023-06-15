@@ -40,6 +40,11 @@ const messages = {
   expectedNonNull: ({ path }) =>
     `A non-null value is required at ${formatPath(path)}`,
 
+  expectedObject: ({ path, value }) =>
+    `The value ${JSON.stringify(value)} at ${formatPath(
+      path
+    )} must be an object`,
+
   expectedOneOfType: ({ path, type: { oneOf }, value }) =>
     `The value ${JSON.stringify(value)} at ${formatPath(
       path

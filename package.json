@@ -1,7 +1,7 @@
 {
   "name": "pave",
   "type": "module",
-  "version": "0.13.1",
+  "version": "0.13.2",
   "author": "Casey Foster <c@sey.me>",
   "license": "MIT",
   "main": "src/index.js",
@@ -14,5 +14,9 @@
   "devDependencies": {
     "watchy": "0.10",
     "kiss-test": "0.2"
-  }
+  },
+  "files": [
+    "/src/*.js",
+    "!/src/*.test.js"
+  ]
 }

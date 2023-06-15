@@ -137,6 +137,8 @@ const validateValue = ({
     }
 
     if (type.object) {
+      if (!isObject(value)) fail('expectedObject');
+
       let check = {};
       for (const key in type.object) check[key] = undefined;
       check = { ...check, ...value };
