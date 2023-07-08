@@ -1,7 +1,7 @@
 {
   "name": "pave",
   "type": "module",
-  "version": "0.13.2",
+  "version": "0.13.3",
   "author": "Casey Foster <c@sey.me>",
   "license": "MIT",
   "main": "src/index.js",

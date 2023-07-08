@@ -104,7 +104,7 @@ const execute = async ({
       value == null &&
       (type.arrayOf || type.oneOf || type.object || object == null)
     ) {
-      type = null;
+      type = undefined;
       continue;
     }
 

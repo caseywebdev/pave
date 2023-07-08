@@ -131,7 +131,29 @@ export default async () => {
           tuple: {
             type: ['Bar', 'TrimmedString'],
             resolve: [{ color: 'red' }, ' trim me ']
+          },
+          value: {
+            input: {
+              object: {
+                hello: { optional: { type: 'constant', typeInput: 'hello' } },
+                null: { nullable: { type: 'constant', typeInput: null } },
+                one: { type: 'constant', typeInput: 1 }
+              }
+            },
+            resolve: ({ input }) => input
           }
+        }
+      },
+      constant: {
+        input: { nullable: {} },
+        resolve: ({ path, input, value }) => {
+          if (value !== input) {
+            throw new Error(
+              `${value} should equal ${input} at ${path.join('.')}`
+            );
+          }
+
+          return value;
         }
       },
       Foo: {
@@ -259,7 +281,8 @@ export default async () => {
       nullableArrayOf: {},
       nullableOneOf: {},
       arrayOfStrings: {},
-      tuple: [{ color: {} }, {}]
+      tuple: [{ color: {} }, {}],
+      value: { $: { null: null, one: 1 } }
     },
     schema,
     type: 'Root'
@@ -296,7 +319,8 @@ export default async () => {
     nullableArrayOf: null,
     nullableOneOf: null,
     arrayOfStrings: ['a', 'b', 'c'],
-    tuple: { 0: { color: 'red' }, 1: 'trim me' }
+    tuple: { 0: { color: 'red' }, 1: 'trim me' },
+    value: { null: null, one: 1 }
   };
 
   assert.deepEqual(await execute({ query, schema, type: 'Root' }), expected);

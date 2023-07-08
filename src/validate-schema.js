@@ -90,18 +90,21 @@ export default ({ extensions, schema }) => {
           input: { optional: type },
           resolve: { optional: { nullable: {} } },
           type: { optional: type },
-          typeInput: {
-            optional: {
-              resolve: ({ object, ...rest }) =>
-                validateValue({
-                  ...rest,
-                  type: (typeof object.type === 'string'
-                    ? rest.schema[object.type]
-                    : object.type
-                  )?.input
-                })
-            }
-          }
+          typeInput: { optional: { nullable: {} } }
+        },
+        validate: ({ path, value: { typeInput, ...value }, ...rest }) => {
+          const type =
+            typeof value.type === 'string'
+              ? rest.schema[value.type]
+              : value.type;
+          typeInput = validateValue({
+            ...rest,
+            path: [...path, 'typeInput'],
+            type: type?.input,
+            value: typeInput
+          });
+          if (type?.input) value.typeInput = typeInput;
+          return value;
         }
       }
     },

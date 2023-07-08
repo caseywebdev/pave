@@ -97,7 +97,7 @@ const validateValue = ({
     }
 
     if (value == null) {
-      type = null;
+      type = undefined;
       continue;
     }
 
