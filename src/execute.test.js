@@ -182,7 +182,10 @@ export default async () => {
           }
         }
       },
-      Bar: { object: { color: { type: 'String' } }, defaultType: {} },
+      Bar: {
+        object: { color: { type: 'String' } },
+        defaultType: { resolve: ({ path }) => path.at(-1) }
+      },
       Boolean: {
         resolve: ({ value }) => {
           if (typeof value === 'boolean') return value;
@@ -281,7 +284,7 @@ export default async () => {
       nullableArrayOf: {},
       nullableOneOf: {},
       arrayOfStrings: {},
-      tuple: [{ color: {} }, {}],
+      tuple: [{ color: {}, any1: {}, any2: {} }, {}],
       value: { $: { null: null, one: 1 } }
     },
     schema,
@@ -319,7 +322,7 @@ export default async () => {
     nullableArrayOf: null,
     nullableOneOf: null,
     arrayOfStrings: ['a', 'b', 'c'],
-    tuple: { 0: { color: 'red' }, 1: 'trim me' },
+    tuple: { 0: { color: 'red', any1: 'any1', any2: 'any2' }, 1: 'trim me' },
     value: { null: null, one: 1 }
   };
 

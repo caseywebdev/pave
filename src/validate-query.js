@@ -88,7 +88,8 @@ const validateQuery = ({ context, path = [], query, schema, type }) => {
 
         const { _, ..._query } = { ...query[alias] };
         const field = _ ?? alias;
-        if (!type.object[field]) fail('unknownField', { alias, field });
+        const _type = type.object[field] ?? type.defaultType;
+        if (!_type) fail('unknownField', { alias, field });
 
         query[alias] = {
           ...(alias !== field && { _ }),
@@ -97,7 +98,7 @@ const validateQuery = ({ context, path = [], query, schema, type }) => {
             path: [...path, alias],
             query: _query,
             schema,
-            type: type.object[field]
+            type: _type
           })
         };
       }

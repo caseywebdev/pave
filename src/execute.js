@@ -150,23 +150,16 @@ const execute = async ({
     }
 
     if (type.object) {
-      if (!Object.keys(type.object).length && type.defaultType) {
-        return validate(
-          Object.fromEntries(
-            Object.keys(value).map(key => [
-              key,
-              validateValue({
-                context,
-                object: value,
-                path: [...path, key],
-                query,
-                schema,
-                type: type.defaultType,
-                value: value[key]
-              })
-            ])
-          )
-        );
+      if (
+        type.defaultType &&
+        Object.entries(query).every(
+          ([alias, { _ }]) => (_ ?? alias) === '_type'
+        )
+      ) {
+        query = {
+          ...Object.fromEntries(Object.keys(value).map(key => [key, {}])),
+          ...query
+        };
       }
 
       return await validate(
@@ -185,7 +178,7 @@ const execute = async ({
                   path: [...path, alias],
                   query: _query,
                   schema,
-                  type: type.object[field],
+                  type: type.object[field] ?? type.defaultType,
                   value: value[field]
                 })
               ];

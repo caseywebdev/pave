@@ -81,6 +81,10 @@ export default {
               },
               oneOf: {
                 oneOf: { Foo: 'Foo', Bar: 'Bar' }
+              },
+              anyKey: {
+                object: { extraKey: { object: { foo: 'String' } } },
+                defaultType: {}
               }
             }
           },
@@ -164,6 +168,10 @@ export default {
               id: { $: { name: 'foo' }, _type: {} },
               fooKey: {}
             }
+          },
+          anyKey: {
+            anything: {},
+            extraKey: { foo: {} }
           }
         },
         type: 'Root'
@@ -181,6 +189,10 @@ export default {
         oneOf: {
           _on_Bar: { id: {}, status: {} },
           _on_Foo: { id: { $: { name: 'foo' } }, _type: {}, fooKey: {} }
+        },
+        anyKey: {
+          anything: {},
+          extraKey: { foo: {} }
         }
       }
     );
