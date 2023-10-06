@@ -285,6 +285,11 @@ export default async () => {
       nullableOneOf: {},
       arrayOfStrings: {},
       tuple: [{ color: {}, any1: {}, any2: {} }, {}],
+      tuple2: {
+        _: 'tuple',
+        0: { _type: {}, type2: { _: '_type' } },
+        1: {}
+      },
       value: { $: { null: null, one: 1 } }
     },
     schema,
@@ -323,6 +328,7 @@ export default async () => {
     nullableOneOf: null,
     arrayOfStrings: ['a', 'b', 'c'],
     tuple: { 0: { color: 'red', any1: 'any1', any2: 'any2' }, 1: 'trim me' },
+    tuple2: { 0: { _type: 'Bar', type2: 'Bar', color: 'red' }, 1: 'trim me' },
     value: { null: null, one: 1 }
   };
 

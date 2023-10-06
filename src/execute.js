@@ -156,10 +156,8 @@ const execute = async ({
           ([alias, { _ }]) => (_ ?? alias) === '_type'
         )
       ) {
-        query = {
-          ...Object.fromEntries(Object.keys(value).map(key => [key, {}])),
-          ...query
-        };
+        query = { ...query };
+        for (const key in value) query[key] ??= {};
       }
 
       return await validate(
