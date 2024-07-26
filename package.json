@@ -12,8 +12,8 @@
     "url": "https://github.com/caseywebdev/pave"
   },
   "devDependencies": {
-    "watchy": "0.10",
-    "kiss-test": "0.2"
+    "kiss-test": "0.2",
+    "watchy": "0.10"
   },
   "files": [
     "/src/*.js",

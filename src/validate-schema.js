@@ -74,11 +74,11 @@ export default ({ extensions, schema }) => {
           oneOf: {
             type: typeObject,
             validate: ({ path, value }) => {
-              if (!Object.keys(value).length) {
-                throw new Error(`Expected one of type at ${JSON.stringify(path)} to have at least one type`);
-              }
+              if (Object.keys(value).length) return value;
 
-              return value;
+              throw new Error(
+                `Expected ${`"${path.join('"."')}"`} to define at least one type`
+              );
             }
           },
           resolveType: fn
@@ -129,14 +129,14 @@ export default ({ extensions, schema }) => {
       return value.optional
         ? 'optional'
         : value.nullable
-        ? 'nullable'
-        : value.arrayOf
-        ? 'arrayOf'
-        : value.oneOf
-        ? 'oneOf'
-        : value.object
-        ? 'object'
-        : 'resolve';
+          ? 'nullable'
+          : value.arrayOf
+            ? 'arrayOf'
+            : value.oneOf
+              ? 'oneOf'
+              : value.object
+                ? 'object'
+                : 'resolve';
     }
   });
 

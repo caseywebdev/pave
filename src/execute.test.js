@@ -91,8 +91,8 @@ export default async () => {
                     typeof val === 'string'
                       ? 'String'
                       : val.a
-                      ? 'ThingA'
-                      : 'ThingB'
+                        ? 'ThingA'
+                        : 'ThingB'
                 }
               }
             },

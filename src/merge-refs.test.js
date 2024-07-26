@@ -16,12 +16,12 @@ const createRandomObj = (depth = 0) => {
     return random < 0.2
       ? null
       : random < 0.4
-      ? 0
-      : random < 0.6
-      ? true
-      : random < 0.8
-      ? 'str'
-      : undefined;
+        ? 0
+        : random < 0.6
+          ? true
+          : random < 0.8
+            ? 'str'
+            : undefined;
   }
 
   const values = Array(10)
