@@ -71,7 +71,16 @@ export default ({ extensions, schema }) => {
         object: {
           ...extensions?.oneOf,
           ...shared,
-          oneOf: typeObject,
+          oneOf: {
+            type: typeObject,
+            validate: ({ path, value }) => {
+              if (!Object.keys(value).length) {
+                throw new Error(`Expected one of type at ${JSON.stringify(path)} to have at least one type`);
+              }
+
+              return value;
+            }
+          },
           resolveType: fn
         }
       },
