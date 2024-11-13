@@ -1,3 +1,4 @@
+import Context from './context.js';
 import createClient from './create-client.js';
 import execute from './execute.js';
 import getQueryCost from './get-query-cost.js';
@@ -8,6 +9,7 @@ import validateSchema from './validate-schema.js';
 import validateValue from './validate-value.js';
 
 export default {
+  Context,
   createClient,
   execute,
   getQueryCost,

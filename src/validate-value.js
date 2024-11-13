@@ -1,3 +1,4 @@
+import Context from './context.js';
 import isObject from './is-object.js';
 import throwPaveError from './throw-pave-error.js';
 
@@ -38,7 +39,7 @@ const validateValue = ({
 
   const validateQueue = [];
   const validate = value => {
-    for (const { input, type } of validateQueue) {
+    for (const { context, input, object, path, query, type } of validateQueue) {
       if (value == null) break;
 
       value = type.validate({
@@ -81,7 +82,7 @@ const validateValue = ({
     }
 
     if (type.validate && type !== validateQueue[0]?.type) {
-      validateQueue.unshift({ type });
+      validateQueue.unshift({ context, object, path, query, type });
     }
 
     if (type.optional) {
@@ -184,6 +185,7 @@ const validateValue = ({
           type,
           value
         });
+        if (value instanceof Context) ({ context, value } = value);
       } else value = type.resolve;
     }
 

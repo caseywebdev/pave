@@ -1,5 +1,6 @@
 import { strict as assert } from 'assert';
 
+import Context from './context.js';
 import execute from './execute.js';
 import validateQuery from './validate-query.js';
 import validateSchema from './validate-schema.js';
@@ -76,11 +77,14 @@ export default async () => {
               minLength: 1,
               maxLength: 10
             },
-            resolve: () => [
-              { id: 1 },
-              { id: '2', name: 'foo' },
-              { color: 'blue' }
-            ]
+            resolve: ({ context }) => {
+              assert.equal(context, 1);
+              return new Context(2, [
+                { id: 1 },
+                { id: '2', name: 'foo' },
+                { color: 'blue' }
+              ]);
+            }
           },
           oneOfArgs: {
             input: {
@@ -177,8 +181,10 @@ export default async () => {
               }
             },
             type: 'String',
-            resolve: ({ input: { separator }, value }) =>
-              `${value}${separator}${value}`
+            resolve: ({ context, input: { separator }, value }) => {
+              assert.equal(context, 2);
+              return `${value}${separator}${value}`;
+            }
           }
         }
       },
@@ -332,5 +338,8 @@ export default async () => {
     value: { null: null, one: 1 }
   };
 
-  assert.deepEqual(await execute({ query, schema, type: 'Root' }), expected);
+  assert.deepEqual(
+    await execute({ context: 1, query, schema, type: 'Root' }),
+    expected
+  );
 };
