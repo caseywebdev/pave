@@ -1,5 +1,6 @@
 import { strict as assert } from 'assert';
 
+import PaveError from './pave-error.js';
 import validateValue from './validate-value.js';
 
 export default () => {
@@ -25,5 +26,14 @@ export default () => {
       value: {}
     }),
     {}
+  );
+
+  assert.throws(
+    () =>
+      validateValue({
+        type: { validate: ({ value }) => value || null },
+        value: ''
+      }),
+    new PaveError('A non-null value is required at the query root')
   );
 };

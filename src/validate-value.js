@@ -14,8 +14,6 @@ const validateValue = ({
   value
 }) => {
   let typeInput;
-  let isNullable = false;
-  let isOptional = false;
 
   const fail = (code, extra) =>
     throwPaveError(code, {
@@ -37,28 +35,35 @@ const validateValue = ({
     fail('unexpectedValue');
   }
 
+  let isNullable = false;
+  let isOptional = false;
   const validateQueue = [];
-  const validate = value => {
-    for (const { context, input, object, path, query, type } of validateQueue) {
-      if (value == null) break;
 
-      value = type.validate({
+  while (true) {
+    if (!type) {
+      for (const {
         context,
         input,
         object,
         path,
         query,
-        schema,
-        type,
-        value
-      });
-    }
-    return value;
-  };
+        type
+      } of validateQueue) {
+        if (value == null) break;
 
-  while (true) {
-    if (!type) {
-      if (value != null) return validate(value);
+        value = type.validate({
+          context,
+          input,
+          object,
+          path,
+          query,
+          schema,
+          type,
+          value
+        });
+      }
+
+      if (value != null) return value;
 
       if (isOptional && value === undefined) return undefined;
 
@@ -114,19 +119,19 @@ const validateValue = ({
         fail('expectedArrayMaxLength');
       }
 
-      return validate(
-        value.map((value, i) =>
-          validateValue({
-            context,
-            object,
-            path: [...path, i],
-            query,
-            schema,
-            type: type.arrayOf,
-            value
-          })
-        )
+      value = value.map((value, i) =>
+        validateValue({
+          context,
+          object,
+          path: [...path, i],
+          query,
+          schema,
+          type: type.arrayOf,
+          value
+        })
       );
+      type = undefined;
+      continue;
     }
 
     if (type.oneOf) {
@@ -159,7 +164,9 @@ const validateValue = ({
         if (objectIsArray) _value.push(value);
         else if (value !== undefined) _value[key] = value;
       }
-      return validate(_value);
+      value = _value;
+      type = undefined;
+      continue;
     }
 
     const input = validateValue({

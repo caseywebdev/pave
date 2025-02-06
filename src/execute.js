@@ -17,9 +17,6 @@ const execute = async ({
   value
 }) => {
   let typeInput;
-  let isNullable = false;
-  let isOptional = false;
-  let name = null;
 
   const fail = (code, extra) =>
     throwPaveError(code, {
@@ -40,28 +37,36 @@ const execute = async ({
     fail('unexpectedValue');
   }
 
+  let isNullable = false;
+  let isOptional = false;
+  let name = null;
   const validateQueue = [];
-  const validate = value => {
-    for (const { context, input, object, path, query, type } of validateQueue) {
-      if (value == null) break;
 
-      value = type.validate({
+  while (true) {
+    if (!type) {
+      for (const {
         context,
         input,
         object,
         path,
         query,
-        schema,
-        type,
-        value
-      });
-    }
-    return value;
-  };
+        type
+      } of validateQueue) {
+        if (value == null) break;
 
-  while (true) {
-    if (!type) {
-      if (value != null) return validate(value);
+        value = type.validate({
+          context,
+          input,
+          object,
+          path,
+          query,
+          schema,
+          type,
+          value
+        });
+      }
+
+      if (value != null) return value;
 
       if (isOptional && value === undefined) return undefined;
 
@@ -121,22 +126,22 @@ const execute = async ({
         fail('expectedArrayMaxLength');
       }
 
-      return await validate(
-        await Promise.all(
-          value.map(
-            async (value, i) =>
-              await execute({
-                context,
-                object,
-                path: [...path, i],
-                query,
-                schema,
-                type: type.arrayOf,
-                value
-              })
-          )
+      value = await Promise.all(
+        value.map(
+          async (value, i) =>
+            await execute({
+              context,
+              object,
+              path: [...path, i],
+              query,
+              schema,
+              type: type.arrayOf,
+              value
+            })
         )
       );
+      type = undefined;
+      continue;
     }
 
     if (type.oneOf) {
@@ -161,30 +166,30 @@ const execute = async ({
         for (const key in value) query[key] ??= {};
       }
 
-      return await validate(
-        Object.fromEntries(
-          await Promise.all(
-            Object.entries(query).map(async ([alias, query]) => {
-              const { _, ..._query } = query;
-              const field = _ ?? alias;
-              if (field === '_type') return [alias, name];
+      value = Object.fromEntries(
+        await Promise.all(
+          Object.entries(query).map(async ([alias, query]) => {
+            const { _, ..._query } = query;
+            const field = _ ?? alias;
+            if (field === '_type') return [alias, name];
 
-              return [
-                alias,
-                await execute({
-                  context,
-                  object: value,
-                  path: [...path, alias],
-                  query: _query,
-                  schema,
-                  type: type.object[field] ?? type.defaultType,
-                  value: value[field]
-                })
-              ];
-            })
-          )
+            return [
+              alias,
+              await execute({
+                context,
+                object: value,
+                path: [...path, alias],
+                query: _query,
+                schema,
+                type: type.object[field] ?? type.defaultType,
+                value: value[field]
+              })
+            ];
+          })
         )
       );
+      type = undefined;
+      continue;
     }
 
     let input;
