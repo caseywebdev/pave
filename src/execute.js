@@ -40,30 +40,32 @@ const execute = async ({
   let isNullable = false;
   let isOptional = false;
   let name = null;
-  const validateQueue = [];
+  let validateQueue;
 
   while (true) {
     if (!type) {
-      for (const {
-        context,
-        input,
-        object,
-        path,
-        query,
-        type
-      } of validateQueue) {
-        if (value == null) break;
-
-        value = type.validate({
+      if (validateQueue && value != null) {
+        for (const {
           context,
           input,
           object,
           path,
           query,
-          schema,
-          type,
-          value
-        });
+          type
+        } of validateQueue) {
+          value = type.validate({
+            context,
+            input,
+            object,
+            path,
+            query,
+            schema,
+            type,
+            value
+          });
+
+          if (value == null) break;
+        }
       }
 
       if (value != null) return value;
@@ -86,8 +88,8 @@ const execute = async ({
 
     if (isArray(type)) type = { object: type };
 
-    if (type.validate && type !== validateQueue[0]?.type) {
-      validateQueue.unshift({ context, object, path, query, type });
+    if (type.validate && type !== validateQueue?.[0].type) {
+      (validateQueue ??= []).unshift({ context, object, path, query, type });
     }
 
     if (value === undefined && type.defaultValue !== undefined) {
@@ -205,7 +207,7 @@ const execute = async ({
       });
     }
 
-    if (type === validateQueue[0]?.type) validateQueue[0].input = input;
+    if (type === validateQueue?.[0].type) validateQueue[0].input = input;
 
     if (type.resolve !== undefined) {
       if (typeof type.resolve === 'function') {
