@@ -14,28 +14,29 @@ const defaultTransform = ({ query }) => injectType(query);
 /** @param {{ query: Query }} options */
 const noopTransform = ({ query }) => query;
 
+/** @typedef {{ data?: any; onChange: (data: any) => void; query?: Query }} Watcher */
+
 /**
+ * @template {(options: { query: Query; [K: string]: any }) => Promise<any>} Execute
  * @param {{
  *   cache?: { [K: string]: any };
- *   execute?: (options: { query: Query; [K: string]: any }) => any;
- *   getKey?: (value: any) => string;
- *   transformQuery?: (options: { query: Query }) => Query;
- * }} [options]
+ *   execute: Execute;
+ *   getKey?: (value: { [K: string]: any }) => string | null;
+ *   transformQuery?: (options: { key?: string; query: Query }) => Query;
+ * }} options
  */
-export const createClient = ({
-  cache,
-  execute,
-  getKey,
-  transformQuery
-} = {}) => {
+export const createClient = ({ cache, execute, getKey, transformQuery }) => {
   if (transformQuery === undefined) transformQuery = defaultTransform;
   else if (transformQuery === null) transformQuery = noopTransform;
+  /** @type {Set<Watcher>} */
   const watchers = new Set();
+  /** @type {Record<string, never>} */
   let currentUpdate;
 
   const client = {
     cache: cache ?? {},
 
+    /** @param {{ key?: string; query: Query }} options */
     cacheExecute: ({ key, query }) =>
       cacheExecute({
         cache: client.cache,
@@ -43,6 +44,7 @@ export const createClient = ({
         query: transformQuery({ key, query })
       }),
 
+    /** @param {{ data: any }} options */
     cacheUpdate: ({ data }) => {
       const prev = client.cache;
       client.cache = mergeCaches(prev, data);
@@ -63,6 +65,7 @@ export const createClient = ({
       return client;
     },
 
+    /** @param {Parameters<Execute>[0]} options */
     execute: async ({ query, ...rest }) => {
       query = transformQuery({ query });
       const data = await execute({ query, ...rest });
@@ -70,13 +73,16 @@ export const createClient = ({
       return data;
     },
 
+    /** @param {{ data: any; query: Query }} options */
     update: ({ data, query }) => {
       query = transformQuery({ query });
       data = normalize({ data, getKey, query });
       return client.cacheUpdate({ data });
     },
 
+    /** @param {Watcher} options */
     watch: ({ data, onChange, query }) => {
+      /** @type {Watcher} */
       const watcher = { onChange };
       watchers.add(watcher);
       const unwatch = () => watchers.delete(watcher);

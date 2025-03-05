@@ -1,44 +1,50 @@
-export function createClient({ cache, execute, getKey, transformQuery }?: {
+export function createClient<Execute extends (options: {
+    query: Query;
+    [K: string]: any;
+}) => Promise<any>>({ cache, execute, getKey, transformQuery }: {
     cache?: {
         [K: string]: any;
     };
-    execute?: (options: {
-        query: Query;
+    execute: Execute;
+    getKey?: (value: {
         [K: string]: any;
-    }) => any;
-    getKey?: (value: any) => string;
+    }) => string | null;
     transformQuery?: (options: {
+        key?: string;
         query: Query;
     }) => Query;
 }): {
     cache: {
         [K: string]: any;
     };
+    /** @param {{ key?: string; query: Query }} options */
     cacheExecute: ({ key, query }: {
-        key: any;
-        query: any;
+        key?: string;
+        query: Query;
     }) => any;
+    /** @param {{ data: any }} options */
     cacheUpdate: ({ data }: {
         data: any;
     }) => /*elided*/ any;
-    execute: ({ query, ...rest }: {
-        [x: string]: any;
-        query: any;
-    }) => Promise<any>;
+    /** @param {Parameters<Execute>[0]} options */
+    execute: ({ query, ...rest }: Parameters<Execute>[0]) => Promise<any>;
+    /** @param {{ data: any; query: Query }} options */
     update: ({ data, query }: {
         data: any;
-        query: any;
+        query: Query;
     }) => /*elided*/ any;
-    watch: ({ data, onChange, query }: {
-        data: any;
-        onChange: any;
-        query: any;
-    }) => {
+    /** @param {Watcher} options */
+    watch: ({ data, onChange, query }: Watcher) => {
         unwatch: () => boolean;
         data?: undefined;
     } | {
         data: any;
         unwatch: () => boolean;
     };
+};
+export type Watcher = {
+    data?: any;
+    onChange: (data: any) => void;
+    query?: Query;
 };
 import type { Query } from '#src/index.js';

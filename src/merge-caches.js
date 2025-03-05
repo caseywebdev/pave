@@ -6,7 +6,7 @@ const { isArray } = Array;
 /**
  * @param {{ [K: string]: any }} a
  * @param {{ [K: string]: any }} b
- * @param {boolean} isCacheRoot
+ * @param {true} [isCacheRoot]
  */
 const _mergeCaches = (a, b, isCacheRoot) => {
   if (
@@ -22,7 +22,7 @@ const _mergeCaches = (a, b, isCacheRoot) => {
 
   let c = a;
   for (const k in b) {
-    const v = _mergeCaches(a[k], b[k], false);
+    const v = _mergeCaches(a[k], b[k]);
     if (v !== a[k]) {
       if (c === a) c = { ...a };
       c[k] = v;

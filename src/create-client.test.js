@@ -2,9 +2,11 @@ import { strict as assert } from 'node:assert';
 
 import { createClient } from '#src/create-client.js';
 
+const execute = async () => ({});
+
 export default {
   simple: () => {
-    const client = createClient();
+    const client = createClient({ execute });
     const events = [];
     const onChange = data => events.push(data);
     client.watch({ onChange });
@@ -49,7 +51,7 @@ export default {
   },
 
   'cancel watching': () => {
-    const client = createClient();
+    const client = createClient({ execute });
     const events = [];
     const onChange = data => events.push(data);
     const { unwatch } = client.watch({ onChange });
@@ -60,7 +62,7 @@ export default {
   },
 
   'ref changes': () => {
-    const client = createClient({ getKey: ({ _type }) => _type });
+    const client = createClient({ execute, getKey: ({ _type }) => _type });
     const events = [];
     const onChange = data => events.push(data);
     client.watch({ query: { foo: { id: {} } }, onChange });
@@ -98,6 +100,7 @@ export default {
 
   '$ ref changes': () => {
     const client = createClient({
+      execute,
       getKey: ({ _type, id }) =>
         _type === 'Root' ? 'Root' : _type && id ? `${_type}:${id}` : null
     });

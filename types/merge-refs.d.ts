@@ -1,1 +1,1 @@
-export function mergeRefs(a: unknown, b: unknown): unknown;
+export function mergeRefs<T>(a: T, b: NoInfer<T>): T;

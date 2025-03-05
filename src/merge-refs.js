@@ -3,8 +3,9 @@ import { isObject } from '#src/is-object.js';
 const { isArray } = Array;
 
 /**
- * @param {unknown} a
- * @param {unknown} b
+ * @template T
+ * @param {T} a
+ * @param {NoInfer<T>} b
  */
 export const mergeRefs = (a, b) => {
   if (a === b || !isObject(a) || !isObject(b)) return a;
@@ -13,7 +14,7 @@ export const mergeRefs = (a, b) => {
     if (!isArray(b)) return a;
 
     const l = a.length;
-    const d = new Array(l);
+    const d = /** @type {T} */ (new Array(l));
     let c = l === b.length ? b : d;
     for (let i = 0; i < l; ++i) {
       if ((d[i] = mergeRefs(a[i], b[i])) !== b[i]) c = d;
@@ -23,8 +24,8 @@ export const mergeRefs = (a, b) => {
 
   if (isArray(b)) return a;
 
-  const d = {};
-  const keys = Object.keys(a);
+  const d = /** @type {T} */ ({});
+  const keys = /** @type {(keyof T)[]} */ (Object.keys(a));
   const l = keys.length;
   let c = l === Object.keys(b).length ? b : d;
   for (let i = 0; i < l; ++i) {

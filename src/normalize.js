@@ -9,7 +9,7 @@ const { isArray } = Array;
 /**
  * @param {{
  *   data: any;
- *   getKey?: (data: any) => string;
+ *   getKey?: (value: { [K: string]: any }) => string | null;
  *   normalized: { [K: string]: any };
  *   query: Query;
  * }} options
@@ -42,8 +42,15 @@ const walk = ({ data, getKey, normalized = {}, query }) => {
   return key ? { _type: [key] } : obj;
 };
 
-/** @param {{ data: any; getKey: (data: any) => string; query: Query }} options */
+/**
+ * @param {{
+ *   data: any;
+ *   getKey?: (value: { [K: string]: any }) => string | null;
+ *   query: Query;
+ * }} options
+ */
 export const normalize = ({ data, getKey, query }) => {
+  /** @type {{ [K: string]: any }} */
   const normalized = {};
   normalized[normalizeRoot({ query })] = walk({
     data,
