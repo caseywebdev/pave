@@ -8,13 +8,13 @@ const { isArray } = Array;
 
 /**
  * @param {{
- *   context: any;
+ *   context?: any;
  *   object?: any;
  *   path: string[];
- *   query: Query;
+ *   query?: Query;
  *   schema: Schema;
  *   type: Type;
- *   value: any;
+ *   value?: any;
  * }} options
  */
 export const validateValue = ({

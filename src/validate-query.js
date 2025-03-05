@@ -10,8 +10,8 @@ const skipInput = {};
 
 /**
  * @param {{
- *   context: any;
- *   path: string[];
+ *   context?: any;
+ *   path?: string[];
  *   query: Query;
  *   schema: Schema;
  *   type: Type;

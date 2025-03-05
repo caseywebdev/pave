@@ -1,6 +1,6 @@
 export function validateQuery({ context, path, query, schema, type }: {
-    context: any;
-    path: string[];
+    context?: any;
+    path?: string[];
     query: Query;
     schema: Schema;
     type: Type;
