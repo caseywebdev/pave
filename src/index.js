@@ -18,8 +18,12 @@
  * @template {string} [TypeName=string] Default is `string`
  * @template {Record<string, any>} [Extensions=Record<never, never>] Default is
  *   `Record<never, never>`
- * @template [Context=any] Default is `any`
- * @template [Input=any] Default is `any`
+ * @template [Context=unknown] Default is `unknown`
+ * @template [Input=unknown] Default is `unknown`
+ * @template [Object=unknown] Default is `unknown`
+ * @template [Value=unknown] Default is. Default is `unknown`
+ * @template [ResolvedValue=NonNullable<unknown>] Default is
+ *   `NonNullable<unknown>`
  * @typedef {Recursive<
  *   | TypeName
  *   | ((
@@ -46,12 +50,12 @@
  *             | ((options: {
  *                 context: Context;
  *                 input: Input;
- *                 object: any;
+ *                 object: Object;
  *                 path: string[];
  *                 query: Query;
  *                 schema: Schema;
  *                 type: Type;
- *                 value: any;
+ *                 value: Value;
  *               }) => any)
  *             | {}
  *             | null;
@@ -63,23 +67,23 @@
  *             context: Context;
  *             cost: number;
  *             input: Input;
- *             object: any;
+ *             object: Object;
  *             path: string[];
  *             query: Query;
  *             schema: Schema;
  *             type: Type;
- *             value: any;
+ *             value: Value;
  *           }) => number);
  *       defaultValue?: any;
  *       validate?: (options: {
  *         context: Context;
  *         input: Input;
- *         object: any;
+ *         object: Object;
  *         path: string[];
  *         query: Query;
  *         schema: Schema;
  *         type: Type;
- *         value: any;
+ *         value: ResolvedValue;
  *       }) => any;
  *     } & Extensions)
  * >} Type
