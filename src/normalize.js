@@ -1,9 +1,19 @@
-import isObject from './is-object.js';
-import normalizeKey from './normalize-key.js';
-import normalizeRoot from './normalize-root.js';
+/** @import {Query} from '#src/index.js'; */
+
+import { isObject } from '#src/is-object.js';
+import { normalizeKey } from '#src/normalize-key.js';
+import { normalizeRoot } from '#src/normalize-root.js';
 
 const { isArray } = Array;
 
+/**
+ * @param {{
+ *   data: any;
+ *   getKey?: (data: any) => string;
+ *   normalized: { [K: string]: any };
+ *   query: Query;
+ * }} options
+ */
 const walk = ({ data, getKey, normalized = {}, query }) => {
   if (isArray(data)) {
     return data.map(data => walk({ data, getKey, normalized, query }));
@@ -14,7 +24,7 @@ const walk = ({ data, getKey, normalized = {}, query }) => {
   const key = getKey?.(data);
   const obj = key ? (normalized[key] ??= {}) : {};
 
-  // eslint-disable-next-line no-unused-vars
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   let { _, $, ..._query } = query;
   _query = _query[`_on_${data._type}`] ?? _query;
   for (const alias in _query) {
@@ -32,7 +42,8 @@ const walk = ({ data, getKey, normalized = {}, query }) => {
   return key ? { _type: [key] } : obj;
 };
 
-export default ({ data, getKey, query }) => {
+/** @param {{ data: any; getKey: (data: any) => string; query: Query }} options */
+export const normalize = ({ data, getKey, query }) => {
   const normalized = {};
   normalized[normalizeRoot({ query })] = walk({
     data,

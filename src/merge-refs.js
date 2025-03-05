@@ -1,8 +1,12 @@
-import isObject from './is-object.js';
+import { isObject } from '#src/is-object.js';
 
 const { isArray } = Array;
 
-const merge = (a, b) => {
+/**
+ * @param {unknown} a
+ * @param {unknown} b
+ */
+export const mergeRefs = (a, b) => {
   if (a === b || !isObject(a) || !isObject(b)) return a;
 
   if (isArray(a)) {
@@ -11,7 +15,9 @@ const merge = (a, b) => {
     const l = a.length;
     const d = new Array(l);
     let c = l === b.length ? b : d;
-    for (let i = 0; i < l; ++i) if ((d[i] = merge(a[i], b[i])) !== b[i]) c = d;
+    for (let i = 0; i < l; ++i) {
+      if ((d[i] = mergeRefs(a[i], b[i])) !== b[i]) c = d;
+    }
     return c;
   }
 
@@ -23,9 +29,7 @@ const merge = (a, b) => {
   let c = l === Object.keys(b).length ? b : d;
   for (let i = 0; i < l; ++i) {
     const k = keys[i];
-    if ((d[k] = merge(a[k], b[k])) !== b[k]) c = d;
+    if ((d[k] = mergeRefs(a[k], b[k])) !== b[k]) c = d;
   }
   return c;
 };
-
-export default merge;

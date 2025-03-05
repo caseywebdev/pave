@@ -1,6 +1,6 @@
-import { strict as assert } from 'assert';
+import { strict as assert } from 'node:assert';
 
-import createClient from './create-client.js';
+import { createClient } from '#src/create-client.js';
 
 export default {
   simple: () => {
@@ -60,9 +60,7 @@ export default {
   },
 
   'ref changes': () => {
-    const client = createClient({
-      getKey: ({ _type }) => _type
-    });
+    const client = createClient({ getKey: ({ _type }) => _type });
     const events = [];
     const onChange = data => events.push(data);
     client.watch({ query: { foo: { id: {} } }, onChange });
@@ -110,19 +108,11 @@ export default {
       onChange
     });
     client.update({
-      data: {
-        _type: 'Root',
-        foo: { _type: 'Foo', id: 1, name: 'foo' }
-      },
+      data: { _type: 'Root', foo: { _type: 'Foo', id: 1, name: 'foo' } },
       query: {
         _type: {},
         id: {},
-        foo: {
-          $: { id: 1 },
-          _type: {},
-          id: {},
-          name: { _type: {}, id: {} }
-        }
+        foo: { $: { id: 1 }, _type: {}, id: {}, name: { _type: {}, id: {} } }
       }
     });
     assert.deepEqual(events, [

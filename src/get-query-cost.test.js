@@ -1,7 +1,7 @@
-import { strict as assert } from 'assert';
+import { strict as assert } from 'node:assert';
 
-import getQueryCost from './get-query-cost.js';
-import validateSchema from './validate-schema.js';
+import { getQueryCost } from '#src/get-query-cost.js';
+import { validateSchema } from '#src/validate-schema.js';
 
 export default () => {
   assert.equal(
@@ -11,9 +11,7 @@ export default () => {
           Root: {
             cost: ({ cost }) => cost * 3,
             object: {
-              foo: {
-                cost: 5
-              },
+              foo: { cost: 5 },
               bar: { cost: 10 },
               baz: {
                 input: { object: { size: {} } },
@@ -22,20 +20,14 @@ export default () => {
                   return size * cost;
                 },
                 type: {
-                  object: {
-                    a: { cost: 1 },
-                    b: { cost: 2 },
-                    c: { cost: 3 }
-                  }
+                  object: { a: { cost: 1 }, b: { cost: 2 }, c: { cost: 3 } }
                 }
               },
               oneOf: {
                 oneOf: {
                   SuperExpensive: 'SuperExpensive',
                   MediumExpensive: {
-                    nullable: {
-                      object: { ding: { cost: 50 } }
-                    }
+                    nullable: { object: { ding: { cost: 50 } } }
                   },
                   Cheap: { object: { dong: { cost: 1 } } }
                 },
@@ -43,9 +35,7 @@ export default () => {
               }
             }
           },
-          SuperExpensive: {
-            object: { doot: { cost: 100 } }
-          }
+          SuperExpensive: { object: { doot: { cost: 100 } } }
         }
       }),
       type: 'Root',

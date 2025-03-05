@@ -1,11 +1,14 @@
-import isObject from './is-object.js';
-import validateValue from './validate-value.js';
+/** @import {Schema} from '#src/index.js'; */
+
+import { isObject } from '#src/is-object.js';
+import { validateValue } from '#src/validate-value.js';
 
 const { Set } = globalThis;
 
 const { isArray } = Array;
 
-export default ({ extensions, schema }) => {
+/** @param {{ extensions?: { [K: string]: any }; schema: Schema }} options */
+export const validateSchema = ({ extensions, schema }) => {
   const positiveNumber = {
     resolve: ({ value }) => {
       if (typeof value === 'number' && value >= 0) return value;

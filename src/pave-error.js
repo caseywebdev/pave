@@ -1,1 +1,1 @@
-export default class PaveError extends Error {}
+export class PaveError extends Error {}

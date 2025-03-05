@@ -1,14 +1,11 @@
-import { strict as assert } from 'assert';
+import { strict as assert } from 'node:assert';
 
-import cacheExecute from './cache-execute.js';
+import { cacheExecute } from '#src/cache-execute.js';
 
 export default {
   missing: () => {
     assert.deepEqual(
-      cacheExecute({
-        cache: {},
-        query: { dne: {} }
-      }),
+      cacheExecute({ cache: {}, query: { dne: {} } }),
       undefined
     );
   },
@@ -111,21 +108,9 @@ export default {
             root: { _type: ['Root'] }
           }
         },
-        query: {
-          foo: {
-            id: {},
-            name: {},
-            root: { foo: { id: {} } }
-          }
-        }
+        query: { foo: { id: {}, name: {}, root: { foo: { id: {} } } } }
       }),
-      {
-        foo: {
-          id: 1,
-          name: 'foo',
-          root: { foo: { id: 1 } }
-        }
-      }
+      { foo: { id: 1, name: 'foo', root: { foo: { id: 1 } } } }
     );
   },
   literal: () => {
@@ -136,9 +121,7 @@ export default {
         },
         query: { literal: { ignored: {} } }
       }),
-      {
-        literal: { _literal: 'anything', _ref: 'nofollow' }
-      }
+      { literal: { _literal: 'anything', _ref: 'nofollow' } }
     );
   }
 };

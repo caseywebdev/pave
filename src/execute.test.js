@@ -1,20 +1,15 @@
-import { strict as assert } from 'assert';
+import { strict as assert } from 'node:assert';
 
-import Context from './context.js';
-import execute from './execute.js';
-import validateQuery from './validate-query.js';
-import validateSchema from './validate-schema.js';
+import { Context } from '#src/context.js';
+import { execute } from '#src/execute.js';
+import { validateQuery } from '#src/validate-query.js';
+import { validateSchema } from '#src/validate-schema.js';
 
 export default async () => {
   assert.deepEqual(
     await execute({
       schema: {
-        Root: {
-          defaultValue: {},
-          object: {
-            a: { resolve: async () => 1 }
-          }
-        }
+        Root: { defaultValue: {}, object: { a: { resolve: async () => 1 } } }
       },
       type: 'Root',
       query: { a: {} }
@@ -22,19 +17,9 @@ export default async () => {
     { a: 1 }
   );
 
-  const ThingA = {
-    object: {
-      a: 'String',
-      a2: 'String'
-    }
-  };
+  const ThingA = { object: { a: 'String', a2: 'String' } };
 
-  const ThingB = {
-    object: {
-      b: 'String',
-      b2: 'String'
-    }
-  };
+  const ThingB = { object: { b: 'String', b2: 'String' } };
 
   const recursiveType = {};
   recursiveType.optional = { nullable: { object: { recursiveType } } };
@@ -64,10 +49,7 @@ export default async () => {
             resolve: ({ input: { string } }) => string
           },
           selfLink: 'Root',
-          selfLinkWithAddition: {
-            type: 'Root',
-            resolve: { addition: true }
-          },
+          selfLinkWithAddition: { type: 'Root', resolve: { addition: true } },
           things: {
             type: {
               arrayOf: {
@@ -112,13 +94,7 @@ export default async () => {
             resolve: ({ input: { thing } }) => thing
           },
           nullableObject: {
-            type: {
-              nullable: {
-                object: {
-                  a: 'String'
-                }
-              }
-            },
+            type: { nullable: { object: { a: 'String' } } },
             resolve: () => {}
           },
           nullableArrayOf: { nullable: { arrayOf: 'String' } },
@@ -216,10 +192,7 @@ export default async () => {
           return value;
         }
       },
-      TrimmedString: {
-        type: 'String',
-        validate: ({ value }) => value.trim()
-      },
+      TrimmedString: { type: 'String', validate: ({ value }) => value.trim() },
       NullableString: {
         type: 'TrimmedString',
         validate: ({ value }) => value || null
@@ -240,10 +213,7 @@ export default async () => {
   const query = validateQuery({
     query: {
       _type: {},
-      nullableStringA: {
-        _: 'nullableString',
-        $: { string: 'not null' }
-      },
+      nullableStringA: { _: 'nullableString', $: { string: 'not null' } },
       nullableStringB: { _: 'nullableString', $: { string: '   ' } },
       nullableStringC: {
         _: 'nonNullableNullableString',
@@ -253,25 +223,15 @@ export default async () => {
         _: 'nonNullableNullableString',
         $: { string: '  a  ' }
       },
-      nullableStringE: {
-        _: 'nullableStringArgs',
-        $: { string: 'not null' }
-      },
-      nullableStringF: {
-        _: 'nullableStringArgs',
-        $: { string: '   ' }
-      },
+      nullableStringE: { _: 'nullableStringArgs', $: { string: 'not null' } },
+      nullableStringF: { _: 'nullableStringArgs', $: { string: '   ' } },
       selfLink: { selfLinkWithAddition: { addition: {} } },
       things: {
         _on_f: {
           _type: {},
           id: {},
           name: { $: { separator: ' ' } },
-          sub: {
-            _: 'subFoo',
-            id: {},
-            subSub: { _: 'subFoo', id: {} }
-          }
+          sub: { _: 'subFoo', id: {}, subSub: { _: 'subFoo', id: {} } }
         },
         _on_b: { _type: {}, color: {} }
       },
@@ -291,11 +251,7 @@ export default async () => {
       nullableOneOf: {},
       arrayOfStrings: {},
       tuple: [{ color: {}, any1: {}, any2: {} }, {}],
-      tuple2: {
-        _: 'tuple',
-        0: { _type: {}, type2: { _: '_type' } },
-        1: {}
-      },
+      tuple2: { _: 'tuple', 0: { _type: {}, type2: { _: '_type' } }, 1: {} },
       value: { $: { null: null, one: 1 } }
     },
     schema,

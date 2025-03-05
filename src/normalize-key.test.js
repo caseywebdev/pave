@@ -1,6 +1,6 @@
-import { strict as assert } from 'assert';
+import { strict as assert } from 'node:assert';
 
-import normalizeKey from './normalize-key.js';
+import { normalizeKey } from '#src/normalize-key.js';
 
 export default {
   'without $': () =>
@@ -17,10 +17,7 @@ export default {
 
   'with $ and _': () =>
     assert.equal(
-      normalizeKey({
-        alias: 'bar',
-        query: { _: 'foo', $: { b: 2, a: 1 } }
-      }),
+      normalizeKey({ alias: 'bar', query: { _: 'foo', $: { b: 2, a: 1 } } }),
       'foo({"a":1,"b":2})'
     ),
 

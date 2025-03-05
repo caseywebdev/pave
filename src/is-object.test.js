@@ -1,6 +1,6 @@
-import { strict as assert } from 'assert';
+import { strict as assert } from 'node:assert';
 
-import isObject from './is-object.js';
+import { isObject } from '#src/is-object.js';
 
 export default {
   withKeys: () => assert.deepEqual(isObject({ a: 1 }), true),

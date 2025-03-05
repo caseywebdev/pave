@@ -1,6 +1,6 @@
-import { strict as assert } from 'assert';
+import { strict as assert } from 'node:assert';
 
-import validateSchema from './validate-schema.js';
+import { validateSchema } from '#src/validate-schema.js';
 
 export default () => {
   assert.throws(

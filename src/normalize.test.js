@@ -1,7 +1,7 @@
-import { strict as assert } from 'assert';
+import { strict as assert } from 'node:assert';
 
-import injectType from './inject-type.js';
-import normalize from './normalize.js';
+import { injectType } from '#src/inject-type.js';
+import { normalize } from '#src/normalize.js';
 
 export default {
   'from _root': () => {
@@ -24,14 +24,8 @@ export default {
             name: 'Mr Foo',
             nested: { _type: null, b: 2 },
             list: [
-              {
-                _type: 'Root',
-                foo: { _type: 'Foo', id: 1, color: 'red' }
-              },
-              {
-                _type: 'Root',
-                foo: { _type: 'Foo', id: 1, color: 'blue' }
-              }
+              { _type: 'Root', foo: { _type: 'Foo', id: 1, color: 'red' } },
+              { _type: 'Root', foo: { _type: 'Foo', id: 1, color: 'blue' } }
             ]
           }
         },
@@ -81,17 +75,9 @@ export default {
           _type: 'Foo',
           id: 1,
           name: 'foo',
-          bar: {
-            _type: 'Bar',
-            id: 2,
-            name: 'bar'
-          }
+          bar: { _type: 'Bar', id: 2, name: 'bar' }
         },
-        query: injectType({
-          id: {},
-          name: {},
-          bar: { id: {}, name: {} }
-        })
+        query: injectType({ id: {}, name: {}, bar: { id: {}, name: {} } })
       }),
       {
         _root: { _type: ['Foo:1'] },
@@ -101,11 +87,7 @@ export default {
           name: 'foo',
           bar: { _type: ['Bar:2'] }
         },
-        'Bar:2': {
-          _type: 'Bar',
-          id: 2,
-          name: 'bar'
-        }
+        'Bar:2': { _type: 'Bar', id: 2, name: 'bar' }
       }
     );
   },

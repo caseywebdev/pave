@@ -1,8 +1,20 @@
-import isObject from './is-object.js';
+/** @import {Query, Schema, Type} from '#src/index.js'; */
+
+import { isObject } from '#src/is-object.js';
 
 const { isArray } = Array;
 
-const getQueryCost = ({ context, path = [], query, schema, type }) => {
+/**
+ * @template [Context=any] Default is `any`
+ * @param {{
+ *   context?: Context;
+ *   path?: string[];
+ *   query: Query;
+ *   schema: Schema;
+ *   type: Type;
+ * }} options
+ */
+export const getQueryCost = ({ context, path = [], query, schema, type }) => {
   let cost = 0;
   while (true) {
     if (!type) return cost;
@@ -58,5 +70,3 @@ const getQueryCost = ({ context, path = [], query, schema, type }) => {
     type = nextType;
   }
 };
-
-export default getQueryCost;

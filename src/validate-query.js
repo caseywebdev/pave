@@ -1,12 +1,24 @@
-import isObject from './is-object.js';
-import throwPaveError from './throw-pave-error.js';
-import validateValue from './validate-value.js';
+/** @import {Query, Schema, Type} from '#src/index.js'; */
+
+import { isObject } from '#src/is-object.js';
+import { throwPaveError } from '#src/throw-pave-error.js';
+import { validateValue } from '#src/validate-value.js';
 
 const { isArray } = Array;
 
 const skipInput = {};
 
-const validateQuery = ({ context, path = [], query, schema, type }) => {
+/**
+ * @param {{
+ *   context: any;
+ *   path: string[];
+ *   query: Query;
+ *   schema: Schema;
+ *   type: Type;
+ * }} options
+ * @returns {Query}
+ */
+export const validateQuery = ({ context, path = [], query, schema, type }) => {
   const fail = (code, extra) =>
     throwPaveError(code, { context, path, query, schema, type, ...extra });
 
@@ -133,5 +145,3 @@ const validateQuery = ({ context, path = [], query, schema, type }) => {
     return _query;
   }
 };
-
-export default validateQuery;

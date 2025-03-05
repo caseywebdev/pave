@@ -1,6 +1,6 @@
-import { strict as assert } from 'assert';
+import { strict as assert } from 'node:assert';
 
-import mergeRefs from './merge-refs.js';
+import { mergeRefs } from '#src/merge-refs.js';
 
 const isEqual = (a, b) => mergeRefs(a, b) === b;
 
@@ -32,11 +32,7 @@ const createRandomObj = (depth = 0) => {
 
 export default {
   basic: () => {
-    const data = {
-      a: { b: 1 },
-      c: { d: 1 },
-      e: [{ a: 1 }, { b: 2 }]
-    };
+    const data = { a: { b: 1 }, c: { d: 1 }, e: [{ a: 1 }, { b: 2 }] };
 
     assert.equal(mergeRefs({ ...data, e: [...data.e] }, data), data);
 

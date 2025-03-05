@@ -1,0 +1,19 @@
+#!/bin/sh -e
+
+node_modules/.bin/kiss-test 'src/**/*.test.js'
+
+node_modules/.bin/eslint --fix
+
+node_modules/.bin/tsc \
+  --allowJs \
+  --declaration \
+  --emitDeclarationOnly \
+  --module NodeNext \
+  --moduleResolution NodeNext \
+  --outDir types \
+  --rootDir src \
+  --strict \
+  --target ESNext \
+  src/index.js
+
+node_modules/.bin/tsc || true

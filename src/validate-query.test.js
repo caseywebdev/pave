@@ -1,6 +1,6 @@
-import { strict as assert } from 'assert';
+import { strict as assert } from 'node:assert';
 
-import validateQuery from './validate-query.js';
+import { validateQuery } from '#src/validate-query.js';
 
 export default {
   simple: () => {
@@ -69,44 +69,26 @@ export default {
               },
               def: {
                 input: {
-                  object: {
-                    a: { defaultValue: 3, type: 'Int' }
-                  },
+                  object: { a: { defaultValue: 3, type: 'Int' } },
                   defaultValue: {}
                 }
               },
-              obj: {
-                type: 'Obj',
-                input: { object: { id: 'Int' } }
-              },
-              oneOf: {
-                oneOf: { Foo: 'Foo', Bar: 'Bar' }
-              },
+              obj: { type: 'Obj', input: { object: { id: 'Int' } } },
+              oneOf: { oneOf: { Foo: 'Foo', Bar: 'Bar' } },
               anyKey: {
                 object: { extraKey: { object: { foo: 'String' } } },
                 defaultType: {}
               }
             }
           },
-          Obj: {
-            object: {
-              name: 'String',
-              obj: 'Obj'
-            }
-          },
+          Obj: { object: { name: 'String', obj: 'Obj' } },
           Foo: {
             object: {
               id: { input: { object: { name: 'String' } } },
               fooKey: {}
             }
           },
-          Bar: {
-            object: {
-              id: {},
-              barKey: {},
-              status: 'Status'
-            }
-          },
+          Bar: { object: { id: {}, barKey: {}, status: 'Status' } },
           Int: {
             input: {
               object: { min: { defaultValue: 2 }, max: { optional: 'Int' } },
@@ -169,10 +151,7 @@ export default {
               fooKey: {}
             }
           },
-          anyKey: {
-            anything: {},
-            extraKey: { foo: {} }
-          }
+          anyKey: { anything: {}, extraKey: { foo: {} } }
         },
         type: 'Root'
       }),
@@ -190,10 +169,7 @@ export default {
           _on_Bar: { id: {}, status: {} },
           _on_Foo: { id: { $: { name: 'foo' } }, _type: {}, fooKey: {} }
         },
-        anyKey: {
-          anything: {},
-          extraKey: { foo: {} }
-        }
+        anyKey: { anything: {}, extraKey: { foo: {} } }
       }
     );
   }

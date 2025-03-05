@@ -1,6 +1,6 @@
-import { strict as assert } from 'assert';
+import { strict as assert } from 'node:assert';
 
-import mergeCaches from './merge-caches.js';
+import { mergeCaches } from '#src/merge-caches.js';
 
 export default () => {
   const data = {

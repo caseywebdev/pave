@@ -1,4 +1,9 @@
-export default (a, b) => {
+/**
+ * @param {string} a
+ * @param {string} b
+ */
+export const levenshtein = (a, b) => {
+  /** @type {[number[], number[]]} */
   let [v0, v1] = [new Array(b.length + 1), new Array(b.length + 1)];
 
   for (let i = 0; i <= b.length; ++i) v0[i] = i;

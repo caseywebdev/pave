@@ -1,6 +1,6 @@
-import { strict as assert } from 'assert';
+import { strict as assert } from 'node:assert';
 
-import injectType from './inject-type.js';
+import { injectType } from '#src/inject-type.js';
 
 export default () => {
   assert.deepEqual(
@@ -12,10 +12,7 @@ export default () => {
         _type: { _: 'not overridden' },
         name: { $: { formal: true } },
         b: {},
-        c: {
-          d: {},
-          e: {}
-        }
+        c: { d: {}, e: {} }
       }
     }),
     {
@@ -27,11 +24,7 @@ export default () => {
         _type: { _: 'not overridden' },
         name: { $: { formal: true } },
         b: {},
-        c: {
-          _type: {},
-          d: {},
-          e: {}
-        }
+        c: { _type: {}, d: {}, e: {} }
       }
     }
   );

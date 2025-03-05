@@ -1,12 +1,12 @@
-import levenshtein from './levenshtein.js';
-import PaveError from './pave-error.js';
+import { levenshtein } from '#src/levenshtein.js';
+import { PaveError } from '#src/pave-error.js';
 
 const { Intl } = globalThis;
 
 const formatOr = values =>
-  new Intl.ListFormat(undefined, {
-    type: 'disjunction'
-  }).format(values.map(value => `"${value}"`));
+  new Intl.ListFormat(undefined, { type: 'disjunction' }).format(
+    values.map(value => `"${value}"`)
+  );
 
 const formatPath = path =>
   path.length === 0 ? 'the query root' : `"${path.join('"."')}"`;
@@ -85,7 +85,12 @@ const messages = {
     `The type ${JSON.stringify(type)} at ${formatPath(path)} does not exist`
 };
 
-export default (code, context) => {
+/**
+ * @param {keyof messages} code
+ * @param {{ [key: string]: unknown }} context
+ * @returns {never}
+ */
+export const throwPaveError = (code, context) => {
   throw Object.assign(new PaveError(messages[code](context)), {
     ...context,
     code

@@ -1,6 +1,12 @@
-import isObject from './is-object.js';
+/** @import {Query} from '#src/index.js' */
 
-const injectType = query => {
+import { isObject } from '#src/is-object.js';
+
+/**
+ * @template {Query} T
+ * @param {T} query
+ */
+export const injectType = query => {
   if (!isObject(query)) return query;
 
   const initial = query;
@@ -13,5 +19,3 @@ const injectType = query => {
 
   return query;
 };
-
-export default injectType;

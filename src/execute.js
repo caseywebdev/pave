@@ -1,13 +1,26 @@
-import Context from './context.js';
-import isObject from './is-object.js';
-import throwPaveError from './throw-pave-error.js';
-import validateValue from './validate-value.js';
+/** @import {Query, Schema, Type} from '#src/index.js'; */
+
+import { Context } from '#src/context.js';
+import { isObject } from '#src/is-object.js';
+import { throwPaveError } from '#src/throw-pave-error.js';
+import { validateValue } from '#src/validate-value.js';
 
 const { Promise } = globalThis;
 
 const { isArray } = Array;
 
-const execute = async ({
+/**
+ * @param {{
+ *   context?: any;
+ *   object?: any;
+ *   path?: string[];
+ *   query: Query;
+ *   schema: Schema;
+ *   type: Type;
+ *   value?: any;
+ * }} options
+ */
+export const execute = async ({
   context,
   object,
   path = [],
@@ -16,8 +29,13 @@ const execute = async ({
   type,
   value
 }) => {
+  /** @type {any} */
   let typeInput;
 
+  /**
+   * @param {Parameters<typeof throwPaveError>[0]} code
+   * @param {Record<string, any>} [extra]
+   */
   const fail = (code, extra) =>
     throwPaveError(code, {
       context,
@@ -39,7 +57,19 @@ const execute = async ({
 
   let isNullable = false;
   let isOptional = false;
+  /** @type {string | null} */
   let name = null;
+  /**
+   * @type {{
+   *       context: any;
+   *       input: any;
+   *       object: any;
+   *       path: string[];
+   *       query: Query;
+   *       type: Type;
+   *     }[]
+   *   | undefined}
+   */
   let validateQueue;
 
   while (true) {
@@ -231,5 +261,3 @@ const execute = async ({
     type = type.type;
   }
 };
-
-export default execute;

@@ -1,4 +1,4 @@
-export default class Context {
+export class Context {
   /**
    * @param {unknown} context
    * @param {unknown} [value]

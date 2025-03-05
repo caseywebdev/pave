@@ -1,15 +1,33 @@
-import cacheExecute from './cache-execute.js';
-import injectType from './inject-type.js';
-import mergeCaches from './merge-caches.js';
-import mergeRefs from './merge-refs.js';
-import normalize from './normalize.js';
+/** @import {Query} from '#src/index.js' */
+
+import { cacheExecute } from '#src/cache-execute.js';
+import { injectType } from '#src/inject-type.js';
+import { mergeCaches } from '#src/merge-caches.js';
+import { mergeRefs } from '#src/merge-refs.js';
+import { normalize } from '#src/normalize.js';
 
 const { Set } = globalThis;
 
+/** @param {{ query: Query }} options */
 const defaultTransform = ({ query }) => injectType(query);
+
+/** @param {{ query: Query }} options */
 const noopTransform = ({ query }) => query;
 
-export default ({ cache, execute, getKey, transformQuery } = {}) => {
+/**
+ * @param {{
+ *   cache?: { [K: string]: any };
+ *   execute?: (options: { query: Query; [K: string]: any }) => any;
+ *   getKey?: (value: any) => string;
+ *   transformQuery?: (options: { query: Query }) => Query;
+ * }} [options]
+ */
+export const createClient = ({
+  cache,
+  execute,
+  getKey,
+  transformQuery
+} = {}) => {
   if (transformQuery === undefined) transformQuery = defaultTransform;
   else if (transformQuery === null) transformQuery = noopTransform;
   const watchers = new Set();

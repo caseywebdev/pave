@@ -1,7 +1,7 @@
-import { strict as assert } from 'assert';
+import { strict as assert } from 'node:assert';
 
-import PaveError from './pave-error.js';
-import validateValue from './validate-value.js';
+import { PaveError } from '#src/pave-error.js';
+import { validateValue } from '#src/validate-value.js';
 
 export default () => {
   assert.deepEqual(
@@ -21,10 +21,7 @@ export default () => {
   );
 
   assert.deepEqual(
-    validateValue({
-      type: { object: { undef: { optional: {} } } },
-      value: {}
-    }),
+    validateValue({ type: { object: { undef: { optional: {} } } }, value: {} }),
     {}
   );
 

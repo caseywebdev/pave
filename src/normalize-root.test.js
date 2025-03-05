@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 
-import normalizeRoot from './normalize-root.js';
+import { normalizeRoot } from '#src/normalize-root.js';
 
 export default {
   'without $': () => assert.equal(normalizeRoot({ query: {} }), '_root'),

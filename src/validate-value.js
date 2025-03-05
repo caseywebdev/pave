@@ -1,10 +1,23 @@
-import Context from './context.js';
-import isObject from './is-object.js';
-import throwPaveError from './throw-pave-error.js';
+/** @import {Query, Schema, Type} from '#src/index.js'; */
+
+import { Context } from '#src/context.js';
+import { isObject } from '#src/is-object.js';
+import { throwPaveError } from '#src/throw-pave-error.js';
 
 const { isArray } = Array;
 
-const validateValue = ({
+/**
+ * @param {{
+ *   context: any;
+ *   object?: any;
+ *   path: string[];
+ *   query: Query;
+ *   schema: Schema;
+ *   type: Type;
+ *   value: any;
+ * }} options
+ */
+export const validateValue = ({
   context,
   object,
   path = [],
@@ -13,6 +26,7 @@ const validateValue = ({
   type,
   value
 }) => {
+  /** @type {any} */
   let typeInput;
 
   const fail = (code, extra) =>
@@ -202,5 +216,3 @@ const validateValue = ({
     type = type.type;
   }
 };
-
-export default validateValue;

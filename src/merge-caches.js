@@ -1,9 +1,14 @@
-import isObject from './is-object.js';
-import mergeRefs from './merge-refs.js';
+import { isObject } from '#src/is-object.js';
+import { mergeRefs } from '#src/merge-refs.js';
 
 const { isArray } = Array;
 
-const mergeCaches = (a, b, isCacheRoot) => {
+/**
+ * @param {{ [K: string]: any }} a
+ * @param {{ [K: string]: any }} b
+ * @param {boolean} isCacheRoot
+ */
+const _mergeCaches = (a, b, isCacheRoot) => {
   if (
     !isObject(a) ||
     !isObject(b) ||
@@ -17,7 +22,7 @@ const mergeCaches = (a, b, isCacheRoot) => {
 
   let c = a;
   for (const k in b) {
-    const v = mergeCaches(a[k], b[k]);
+    const v = _mergeCaches(a[k], b[k], false);
     if (v !== a[k]) {
       if (c === a) c = { ...a };
       c[k] = v;
@@ -26,4 +31,8 @@ const mergeCaches = (a, b, isCacheRoot) => {
   return c;
 };
 
-export default (a, b) => mergeCaches(a, b, true);
+/**
+ * @param {{ [K: string]: any }} a
+ * @param {{ [K: string]: any }} b
+ */
+export const mergeCaches = (a, b) => _mergeCaches(a, b, true);

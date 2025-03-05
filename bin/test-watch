@@ -1,3 +1,0 @@
-#!/bin/sh
-
-exec node_modules/.bin/watchy -w src -- bin/test

@@ -1,6 +1,6 @@
-import { strict as assert } from 'assert';
+import { strict as assert } from 'node:assert';
 
-import levenshtein from './levenshtein.js';
+import { levenshtein } from '#src/levenshtein.js';
 
 export default {
   equal: () => assert.equal(levenshtein('abc', 'abc'), 0),
