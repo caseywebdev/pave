@@ -12,13 +12,15 @@ export { validateValue } from "#src/validate-value.js";
 export type Query<T = any> = {
     _?: string;
     $?: any;
-    _type?: Record<keyof any, never>;
+    _type?: { [K in keyof any]: never; };
 } | {
     [K: string]: Query<T>;
 };
 export type Recursive<T> = T | RecursiveArray<T>;
 export type RecursiveArray<T> = Recursive<T>[];
-export type Type<TypeName extends string = never, Extensions extends Record<string, any> = Record<never, never>, Context = unknown, Input = unknown, Object = unknown, Value = unknown, ResolvedValue = {}> = Recursive<TypeName | (({
+export type Type<TypeName extends string = never, Extensions extends {
+    [K: string]: any;
+} = {}, Context = unknown, Input = unknown, Object = unknown, Value = unknown, ResolvedValue = {}> = Recursive<TypeName | (({
     optional: Type<TypeName, Extensions, Context>;
 } | {
     nullable: Type<TypeName, Extensions, Context>;
@@ -46,7 +48,7 @@ export type Type<TypeName extends string = never, Extensions extends Record<stri
         object: Object;
         path: string[];
         query: Query;
-        schema: Schema;
+        schema: Schema<TypeName, Extensions, Context>;
         type: Type;
         value: Value;
     }) => any) | {} | null;
@@ -58,7 +60,7 @@ export type Type<TypeName extends string = never, Extensions extends Record<stri
         object: Object;
         path: string[];
         query: Query;
-        schema: Schema;
+        schema: Schema<TypeName, Extensions, Context>;
         type: Type;
         value: Value;
     }) => number);
@@ -69,9 +71,11 @@ export type Type<TypeName extends string = never, Extensions extends Record<stri
         object: Object;
         path: string[];
         query: Query;
-        schema: Schema;
+        schema: Schema<TypeName, Extensions, Context>;
         type: Type;
         value: ResolvedValue;
     }) => any;
 } & Extensions & object)>;
-export type Schema<TypeName extends string = never, Extensions extends Record<string, any> = Record<never, never>, Context = unknown> = Record<TypeName, Type<TypeName, Extensions, Context, any, any, any, any>>;
+export type Schema<TypeName extends string, Extensions extends {
+    [K: string]: any;
+}, Context> = { [K in TypeName]: Type<TypeName, Extensions, Context, any, any, any, any>; };

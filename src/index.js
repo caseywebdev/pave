@@ -1,6 +1,6 @@
 /**
  * @template [T=any] Default is `any`
- * @typedef {{ _?: string; $?: any; _type?: Record<keyof any, never> }
+ * @typedef {{ _?: string; $?: any; _type?: { [K in keyof any]: never } }
  *   | { [K: string]: Query<T> }} Query
  */
 
@@ -16,8 +16,7 @@
 
 /**
  * @template {string} [TypeName=never] Default is `never`
- * @template {Record<string, any>} [Extensions=Record<never, never>] Default is
- *   `Record<never, never>`
+ * @template {{ [K: string]: any }} [Extensions={}] Default is `{}`
  * @template [Context=unknown] Default is `unknown`
  * @template [Input=unknown] Default is `unknown`
  * @template [Object=unknown] Default is `unknown`
@@ -53,7 +52,7 @@
  *                 object: Object;
  *                 path: string[];
  *                 query: Query;
- *                 schema: Schema;
+ *                 schema: Schema<TypeName, Extensions, Context>;
  *                 type: Type;
  *                 value: Value;
  *               }) => any)
@@ -70,7 +69,7 @@
  *             object: Object;
  *             path: string[];
  *             query: Query;
- *             schema: Schema;
+ *             schema: Schema<TypeName, Extensions, Context>;
  *             type: Type;
  *             value: Value;
  *           }) => number);
@@ -81,7 +80,7 @@
  *         object: Object;
  *         path: string[];
  *         query: Query;
- *         schema: Schema;
+ *         schema: Schema<TypeName, Extensions, Context>;
  *         type: Type;
  *         value: ResolvedValue;
  *       }) => any;
@@ -91,14 +90,12 @@
  */
 
 /**
- * @template {string} [TypeName=never] Default is `never`
- * @template {Record<string, any>} [Extensions=Record<never, never>] Default is
- *   `Record<never, never>`
- * @template [Context=unknown] Default is `unknown`
- * @typedef {Record<
- *   TypeName,
- *   Type<TypeName, Extensions, Context, any, any, any, any>
- * >} Schema
+ * @template {string} TypeName
+ * @template {{ [K: string]: any }} Extensions
+ * @template Context
+ * @typedef {{
+ *   [K in TypeName]: Type<TypeName, Extensions, Context, any, any, any, any>;
+ * }} Schema
  */
 
 export { Context } from '#src/context.js';

@@ -3,7 +3,7 @@ export function validateValue({ context, object, path, query, schema, type, valu
     object?: any;
     path?: string[];
     query?: Query;
-    schema: Schema;
+    schema: Schema<string, {}, any>;
     type: Type;
     value?: any;
 }): any;

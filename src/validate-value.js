@@ -12,7 +12,7 @@ const { isArray } = Array;
  *   object?: any;
  *   path?: string[];
  *   query?: Query;
- *   schema: Schema;
+ *   schema: Schema<string, {}, any>;
  *   type: Type;
  *   value?: any;
  * }} options

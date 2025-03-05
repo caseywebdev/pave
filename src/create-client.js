@@ -30,7 +30,7 @@ export const createClient = ({ cache, execute, getKey, transformQuery }) => {
   else if (transformQuery === null) transformQuery = noopTransform;
   /** @type {Set<Watcher>} */
   const watchers = new Set();
-  /** @type {Record<string, never>} */
+  /** @type {{ [K: keyof any]: never }} */
   let currentUpdate;
 
   const client = {

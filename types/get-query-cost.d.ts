@@ -2,7 +2,7 @@ export function getQueryCost<Context = any>({ context, path, query, schema, type
     context?: Context;
     path?: string[];
     query: Query;
-    schema: Schema;
+    schema: Schema<string, {}, any>;
     type: Type;
 }): any;
 import type { Query } from '#src/index.js';

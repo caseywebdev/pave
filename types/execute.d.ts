@@ -3,7 +3,7 @@ export function execute({ context, object, path, query, schema, type, value }: {
     object?: any;
     path?: string[];
     query: Query;
-    schema: Schema;
+    schema: Schema<string, {}, any>;
     type: Type;
     value?: any;
 }): Promise<any>;

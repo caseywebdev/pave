@@ -13,7 +13,7 @@ const skipInput = {};
  *   context?: any;
  *   path?: string[];
  *   query: Query;
- *   schema: Schema;
+ *   schema: Schema<string, {}, any>;
  *   type: Type;
  * }} options
  * @returns {Query}

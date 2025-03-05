@@ -15,7 +15,7 @@ const { isArray } = Array;
  *   object?: any;
  *   path?: string[];
  *   query: Query;
- *   schema: Schema;
+ *   schema: Schema<string, {}, any>;
  *   type: Type;
  *   value?: any;
  * }} options
@@ -34,7 +34,7 @@ export const execute = async ({
 
   /**
    * @param {Parameters<typeof throwPaveError>[0]} code
-   * @param {Record<string, any>} [extra]
+   * @param {{ [K: string]: any }} [extra]
    */
   const fail = (code, extra) =>
     throwPaveError(code, {
