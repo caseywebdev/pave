@@ -75,7 +75,7 @@ export type Type<TypeName extends string = never, Extensions extends {
         type: Type;
         value: ResolvedValue;
     }) => any;
-} & Extensions & object)>;
+} & Extensions)>;
 export type Schema<TypeName extends string, Extensions extends {
     [K: string]: any;
 }, Context> = { [K in TypeName]: Type<TypeName, Extensions, Context, any, any, any, any>; };

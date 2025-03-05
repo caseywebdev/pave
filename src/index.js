@@ -84,8 +84,7 @@
  *         type: Type;
  *         value: ResolvedValue;
  *       }) => any;
- *     } & Extensions &
- *       object)
+ *     } & Extensions)
  * >} Type
  */
 
