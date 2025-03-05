@@ -18,7 +18,7 @@ export type Query<T = any> = {
 };
 export type Recursive<T> = T | RecursiveArray<T>;
 export type RecursiveArray<T> = Recursive<T>[];
-export type Type<TypeName extends string = string, Extensions extends Record<string, any> = Record<never, never>, Context = unknown, Input = unknown, Object = unknown, Value = unknown, ResolvedValue = {}> = Recursive<TypeName | (({
+export type Type<TypeName extends string = never, Extensions extends Record<string, any> = Record<never, never>, Context = unknown, Input = unknown, Object = unknown, Value = unknown, ResolvedValue = {}> = Recursive<TypeName | (({
     optional: Type<TypeName, Extensions, Context>;
 } | {
     nullable: Type<TypeName, Extensions, Context>;
@@ -73,5 +73,5 @@ export type Type<TypeName extends string = string, Extensions extends Record<str
         type: Type;
         value: ResolvedValue;
     }) => any;
-} & Extensions)>;
-export type Schema<TypeName extends string = string> = Record<TypeName, Type<TypeName>>;
+} & Extensions & object)>;
+export type Schema<TypeName extends string = never, Extensions extends Record<string, any> = Record<never, never>, Context = unknown> = Record<TypeName, Type<TypeName, Extensions, Context, any, any, any, any>>;

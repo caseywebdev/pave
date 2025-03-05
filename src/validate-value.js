@@ -10,7 +10,7 @@ const { isArray } = Array;
  * @param {{
  *   context?: any;
  *   object?: any;
- *   path: string[];
+ *   path?: string[];
  *   query?: Query;
  *   schema: Schema;
  *   type: Type;

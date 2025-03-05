@@ -15,7 +15,7 @@
  */
 
 /**
- * @template {string} [TypeName=string] Default is `string`
+ * @template {string} [TypeName=never] Default is `never`
  * @template {Record<string, any>} [Extensions=Record<never, never>] Default is
  *   `Record<never, never>`
  * @template [Context=unknown] Default is `unknown`
@@ -85,13 +85,20 @@
  *         type: Type;
  *         value: ResolvedValue;
  *       }) => any;
- *     } & Extensions)
+ *     } & Extensions &
+ *       object)
  * >} Type
  */
 
 /**
- * @template {string} [TypeName=string] Default is `string`
- * @typedef {Record<TypeName, Type<TypeName>>} Schema
+ * @template {string} [TypeName=never] Default is `never`
+ * @template {Record<string, any>} [Extensions=Record<never, never>] Default is
+ *   `Record<never, never>`
+ * @template [Context=unknown] Default is `unknown`
+ * @typedef {Record<
+ *   TypeName,
+ *   Type<TypeName, Extensions, Context, any, any, any, any>
+ * >} Schema
  */
 
 export { Context } from '#src/context.js';

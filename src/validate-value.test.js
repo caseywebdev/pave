@@ -6,6 +6,7 @@ import { validateValue } from '#src/validate-value.js';
 export default () => {
   assert.deepEqual(
     validateValue({
+      schema: {},
       type: [
         {},
         [
@@ -21,13 +22,18 @@ export default () => {
   );
 
   assert.deepEqual(
-    validateValue({ type: { object: { undef: { optional: {} } } }, value: {} }),
+    validateValue({
+      schema: {},
+      type: { object: { undef: { optional: {} } } },
+      value: {}
+    }),
     {}
   );
 
   assert.throws(
     () =>
       validateValue({
+        schema: {},
         type: { validate: ({ value }) => value || null },
         value: ''
       }),

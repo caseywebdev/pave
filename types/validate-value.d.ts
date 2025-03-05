@@ -1,7 +1,7 @@
 export function validateValue({ context, object, path, query, schema, type, value }: {
     context?: any;
     object?: any;
-    path: string[];
+    path?: string[];
     query?: Query;
     schema: Schema;
     type: Type;
