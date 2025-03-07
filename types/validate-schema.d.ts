@@ -1,4 +1,4 @@
-export function validateSchema<S extends Schema<any, any, any>>({ extensions, schema }: {
+export function validateSchema<S extends Schema<any>>({ extensions, schema }: {
     extensions?: {
         [K: string]: any;
     };

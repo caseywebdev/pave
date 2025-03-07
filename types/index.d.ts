@@ -18,33 +18,48 @@ export type Query<T = any> = {
 };
 export type Recursive<T> = T | RecursiveArray<T>;
 export type RecursiveArray<T> = Recursive<T>[];
-export type Schema<TypeName extends string = "", Context = unknown, Extensions extends {
-    [K: string]: any;
-} = {}> = { [K in TypeName]: Type<Schema<TypeName, Context, Extensions>, any, any, any, any>; };
-export type SchemaTypeName<S extends Schema<any, any, any>> = S extends Schema<infer TypeName, infer _, infer __> ? TypeName : never;
-export type SchemaContext<S extends Schema<any, any, any>> = S extends Schema<infer _, infer Context, infer __> ? Context : never;
-export type SchemaExtensions<S extends Schema<any, any, any>> = S extends Schema<infer _, infer __, infer Extensions> ? Extensions : never;
-export type Type<S extends Schema<any, any, any> = Schema<"", unknown, {}>, Input = unknown, Object = unknown, Value = unknown, ResolvedValue = {}> = Recursive<SchemaTypeName<S> | (({
-    optional: Type<S, any, any, any, any>;
+export type Schema<A extends {
+    context?: any;
+    extensions?: {
+        [K: string]: any;
+    };
+    typeName?: string;
+} = {}, _Context = A["context"] extends undefined ? unknown : A["context"], _Extensions = A["extensions"] extends undefined ? {} : A["extensions"], TypeName = A["typeName"] extends undefined ? never : A["typeName"]> = { [K in TypeName extends string ? TypeName : never]: Type<Schema<A>, any>; };
+export type SchemaContext<S extends Schema<any>> = S extends Schema<infer _, infer Context> ? Context : never;
+export type SchemaExtensions<S extends Schema<any>> = S extends Schema<infer _, infer __, infer Extensions> ? Extensions : never;
+export type SchemaTypeName<S extends Schema<any>> = S extends Schema<infer _, infer __, infer ___, infer TypeName> ? TypeName : never;
+export type DefaultTypeArg = {
+    input: unknown;
+    object: unknown;
+    resolvedValue: {};
+    value: unknown;
+};
+export type Type<S extends Schema<any> = Schema<{}, unknown, unknown, unknown>, A extends {
+    input?: any;
+    object?: any;
+    resolvedValue?: {};
+    value?: any;
+} = {}, Input = A["input"] extends undefined ? unknown : A["input"], Object = A["object"] extends undefined ? unknown : A["object"], ResolvedValue = A["resolvedValue"] extends undefined ? {} : A["resolvedValue"], Value = A["value"] extends undefined ? undefined : A["value"]> = Recursive<SchemaTypeName<S> | (({
+    optional: Type<S, any>;
 } | {
-    nullable: Type<S, any, any, any, any>;
+    nullable: Type<S, any>;
 } | {
-    arrayOf: Type<S, any, any, any, any>;
+    arrayOf: Type<S, any>;
     minLength?: number;
     maxLength?: number;
 } | {
     oneOf: {
-        [K: string]: Type<S, any, any, any, any>;
+        [K: string]: Type<S, any>;
     };
     resolveType: (value: {}) => string;
 } | {
     object: {
-        [K: string]: Type<S, any, any, any, any>;
+        [K: string]: Type<S, any>;
     };
-    defaultType?: Type<S, any, any, any, any>;
+    defaultType?: Type<S, any>;
 } | {
-    input?: Type<S, any, any, any, any>;
-    type?: Type<S, any, any, any, any>;
+    input?: Type<S, any>;
+    type?: Type<S, any>;
     typeInput?: any;
     resolve?: ((options: {
         context: SchemaContext<S>;
@@ -53,7 +68,7 @@ export type Type<S extends Schema<any, any, any> = Schema<"", unknown, {}>, Inpu
         path: string[];
         query: Query;
         schema: S;
-        type: Type<S, any, any, any, any>;
+        type: Type<S, any>;
         value: Value;
     }) => any) | {} | null;
 }) & {
@@ -65,7 +80,7 @@ export type Type<S extends Schema<any, any, any> = Schema<"", unknown, {}>, Inpu
         path: string[];
         query: Query;
         schema: S;
-        type: Type<S, any, any, any, any>;
+        type: Type<S, any>;
         value: Value;
     }) => number);
     defaultValue?: any;
@@ -76,7 +91,7 @@ export type Type<S extends Schema<any, any, any> = Schema<"", unknown, {}>, Inpu
         path: string[];
         query: Query;
         schema: S;
-        type: Type<S, any, any, any, any>;
+        type: Type<S, any>;
         value: ResolvedValue;
     }) => any;
 } & SchemaExtensions<S>)>;

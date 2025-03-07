@@ -10,14 +10,14 @@ const { Promise } = globalThis;
 const { isArray } = Array;
 
 /**
- * @template {Schema<any, any, any>} S
+ * @template {Schema<any>} S
  * @param {{
  *   context?: any;
  *   object?: any;
  *   path?: string[];
  *   query: Query;
  *   schema: S;
- *   type: Type<S, any, any, any, any>;
+ *   type: Type<S, any>;
  *   value?: any;
  * }} options
  */

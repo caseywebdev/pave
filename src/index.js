@@ -15,62 +15,75 @@
  */
 
 /**
- * @template {string} [TypeName=''] Default is `''`
- * @template [Context=unknown] Default is `unknown`
- * @template {{ [K: string]: any }} [Extensions={}] Default is `{}`
+ * @template {{
+ *   context?: any;
+ *   extensions?: { [K: string]: any };
+ *   typeName?: string;
+ * }} [A={}]
+ *   Default is `{}`
+ * @template [_Context=A['context'] extends undefined ? unknown: A['context']]
+ *   Default is `A['context'] extends undefined ? unknown: A['context']`
+ * @template [_Extensions=A['extensions'] extends undefined ? {} : A['extensions']]
+ *   Default is `A['extensions'] extends undefined ? {} : A['extensions']`
+ * @template [TypeName=A['typeName'] extends undefined ? never : A['typeName']]
+ *   Default is `A['typeName'] extends undefined ? never : A['typeName']`
  * @typedef {{
- *   [K in TypeName]: Type<
- *     Schema<TypeName, Context, Extensions>,
- *     any,
- *     any,
- *     any,
- *     any
- *   >;
+ *   [K in TypeName extends string ? TypeName : never]: Type<Schema<A>, any>;
  * }} Schema
  */
 
 /**
- * @template {Schema<any, any, any>} S
- * @typedef {S extends Schema<infer TypeName, infer _, infer __> ? TypeName : never} SchemaTypeName
+ * @template {Schema<any>} S
+ * @typedef {S extends Schema<infer _, infer Context> ? Context : never} SchemaContext
  */
 
 /**
- * @template {Schema<any, any, any>} S
- * @typedef {S extends Schema<infer _, infer Context, infer __> ? Context : never} SchemaContext
- */
-
-/**
- * @template {Schema<any, any, any>} S
+ * @template {Schema<any>} S
  * @typedef {S extends Schema<infer _, infer __, infer Extensions> ? Extensions : never} SchemaExtensions
  */
 
 /**
- * @template {Schema<any, any, any>} [S=Schema] Default is `Schema`
- * @template [Input=unknown] Default is `unknown`
- * @template [Object=unknown] Default is `unknown`
- * @template [Value=unknown] Default is. Default is `unknown`
- * @template [ResolvedValue={}] Default is `{}`
+ * @template {Schema<any>} S
+ * @typedef {S extends Schema<infer _, infer __, infer ___, infer TypeName>
+ *     ? TypeName
+ *     : never} SchemaTypeName
+ */
+
+/**
+ * @typedef {{
+ *   input: unknown;
+ *   object: unknown;
+ *   resolvedValue: {};
+ *   value: unknown;
+ * }} DefaultTypeArg
+ */
+
+/**
+ * @template {Schema<any>} [S=Schema] Default is `Schema`
+ * @template {{ input?: any; object?: any; resolvedValue?: {}; value?: any }} [A={}]
+ *   Default is `{}`
+ * @template [Input=A['input'] extends undefined ? unknown : A['input']]
+ *   Default is `A['input'] extends undefined ? unknown : A['input']`
+ * @template [Object=A['object'] extends undefined ? unknown : A['object']]
+ *   Default is `A['object'] extends undefined ? unknown : A['object']`
+ * @template [ResolvedValue=A['resolvedValue'] extends undefined ? {} : A['resolvedValue']]
+ *   Default is `A['resolvedValue'] extends undefined ? {} : A['resolvedValue']`
+ * @template [Value=A['value'] extends undefined ? undefined : A['value']]
+ *   Default is `A['value'] extends undefined ? undefined : A['value']`
  * @typedef {Recursive<
  *   | SchemaTypeName<S>
  *   | ((
- *       | { optional: Type<S, any, any, any, any> }
- *       | { nullable: Type<S, any, any, any, any> }
+ *       | { optional: Type<S, any> }
+ *       | { nullable: Type<S, any> }
+ *       | { arrayOf: Type<S, any>; minLength?: number; maxLength?: number }
  *       | {
- *           arrayOf: Type<S, any, any, any, any>;
- *           minLength?: number;
- *           maxLength?: number;
- *         }
- *       | {
- *           oneOf: { [K: string]: Type<S, any, any, any, any> };
+ *           oneOf: { [K: string]: Type<S, any> };
  *           resolveType: (value: {}) => string;
  *         }
+ *       | { object: { [K: string]: Type<S, any> }; defaultType?: Type<S, any> }
  *       | {
- *           object: { [K: string]: Type<S, any, any, any, any> };
- *           defaultType?: Type<S, any, any, any, any>;
- *         }
- *       | {
- *           input?: Type<S, any, any, any, any>;
- *           type?: Type<S, any, any, any, any>;
+ *           input?: Type<S, any>;
+ *           type?: Type<S, any>;
  *           typeInput?: any;
  *           resolve?:
  *             | ((options: {
@@ -80,7 +93,7 @@
  *                 path: string[];
  *                 query: Query;
  *                 schema: S;
- *                 type: Type<S, any, any, any, any>;
+ *                 type: Type<S, any>;
  *                 value: Value;
  *               }) => any)
  *             | {}
@@ -97,7 +110,7 @@
  *             path: string[];
  *             query: Query;
  *             schema: S;
- *             type: Type<S, any, any, any, any>;
+ *             type: Type<S, any>;
  *             value: Value;
  *           }) => number);
  *       defaultValue?: any;
@@ -108,7 +121,7 @@
  *         path: string[];
  *         query: Query;
  *         schema: S;
- *         type: Type<S, any, any, any, any>;
+ *         type: Type<S, any>;
  *         value: ResolvedValue;
  *       }) => any;
  *     } & SchemaExtensions<S>)

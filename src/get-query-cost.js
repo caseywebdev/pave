@@ -5,13 +5,13 @@ import { isObject } from '#src/is-object.js';
 const { isArray } = Array;
 
 /**
- * @template {Schema<any, any, any>} S
+ * @template {Schema<any>} S
  * @param {{
  *   context?: SchemaContext<S>;
  *   path?: string[];
  *   query: Query;
  *   schema: S;
- *   type: Type<S, any, any, any, any>;
+ *   type: Type<S, any>;
  * }} options
  */
 export const getQueryCost = ({ context, path = [], query, schema, type }) => {
