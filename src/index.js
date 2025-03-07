@@ -17,15 +17,15 @@
  */
 
 /**
- * @template {SchemaOptions} [A={}] Default is `{}`
- * @template [_Context=A['context'] extends undefined ? unknown: A['context']]
- *   Default is `A['context'] extends undefined ? unknown: A['context']`
- * @template [_Extensions=A['extensions'] extends undefined ? {} : A['extensions']]
- *   Default is `A['extensions'] extends undefined ? {} : A['extensions']`
- * @template [TypeName=A['typeName'] extends undefined ? never : A['typeName']]
- *   Default is `A['typeName'] extends undefined ? never : A['typeName']`
+ * @template {SchemaOptions} [O={}] Default is `{}`
+ * @template [_Context=O['context'] extends undefined ? unknown: O['context']]
+ *   Default is `O['context'] extends undefined ? unknown: O['context']`
+ * @template [_Extensions=O['extensions'] extends undefined ? {} : O['extensions']]
+ *   Default is `O['extensions'] extends undefined ? {} : O['extensions']`
+ * @template [TypeName=O['typeName'] extends undefined ? never : O['typeName']]
+ *   Default is `O['typeName'] extends undefined ? never : O['typeName']`
  * @typedef {{
- *   [K in TypeName extends string ? TypeName : never]: Type<Schema<A>, any>;
+ *   [K in TypeName extends string ? TypeName : never]: Type<Schema<O>, any>;
  * }} Schema
  */
 
@@ -50,15 +50,15 @@
 
 /**
  * @template {Schema<any>} [S=Schema] Default is `Schema`
- * @template {TypeOptions} [A={}] Default is `{}`
- * @template [Input=A['input'] extends undefined ? unknown : A['input']]
- *   Default is `A['input'] extends undefined ? unknown : A['input']`
- * @template [Object=A['object'] extends undefined ? unknown : A['object']]
- *   Default is `A['object'] extends undefined ? unknown : A['object']`
- * @template [ResolvedValue=A['resolvedValue'] extends undefined ? {} : A['resolvedValue']]
- *   Default is `A['resolvedValue'] extends undefined ? {} : A['resolvedValue']`
- * @template [Value=A['value'] extends undefined ? undefined : A['value']]
- *   Default is `A['value'] extends undefined ? undefined : A['value']`
+ * @template {TypeOptions} [O={}] Default is `{}`
+ * @template [Input=O['input'] extends undefined ? unknown : O['input']]
+ *   Default is `O['input'] extends undefined ? unknown : O['input']`
+ * @template [Object=O['object'] extends undefined ? unknown : O['object']]
+ *   Default is `O['object'] extends undefined ? unknown : O['object']`
+ * @template [ResolvedValue=O['resolvedValue'] extends undefined ? {} : O['resolvedValue']]
+ *   Default is `O['resolvedValue'] extends undefined ? {} : O['resolvedValue']`
+ * @template [Value=O['value'] extends undefined ? undefined : O['value']]
+ *   Default is `O['value'] extends undefined ? undefined : O['value']`
  * @typedef {Recursive<
  *   | SchemaTypeName<S>
  *   | ((
