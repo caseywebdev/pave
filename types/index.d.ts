@@ -49,7 +49,7 @@ export type Type<TypeName extends string = never, Extensions extends {
         path: string[];
         query: Query;
         schema: Schema<TypeName, Extensions, Context>;
-        type: Type;
+        type: Type<TypeName, Extensions, Context>;
         value: Value;
     }) => any) | {} | null;
 }) & {
@@ -61,7 +61,7 @@ export type Type<TypeName extends string = never, Extensions extends {
         path: string[];
         query: Query;
         schema: Schema<TypeName, Extensions, Context>;
-        type: Type;
+        type: Type<TypeName, Extensions, Context>;
         value: Value;
     }) => number);
     defaultValue?: any;
@@ -72,7 +72,7 @@ export type Type<TypeName extends string = never, Extensions extends {
         path: string[];
         query: Query;
         schema: Schema<TypeName, Extensions, Context>;
-        type: Type;
+        type: Type<TypeName, Extensions, Context>;
         value: ResolvedValue;
     }) => any;
 } & Extensions)>;

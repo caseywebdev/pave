@@ -1,7 +1,7 @@
 {
   "name": "pave",
   "type": "module",
-  "version": "0.13.20",
+  "version": "0.13.21",
   "author": "Casey Foster <c@sey.me>",
   "license": "MIT",
   "repository": {

@@ -9,12 +9,16 @@ const { isArray } = Array;
 const skipInput = {};
 
 /**
+ * @template {string} [TypeName=string] Default is `string`
+ * @template {{ [K: string]: any }} [Extensions={ [K: string]: any }] Default is
+ *   `{ [K: string]: any }`
+ * @template [Context=any] Default is `any`
  * @param {{
  *   context?: any;
  *   path?: string[];
  *   query: Query;
- *   schema: Schema<string, {}, any>;
- *   type: Type;
+ *   schema: Schema<TypeName, Extensions, Context>;
+ *   type: Type<TypeName, Extensions, Context>;
  * }} options
  * @returns {Query}
  */

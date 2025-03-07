@@ -53,7 +53,7 @@
  *                 path: string[];
  *                 query: Query;
  *                 schema: Schema<TypeName, Extensions, Context>;
- *                 type: Type;
+ *                 type: Type<TypeName, Extensions, Context>;
  *                 value: Value;
  *               }) => any)
  *             | {}
@@ -70,7 +70,7 @@
  *             path: string[];
  *             query: Query;
  *             schema: Schema<TypeName, Extensions, Context>;
- *             type: Type;
+ *             type: Type<TypeName, Extensions, Context>;
  *             value: Value;
  *           }) => number);
  *       defaultValue?: any;
@@ -81,7 +81,7 @@
  *         path: string[];
  *         query: Query;
  *         schema: Schema<TypeName, Extensions, Context>;
- *         type: Type;
+ *         type: Type<TypeName, Extensions, Context>;
  *         value: ResolvedValue;
  *       }) => any;
  *     } & Extensions)

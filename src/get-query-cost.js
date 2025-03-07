@@ -5,13 +5,16 @@ import { isObject } from '#src/is-object.js';
 const { isArray } = Array;
 
 /**
+ * @template {string} [TypeName=string] Default is `string`
+ * @template {{ [K: string]: any }} [Extensions={ [K: string]: any }] Default is
+ *   `{ [K: string]: any }`
  * @template [Context=any] Default is `any`
  * @param {{
  *   context?: Context;
  *   path?: string[];
  *   query: Query;
- *   schema: Schema<string, {}, any>;
- *   type: Type;
+ *   schema: Schema<TypeName, Extensions, Context>;
+ *   type: Type<TypeName, Extensions, Context>;
  * }} options
  */
 export const getQueryCost = ({ context, path = [], query, schema, type }) => {
