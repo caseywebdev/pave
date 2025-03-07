@@ -4,4 +4,4 @@ export function validateSchema({ extensions, schema }: {
     };
     schema: Schema<string, {}, any>;
 }): any;
-import type { Schema } from '#src/index.js';
+import type { Schema } from '#types/index.d.ts';

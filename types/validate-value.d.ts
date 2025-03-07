@@ -7,6 +7,6 @@ export function validateValue({ context, object, path, query, schema, type, valu
     type: Type;
     value?: any;
 }): any;
-import type { Query } from '#src/index.js';
-import type { Schema } from '#src/index.js';
-import type { Type } from '#src/index.js';
+import type { Query } from '#types/index.d.ts';
+import type { Schema } from '#types/index.d.ts';
+import type { Type } from '#types/index.d.ts';

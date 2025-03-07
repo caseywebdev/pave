@@ -1,14 +1,14 @@
-export { Context } from "#src/context.js";
-export { createClient } from "#src/create-client.js";
-export { execute } from "#src/execute.js";
-export { getQueryCost } from "#src/get-query-cost.js";
-export { injectType } from "#src/inject-type.js";
-export { levenshtein } from "#src/levenshtein.js";
-export { mergeRefs } from "#src/merge-refs.js";
-export { PaveError } from "#src/pave-error.js";
-export { validateQuery } from "#src/validate-query.js";
-export { validateSchema } from "#src/validate-schema.js";
-export { validateValue } from "#src/validate-value.js";
+export type { Context } from "#types/context.d.ts";
+export type { createClient } from "#types/create-client.d.ts";
+export type { execute } from "#types/execute.d.ts";
+export type { getQueryCost } from "#types/get-query-cost.d.ts";
+export type { injectType } from "#types/inject-type.d.ts";
+export type { levenshtein } from "#types/levenshtein.d.ts";
+export type { mergeRefs } from "#types/merge-refs.d.ts";
+export type { PaveError } from "#types/pave-error.d.ts";
+export type { validateQuery } from "#types/validate-query.d.ts";
+export type { validateSchema } from "#types/validate-schema.d.ts";
+export type { validateValue } from "#types/validate-value.d.ts";
 export type Query<T = any> = {
     _?: string;
     $?: any;

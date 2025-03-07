@@ -7,4 +7,4 @@ export function normalize({ data, getKey, query }: {
 }): {
     [K: string]: any;
 };
-import type { Query } from '#src/index.js';
+import type { Query } from '#types/index.d.ts';
