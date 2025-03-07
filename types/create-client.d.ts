@@ -47,4 +47,4 @@ export type Watcher = {
     onChange: (data: any) => void;
     query?: Query;
 };
-import type { Query } from '#types/index.d.ts';
+import type { Query } from '#types/index.js';

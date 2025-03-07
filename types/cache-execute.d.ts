@@ -5,4 +5,4 @@ export function cacheExecute({ cache, key, query }: {
     key?: string;
     query: Query;
 }): any;
-import type { Query } from '#types/index.d.ts';
+import type { Query } from '#types/index.js';
