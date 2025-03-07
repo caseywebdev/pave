@@ -11,22 +11,24 @@ export { validateSchema } from "#types/validate-schema.js";
 export { validateValue } from "#types/validate-value.js";
 export type Recursive<T> = T | RecursiveArray<T>;
 export type RecursiveArray<T> = Recursive<T>[];
-export type Schema<A extends {
+export type SchemaOptions = {
     context?: any;
     extensions?: {
         [K: string]: any;
     };
     typeName?: string;
-} = {}, _Context = A["context"] extends undefined ? unknown : A["context"], _Extensions = A["extensions"] extends undefined ? {} : A["extensions"], TypeName = A["typeName"] extends undefined ? never : A["typeName"]> = { [K in TypeName extends string ? TypeName : never]: Type<Schema<A>, any>; };
+};
+export type Schema<A extends SchemaOptions = {}, _Context = A["context"] extends undefined ? unknown : A["context"], _Extensions = A["extensions"] extends undefined ? {} : A["extensions"], TypeName = A["typeName"] extends undefined ? never : A["typeName"]> = { [K in TypeName extends string ? TypeName : never]: Type<Schema<A>, any>; };
 export type SchemaContext<S extends Schema<any>> = S extends Schema<infer _, infer Context> ? Context : never;
 export type SchemaExtensions<S extends Schema<any>> = S extends Schema<infer _, infer __, infer Extensions> ? Extensions : never;
 export type SchemaTypeName<S extends Schema<any>> = S extends Schema<infer _, infer __, infer ___, infer TypeName> ? TypeName : never;
-export type Type<S extends Schema<any> = Schema<{}, unknown, unknown, unknown>, A extends {
+export type TypeOptions = {
     input?: any;
     object?: any;
     resolvedValue?: {};
     value?: any;
-} = {}, Input = A["input"] extends undefined ? unknown : A["input"], Object = A["object"] extends undefined ? unknown : A["object"], ResolvedValue = A["resolvedValue"] extends undefined ? {} : A["resolvedValue"], Value = A["value"] extends undefined ? undefined : A["value"]> = Recursive<SchemaTypeName<S> | (({
+};
+export type Type<S extends Schema<any> = Schema<{}, unknown, unknown, unknown>, A extends TypeOptions = {}, Input = A["input"] extends undefined ? unknown : A["input"], Object = A["object"] extends undefined ? unknown : A["object"], ResolvedValue = A["resolvedValue"] extends undefined ? {} : A["resolvedValue"], Value = A["value"] extends undefined ? undefined : A["value"]> = Recursive<SchemaTypeName<S> | (({
     optional: Type<S, any>;
 } | {
     nullable: Type<S, any>;

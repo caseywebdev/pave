@@ -9,12 +9,15 @@
  */
 
 /**
- * @template {{
+ * @typedef {{
  *   context?: any;
  *   extensions?: { [K: string]: any };
  *   typeName?: string;
- * }} [A={}]
- *   Default is `{}`
+ * }} SchemaOptions
+ */
+
+/**
+ * @template {SchemaOptions} [A={}] Default is `{}`
  * @template [_Context=A['context'] extends undefined ? unknown: A['context']]
  *   Default is `A['context'] extends undefined ? unknown: A['context']`
  * @template [_Extensions=A['extensions'] extends undefined ? {} : A['extensions']]
@@ -43,10 +46,11 @@
  *     : never} SchemaTypeName
  */
 
+/** @typedef {{ input?: any; object?: any; resolvedValue?: {}; value?: any }} TypeOptions */
+
 /**
  * @template {Schema<any>} [S=Schema] Default is `Schema`
- * @template {{ input?: any; object?: any; resolvedValue?: {}; value?: any }} [A={}]
- *   Default is `{}`
+ * @template {TypeOptions} [A={}] Default is `{}`
  * @template [Input=A['input'] extends undefined ? unknown : A['input']]
  *   Default is `A['input'] extends undefined ? unknown : A['input']`
  * @template [Object=A['object'] extends undefined ? unknown : A['object']]
