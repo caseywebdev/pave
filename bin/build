@@ -17,7 +17,11 @@ node_modules/.bin/tsc \
   src/index.js
 
 # Fix the generated types
-sed -i '' 's/#src\(.*\).js/#types\1.d.ts/' types/*.d.ts
-sed -i '' 's/^export {/export type {/' types/*.d.ts
+sedi=(-i)
+[ "$(uname)" == 'Darwin' ] && sedi=(-i '')
+sed "${sedi[@]}" \
+  -e 's/#src\(.*\).js/#types\1.d.ts/' \
+  -e 's/^export {/export type {/' \
+  types/*.d.ts
 
 node_modules/.bin/tsc || true
