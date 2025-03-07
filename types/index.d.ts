@@ -18,64 +18,65 @@ export type Query<T = any> = {
 };
 export type Recursive<T> = T | RecursiveArray<T>;
 export type RecursiveArray<T> = Recursive<T>[];
-export type Type<TypeName extends string = never, Extensions extends {
+export type Schema<TypeName extends string, Extensions extends {
     [K: string]: any;
-} = {}, Context = unknown, Input = unknown, Object = unknown, Value = unknown, ResolvedValue = {}> = Recursive<TypeName | (({
-    optional: Type<TypeName, Extensions, Context>;
+}, Context> = { [K in TypeName]: Type<Schema<TypeName, Extensions, Context>, any, any, any, any>; };
+export type SchemaTypeName<S extends Schema<any, any, any>> = S extends Schema<infer TypeName, any, any> ? TypeName : never;
+export type SchemaExtensions<S extends Schema<any, any, any>> = S extends Schema<any, infer Extensions, any> ? Extensions : never;
+export type SchemaContext<S extends Schema<any, any, any>> = S extends Schema<any, any, infer Context> ? Context : never;
+export type Type<S extends Schema<any, any, any> = Schema<never, {}, unknown>, Input = unknown, Object = unknown, Value = unknown, ResolvedValue = {}> = Recursive<SchemaTypeName<S> | (({
+    optional: Type<S>;
 } | {
-    nullable: Type<TypeName, Extensions, Context>;
+    nullable: Type<S>;
 } | {
-    arrayOf: Type<TypeName, Extensions, Context>;
+    arrayOf: Type<S>;
     minLength?: number;
     maxLength?: number;
 } | {
     oneOf: {
-        [K: string]: Type<TypeName, Extensions, Context>;
+        [K: string]: Type<S>;
     };
     resolveType: (value: NonNullable<unknown>) => string;
 } | {
     object: {
-        [K: string]: Type<TypeName, Extensions, Context>;
+        [K: string]: Type<S>;
     };
-    defaultType?: Type<TypeName, Extensions, Context>;
+    defaultType?: Type<S>;
 } | {
-    input?: Type<TypeName, Extensions, Context>;
-    type?: Type<TypeName, Extensions, Context>;
+    input?: Type<S>;
+    type?: Type<S>;
     typeInput?: any;
     resolve?: ((options: {
-        context: Context;
+        context: SchemaContext<S>;
         input: Input;
         object: Object;
         path: string[];
         query: Query;
-        schema: Schema<TypeName, Extensions, Context>;
-        type: Type<TypeName, Extensions, Context>;
+        schema: S;
+        type: Type<S>;
         value: Value;
     }) => any) | {} | null;
 }) & {
     cost?: number | ((options: {
-        context: Context;
+        context: SchemaContext<S>;
         cost: number;
         input: Input;
         object: Object;
         path: string[];
         query: Query;
-        schema: Schema<TypeName, Extensions, Context>;
-        type: Type<TypeName, Extensions, Context>;
+        schema: S;
+        type: Type<S>;
         value: Value;
     }) => number);
     defaultValue?: any;
     validate?: (options: {
-        context: Context;
+        context: SchemaContext<S>;
         input: Input;
         object: Object;
         path: string[];
         query: Query;
-        schema: Schema<TypeName, Extensions, Context>;
-        type: Type<TypeName, Extensions, Context>;
+        schema: S;
+        type: Type<S>;
         value: ResolvedValue;
     }) => any;
-} & Extensions)>;
-export type Schema<TypeName extends string, Extensions extends {
-    [K: string]: any;
-}, Context> = { [K in TypeName]: Type<TypeName, Extensions, Context, any, any, any, any>; };
+} & SchemaExtensions<S>)>;

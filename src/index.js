@@ -15,45 +15,67 @@
  */
 
 /**
- * @template {string} [TypeName=never] Default is `never`
- * @template {{ [K: string]: any }} [Extensions={}] Default is `{}`
- * @template [Context=unknown] Default is `unknown`
+ * @template {string} TypeName
+ * @template {{ [K: string]: any }} Extensions
+ * @template Context
+ * @typedef {{
+ *   [K in TypeName]: Type<
+ *     Schema<TypeName, Extensions, Context>,
+ *     any,
+ *     any,
+ *     any,
+ *     any
+ *   >;
+ * }} Schema
+ */
+
+/**
+ * @template {Schema<any, any, any>} S
+ * @typedef {S extends Schema<infer TypeName, any, any> ? TypeName : never} SchemaTypeName
+ */
+
+/**
+ * @template {Schema<any, any, any>} S
+ * @typedef {S extends Schema<any, infer Extensions, any> ? Extensions : never} SchemaExtensions
+ */
+
+/**
+ * @template {Schema<any, any, any>} S
+ * @typedef {S extends Schema<any, any, infer Context> ? Context : never} SchemaContext
+ */
+
+/**
+ * @template {Schema<any, any, any>} [S=Schema<never, {}, unknown>] Default is
+ *   `Schema<never, {}, unknown>`
  * @template [Input=unknown] Default is `unknown`
  * @template [Object=unknown] Default is `unknown`
  * @template [Value=unknown] Default is. Default is `unknown`
  * @template [ResolvedValue=NonNullable<unknown>] Default is
  *   `NonNullable<unknown>`
  * @typedef {Recursive<
- *   | TypeName
+ *   | SchemaTypeName<S>
  *   | ((
- *       | { optional: Type<TypeName, Extensions, Context> }
- *       | { nullable: Type<TypeName, Extensions, Context> }
+ *       | { optional: Type<S> }
+ *       | { nullable: Type<S> }
+ *       | { arrayOf: Type<S>; minLength?: number; maxLength?: number }
  *       | {
- *           arrayOf: Type<TypeName, Extensions, Context>;
- *           minLength?: number;
- *           maxLength?: number;
- *         }
- *       | {
- *           oneOf: { [K: string]: Type<TypeName, Extensions, Context> };
+ *           oneOf: { [K: string]: Type<S> };
  *           resolveType: (value: NonNullable<unknown>) => string;
  *         }
+ *       | { object: { [K: string]: Type<S> }; defaultType?: Type<S> }
  *       | {
- *           object: { [K: string]: Type<TypeName, Extensions, Context> };
- *           defaultType?: Type<TypeName, Extensions, Context>;
- *         }
- *       | {
- *           input?: Type<TypeName, Extensions, Context>;
- *           type?: Type<TypeName, Extensions, Context>;
+ *           input?: Type<S>;
+ *           type?: Type<S>;
  *           typeInput?: any;
  *           resolve?:
  *             | ((options: {
- *                 context: Context;
+ *                 context: SchemaContext<S>;
  *                 input: Input;
  *                 object: Object;
  *                 path: string[];
  *                 query: Query;
- *                 schema: Schema<TypeName, Extensions, Context>;
- *                 type: Type<TypeName, Extensions, Context>;
+ *                 schema: S;
+ *                 type: Type<S>;
  *                 value: Value;
  *               }) => any)
  *             | {}
@@ -63,38 +85,29 @@
  *       cost?:
  *         | number
  *         | ((options: {
- *             context: Context;
+ *             context: SchemaContext<S>;
  *             cost: number;
  *             input: Input;
  *             object: Object;
  *             path: string[];
  *             query: Query;
- *             schema: Schema<TypeName, Extensions, Context>;
- *             type: Type<TypeName, Extensions, Context>;
+ *             schema: S;
+ *             type: Type<S>;
  *             value: Value;
  *           }) => number);
  *       defaultValue?: any;
  *       validate?: (options: {
- *         context: Context;
+ *         context: SchemaContext<S>;
  *         input: Input;
  *         object: Object;
  *         path: string[];
  *         query: Query;
- *         schema: Schema<TypeName, Extensions, Context>;
- *         type: Type<TypeName, Extensions, Context>;
+ *         schema: S;
+ *         type: Type<S>;
  *         value: ResolvedValue;
  *       }) => any;
- *     } & Extensions)
+ *     } & SchemaExtensions<S>)
  * >} Type
- */
-
-/**
- * @template {string} TypeName
- * @template {{ [K: string]: any }} Extensions
- * @template Context
- * @typedef {{
- *   [K in TypeName]: Type<TypeName, Extensions, Context, any, any, any, any>;
- * }} Schema
  */
 
 export { Context } from '#src/context.js';

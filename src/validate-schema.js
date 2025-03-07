@@ -8,14 +8,8 @@ const { Set } = globalThis;
 const { isArray } = Array;
 
 /**
- * @template {string} [TypeName=string] Default is `string`
- * @template {{ [K: string]: any }} [Extensions={ [K: string]: any }] Default is
- *   `{ [K: string]: any }`
- * @template [Context=any] Default is `any`
- * @param {{
- *   extensions?: { [K: string]: any };
- *   schema: Schema<TypeName, Extensions, Context>;
- * }} options
+ * @template {Schema<any, any, any>} S
+ * @param {{ extensions?: { [K: string]: any }; schema: S }} options
  */
 export const validateSchema = ({ extensions, schema }) => {
   const positiveNumber = {

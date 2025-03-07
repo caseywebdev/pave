@@ -1,11 +1,7 @@
-export function validateSchema<TypeName extends string = string, Extensions extends {
-    [K: string]: any;
-} = {
-    [K: string]: any;
-}, Context = any>({ extensions, schema }: {
+export function validateSchema<S extends Schema<any, any, any>>({ extensions, schema }: {
     extensions?: {
         [K: string]: any;
     };
-    schema: Schema<TypeName, Extensions, Context>;
+    schema: S;
 }): any;
 import type { Schema } from '#types/index.js';

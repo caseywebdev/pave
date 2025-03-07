@@ -1,20 +1,17 @@
-/** @import {Query, Schema, Type} from '#src/index.js'; */
+/** @import {Query, Schema, SchemaContext, Type} from '#src/index.js'; */
 
 import { isObject } from '#src/is-object.js';
 
 const { isArray } = Array;
 
 /**
- * @template {string} [TypeName=string] Default is `string`
- * @template {{ [K: string]: any }} [Extensions={ [K: string]: any }] Default is
- *   `{ [K: string]: any }`
- * @template [Context=any] Default is `any`
+ * @template {Schema<any, any, any>} S
  * @param {{
- *   context?: Context;
+ *   context?: SchemaContext<S>;
  *   path?: string[];
  *   query: Query;
- *   schema: Schema<TypeName, Extensions, Context>;
- *   type: Type<TypeName, Extensions, Context>;
+ *   schema: S;
+ *   type: Type<S>;
  * }} options
  */
 export const getQueryCost = ({ context, path = [], query, schema, type }) => {
@@ -22,7 +19,7 @@ export const getQueryCost = ({ context, path = [], query, schema, type }) => {
   while (true) {
     if (!type) return cost;
 
-    if (isArray(type)) type = { object: type };
+    if (isArray(type)) type = /** @type {Type<S>} */ ({ object: type });
 
     let nextType;
     if (!isObject(type)) nextType = schema[type];

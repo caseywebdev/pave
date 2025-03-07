@@ -1,16 +1,12 @@
-export function execute<TypeName extends string = string, Extensions extends {
-    [K: string]: any;
-} = {
-    [K: string]: any;
-}, Context = any>({ context, object, path, query, schema, type, value }: {
+export function execute<S extends Schema<any, any, any>>({ context, object, path, query, schema, type, value }: {
     context?: any;
     object?: any;
     path?: string[];
     query: Query;
-    schema: Schema<TypeName, Extensions, Context>;
-    type: Type<TypeName, Extensions, Context>;
+    schema: S;
+    type: Type<S>;
     value?: any;
 }): Promise<any>;
-import type { Query } from '#types/index.js';
 import type { Schema } from '#types/index.js';
+import type { Query } from '#types/index.js';
 import type { Type } from '#types/index.js';
