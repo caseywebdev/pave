@@ -18,7 +18,7 @@ export type SchemaOptions = {
     };
     typeName?: string;
 };
-export type Schema<A extends SchemaOptions = {}, _Context = A["context"] extends undefined ? unknown : A["context"], _Extensions = A["extensions"] extends undefined ? {} : A["extensions"], TypeName = A["typeName"] extends undefined ? never : A["typeName"]> = { [K in TypeName extends string ? TypeName : never]: Type<Schema<A>, any>; };
+export type Schema<O extends SchemaOptions = {}, _Context = O["context"] extends undefined ? unknown : O["context"], _Extensions = O["extensions"] extends undefined ? {} : O["extensions"], TypeName = O["typeName"] extends string ? O["typeName"] : never> = { [K in TypeName extends string ? TypeName : never]: Type<Schema<O>, any>; };
 export type SchemaContext<S extends Schema<any>> = S extends Schema<infer _, infer Context> ? Context : never;
 export type SchemaExtensions<S extends Schema<any>> = S extends Schema<infer _, infer __, infer Extensions> ? Extensions : never;
 export type SchemaTypeName<S extends Schema<any>> = S extends Schema<infer _, infer __, infer ___, infer TypeName> ? TypeName : never;
@@ -28,7 +28,7 @@ export type TypeOptions = {
     resolvedValue?: {};
     value?: any;
 };
-export type Type<S extends Schema<any> = Schema<{}, unknown, unknown, unknown>, A extends TypeOptions = {}, Input = A["input"] extends undefined ? unknown : A["input"], Object = A["object"] extends undefined ? unknown : A["object"], ResolvedValue = A["resolvedValue"] extends undefined ? {} : A["resolvedValue"], Value = A["value"] extends undefined ? undefined : A["value"]> = Recursive<SchemaTypeName<S> | (({
+export type Type<S extends Schema<any> = Schema<{}, unknown, unknown, never>, O extends TypeOptions = {}, Input = O["input"] extends undefined ? unknown : O["input"], Object = O["object"] extends undefined ? unknown : O["object"], ResolvedValue = O["resolvedValue"] extends undefined ? {} : O["resolvedValue"], Value = O["value"] extends undefined ? undefined : O["value"]> = Recursive<SchemaTypeName<S> | (({
     optional: Type<S, any>;
 } | {
     nullable: Type<S, any>;
