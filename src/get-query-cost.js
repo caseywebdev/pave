@@ -1,4 +1,4 @@
-/** @import {Query, Schema, SchemaContext, Type} from '#src/index.js'; */
+/** @import {Schema, Query, SchemaContext, Type} from '#src/index.js'; */
 
 import { isObject } from '#src/is-object.js';
 
@@ -11,7 +11,7 @@ const { isArray } = Array;
  *   path?: string[];
  *   query: Query;
  *   schema: S;
- *   type: Type<S>;
+ *   type: Type<S, any, any, any, any>;
  * }} options
  */
 export const getQueryCost = ({ context, path = [], query, schema, type }) => {
@@ -19,7 +19,7 @@ export const getQueryCost = ({ context, path = [], query, schema, type }) => {
   while (true) {
     if (!type) return cost;
 
-    if (isArray(type)) type = /** @type {Type<S>} */ ({ object: type });
+    if (isArray(type)) type = { object: type };
 
     let nextType;
     if (!isObject(type)) nextType = schema[type];

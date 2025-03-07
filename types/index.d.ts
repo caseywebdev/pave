@@ -18,33 +18,33 @@ export type Query<T = any> = {
 };
 export type Recursive<T> = T | RecursiveArray<T>;
 export type RecursiveArray<T> = Recursive<T>[];
-export type Schema<TypeName extends string = never, Context = unknown, Extensions extends {
+export type Schema<TypeName extends string = "", Context = unknown, Extensions extends {
     [K: string]: any;
 } = {}> = { [K in TypeName]: Type<Schema<TypeName, Context, Extensions>, any, any, any, any>; };
 export type SchemaTypeName<S extends Schema<any, any, any>> = S extends Schema<infer TypeName, infer _, infer __> ? TypeName : never;
 export type SchemaContext<S extends Schema<any, any, any>> = S extends Schema<infer _, infer Context, infer __> ? Context : never;
 export type SchemaExtensions<S extends Schema<any, any, any>> = S extends Schema<infer _, infer __, infer Extensions> ? Extensions : never;
-export type Type<S extends Schema<any, any, any> = Schema<never, unknown, {}>, Input = unknown, Object = unknown, Value = unknown, ResolvedValue = {}> = Recursive<SchemaTypeName<S> | (({
-    optional: Type<S>;
+export type Type<S extends Schema<any, any, any> = Schema<"", unknown, {}>, Input = unknown, Object = unknown, Value = unknown, ResolvedValue = {}> = Recursive<SchemaTypeName<S> | (({
+    optional: Type<S, any, any, any, any>;
 } | {
-    nullable: Type<S>;
+    nullable: Type<S, any, any, any, any>;
 } | {
-    arrayOf: Type<S>;
+    arrayOf: Type<S, any, any, any, any>;
     minLength?: number;
     maxLength?: number;
 } | {
     oneOf: {
-        [K: string]: Type<S>;
+        [K: string]: Type<S, any, any, any, any>;
     };
     resolveType: (value: {}) => string;
 } | {
     object: {
-        [K: string]: Type<S>;
+        [K: string]: Type<S, any, any, any, any>;
     };
-    defaultType?: Type<S>;
+    defaultType?: Type<S, any, any, any, any>;
 } | {
-    input?: Type<S>;
-    type?: Type<S>;
+    input?: Type<S, any, any, any, any>;
+    type?: Type<S, any, any, any, any>;
     typeInput?: any;
     resolve?: ((options: {
         context: SchemaContext<S>;
@@ -53,7 +53,7 @@ export type Type<S extends Schema<any, any, any> = Schema<never, unknown, {}>, I
         path: string[];
         query: Query;
         schema: S;
-        type: Type<S>;
+        type: Type<S, any, any, any, any>;
         value: Value;
     }) => any) | {} | null;
 }) & {
@@ -65,7 +65,7 @@ export type Type<S extends Schema<any, any, any> = Schema<never, unknown, {}>, I
         path: string[];
         query: Query;
         schema: S;
-        type: Type<S>;
+        type: Type<S, any, any, any, any>;
         value: Value;
     }) => number);
     defaultValue?: any;
@@ -76,7 +76,7 @@ export type Type<S extends Schema<any, any, any> = Schema<never, unknown, {}>, I
         path: string[];
         query: Query;
         schema: S;
-        type: Type<S>;
+        type: Type<S, any, any, any, any>;
         value: ResolvedValue;
     }) => any;
 } & SchemaExtensions<S>)>;

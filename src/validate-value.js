@@ -1,4 +1,4 @@
-/** @import {Query, Schema, Type} from '#src/index.js'; */
+/** @import {Schema, Query, Type} from '#src/index.js'; */
 
 import { Context } from '#src/context.js';
 import { isObject } from '#src/is-object.js';
@@ -14,7 +14,7 @@ const { isArray } = Array;
  *   path?: string[];
  *   query?: Query;
  *   schema: S;
- *   type: Type<S>;
+ *   type: Type<S, any, any, any, any>;
  *   value?: any;
  * }} options
  */

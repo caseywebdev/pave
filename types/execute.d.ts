@@ -4,7 +4,7 @@ export function execute<S extends Schema<any, any, any>>({ context, object, path
     path?: string[];
     query: Query;
     schema: S;
-    type: Type<S>;
+    type: Type<S, any, any, any, any>;
     value?: any;
 }): Promise<any>;
 import type { Schema } from '#types/index.js';

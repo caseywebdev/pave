@@ -1,5 +1,3 @@
-/** @import {Type} from '#src/index.js' */
-
 import { strict as assert } from 'node:assert';
 
 import { Context } from '#src/context.js';

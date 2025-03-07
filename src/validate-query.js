@@ -1,4 +1,4 @@
-/** @import {Query, Schema, Type} from '#src/index.js'; */
+/** @import {Schema, Query, Type} from '#src/index.js'; */
 
 import { isObject } from '#src/is-object.js';
 import { throwPaveError } from '#src/throw-pave-error.js';
@@ -15,7 +15,7 @@ const skipInput = {};
  *   path?: string[];
  *   query: Query;
  *   schema: S;
- *   type: Type<S>;
+ *   type: Type<S, any, any, any, any>;
  * }} options
  * @returns {Query}
  */

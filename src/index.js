@@ -15,7 +15,7 @@
  */
 
 /**
- * @template {string} [TypeName=never] Default is `never`
+ * @template {string} [TypeName=''] Default is `''`
  * @template [Context=unknown] Default is `unknown`
  * @template {{ [K: string]: any }} [Extensions={}] Default is `{}`
  * @typedef {{
@@ -53,17 +53,24 @@
  * @typedef {Recursive<
  *   | SchemaTypeName<S>
  *   | ((
- *       | { optional: Type<S> }
- *       | { nullable: Type<S> }
- *       | { arrayOf: Type<S>; minLength?: number; maxLength?: number }
+ *       | { optional: Type<S, any, any, any, any> }
+ *       | { nullable: Type<S, any, any, any, any> }
  *       | {
- *           oneOf: { [K: string]: Type<S> };
+ *           arrayOf: Type<S, any, any, any, any>;
+ *           minLength?: number;
+ *           maxLength?: number;
+ *         }
+ *       | {
+ *           oneOf: { [K: string]: Type<S, any, any, any, any> };
  *           resolveType: (value: {}) => string;
  *         }
- *       | { object: { [K: string]: Type<S> }; defaultType?: Type<S> }
  *       | {
- *           input?: Type<S>;
- *           type?: Type<S>;
+ *           object: { [K: string]: Type<S, any, any, any, any> };
+ *           defaultType?: Type<S, any, any, any, any>;
+ *         }
+ *       | {
+ *           input?: Type<S, any, any, any, any>;
+ *           type?: Type<S, any, any, any, any>;
  *           typeInput?: any;
  *           resolve?:
  *             | ((options: {
@@ -73,7 +80,7 @@
  *                 path: string[];
  *                 query: Query;
  *                 schema: S;
- *                 type: Type<S>;
+ *                 type: Type<S, any, any, any, any>;
  *                 value: Value;
  *               }) => any)
  *             | {}
@@ -90,7 +97,7 @@
  *             path: string[];
  *             query: Query;
  *             schema: S;
- *             type: Type<S>;
+ *             type: Type<S, any, any, any, any>;
  *             value: Value;
  *           }) => number);
  *       defaultValue?: any;
@@ -101,7 +108,7 @@
  *         path: string[];
  *         query: Query;
  *         schema: S;
- *         type: Type<S>;
+ *         type: Type<S, any, any, any, any>;
  *         value: ResolvedValue;
  *       }) => any;
  *     } & SchemaExtensions<S>)

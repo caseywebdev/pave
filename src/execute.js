@@ -17,7 +17,7 @@ const { isArray } = Array;
  *   path?: string[];
  *   query: Query;
  *   schema: S;
- *   type: Type<S>;
+ *   type: Type<S, any, any, any, any>;
  *   value?: any;
  * }} options
  */
