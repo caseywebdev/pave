@@ -15,12 +15,12 @@
  */
 
 /**
- * @template {string} TypeName
- * @template {{ [K: string]: any }} Extensions
- * @template Context
+ * @template {string} [TypeName=never] Default is `never`
+ * @template [Context=unknown] Default is `unknown`
+ * @template {{ [K: string]: any }} [Extensions={}] Default is `{}`
  * @typedef {{
  *   [K in TypeName]: Type<
- *     Schema<TypeName, Extensions, Context>,
+ *     Schema<TypeName, Context, Extensions>,
  *     any,
  *     any,
  *     any,
@@ -31,27 +31,25 @@
 
 /**
  * @template {Schema<any, any, any>} S
- * @typedef {S extends Schema<infer TypeName, any, any> ? TypeName : never} SchemaTypeName
+ * @typedef {S extends Schema<infer TypeName, infer _, infer __> ? TypeName : never} SchemaTypeName
  */
 
 /**
  * @template {Schema<any, any, any>} S
- * @typedef {S extends Schema<any, infer Extensions, any> ? Extensions : never} SchemaExtensions
+ * @typedef {S extends Schema<infer _, infer Context, infer __> ? Context : never} SchemaContext
  */
 
 /**
  * @template {Schema<any, any, any>} S
- * @typedef {S extends Schema<any, any, infer Context> ? Context : never} SchemaContext
+ * @typedef {S extends Schema<infer _, infer __, infer Extensions> ? Extensions : never} SchemaExtensions
  */
 
 /**
- * @template {Schema<any, any, any>} [S=Schema<never, {}, unknown>] Default is
- *   `Schema<never, {}, unknown>`
+ * @template {Schema<any, any, any>} [S=Schema] Default is `Schema`
  * @template [Input=unknown] Default is `unknown`
  * @template [Object=unknown] Default is `unknown`
  * @template [Value=unknown] Default is. Default is `unknown`
- * @template [ResolvedValue=NonNullable<unknown>] Default is
- *   `NonNullable<unknown>`
+ * @template [ResolvedValue={}] Default is `{}`
  * @typedef {Recursive<
  *   | SchemaTypeName<S>
  *   | ((
@@ -60,7 +58,7 @@
  *       | { arrayOf: Type<S>; minLength?: number; maxLength?: number }
  *       | {
  *           oneOf: { [K: string]: Type<S> };
- *           resolveType: (value: NonNullable<unknown>) => string;
+ *           resolveType: (value: {}) => string;
  *         }
  *       | { object: { [K: string]: Type<S> }; defaultType?: Type<S> }
  *       | {

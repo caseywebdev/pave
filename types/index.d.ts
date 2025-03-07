@@ -18,13 +18,13 @@ export type Query<T = any> = {
 };
 export type Recursive<T> = T | RecursiveArray<T>;
 export type RecursiveArray<T> = Recursive<T>[];
-export type Schema<TypeName extends string, Extensions extends {
+export type Schema<TypeName extends string = never, Context = unknown, Extensions extends {
     [K: string]: any;
-}, Context> = { [K in TypeName]: Type<Schema<TypeName, Extensions, Context>, any, any, any, any>; };
-export type SchemaTypeName<S extends Schema<any, any, any>> = S extends Schema<infer TypeName, any, any> ? TypeName : never;
-export type SchemaExtensions<S extends Schema<any, any, any>> = S extends Schema<any, infer Extensions, any> ? Extensions : never;
-export type SchemaContext<S extends Schema<any, any, any>> = S extends Schema<any, any, infer Context> ? Context : never;
-export type Type<S extends Schema<any, any, any> = Schema<never, {}, unknown>, Input = unknown, Object = unknown, Value = unknown, ResolvedValue = {}> = Recursive<SchemaTypeName<S> | (({
+} = {}> = { [K in TypeName]: Type<Schema<TypeName, Context, Extensions>, any, any, any, any>; };
+export type SchemaTypeName<S extends Schema<any, any, any>> = S extends Schema<infer TypeName, infer _, infer __> ? TypeName : never;
+export type SchemaContext<S extends Schema<any, any, any>> = S extends Schema<infer _, infer Context, infer __> ? Context : never;
+export type SchemaExtensions<S extends Schema<any, any, any>> = S extends Schema<infer _, infer __, infer Extensions> ? Extensions : never;
+export type Type<S extends Schema<any, any, any> = Schema<never, unknown, {}>, Input = unknown, Object = unknown, Value = unknown, ResolvedValue = {}> = Recursive<SchemaTypeName<S> | (({
     optional: Type<S>;
 } | {
     nullable: Type<S>;
@@ -36,7 +36,7 @@ export type Type<S extends Schema<any, any, any> = Schema<never, {}, unknown>, I
     oneOf: {
         [K: string]: Type<S>;
     };
-    resolveType: (value: NonNullable<unknown>) => string;
+    resolveType: (value: {}) => string;
 } | {
     object: {
         [K: string]: Type<S>;
