@@ -1,10 +1,4 @@
 /**
- * @template [T=any] Default is `any`
- * @typedef {{ _?: string; $?: any; _type?: { [K in keyof any]: never } }
- *   | { [K: string]: Query<T> }} Query
- */
-
-/**
  * @template T
  * @typedef {T | RecursiveArray<T>} Recursive
  */
@@ -47,15 +41,6 @@
  * @typedef {S extends Schema<infer _, infer __, infer ___, infer TypeName>
  *     ? TypeName
  *     : never} SchemaTypeName
- */
-
-/**
- * @typedef {{
- *   input: unknown;
- *   object: unknown;
- *   resolvedValue: {};
- *   value: unknown;
- * }} DefaultTypeArg
  */
 
 /**
@@ -126,6 +111,12 @@
  *       }) => any;
  *     } & SchemaExtensions<S>)
  * >} Type
+ */
+
+/**
+ * @template [T=any] Default is `any`
+ * @typedef {{ _?: string; $?: any; _type?: { [K in keyof any]: never } }
+ *   | { [K: string]: Query<T> }} Query
  */
 
 export { Context } from '#src/context.js';

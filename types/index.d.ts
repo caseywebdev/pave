@@ -9,13 +9,6 @@ export { PaveError } from "#types/pave-error.js";
 export { validateQuery } from "#types/validate-query.js";
 export { validateSchema } from "#types/validate-schema.js";
 export { validateValue } from "#types/validate-value.js";
-export type Query<T = any> = {
-    _?: string;
-    $?: any;
-    _type?: { [K in keyof any]: never; };
-} | {
-    [K: string]: Query<T>;
-};
 export type Recursive<T> = T | RecursiveArray<T>;
 export type RecursiveArray<T> = Recursive<T>[];
 export type Schema<A extends {
@@ -28,12 +21,6 @@ export type Schema<A extends {
 export type SchemaContext<S extends Schema<any>> = S extends Schema<infer _, infer Context> ? Context : never;
 export type SchemaExtensions<S extends Schema<any>> = S extends Schema<infer _, infer __, infer Extensions> ? Extensions : never;
 export type SchemaTypeName<S extends Schema<any>> = S extends Schema<infer _, infer __, infer ___, infer TypeName> ? TypeName : never;
-export type DefaultTypeArg = {
-    input: unknown;
-    object: unknown;
-    resolvedValue: {};
-    value: unknown;
-};
 export type Type<S extends Schema<any> = Schema<{}, unknown, unknown, unknown>, A extends {
     input?: any;
     object?: any;
@@ -95,3 +82,10 @@ export type Type<S extends Schema<any> = Schema<{}, unknown, unknown, unknown>, 
         value: ResolvedValue;
     }) => any;
 } & SchemaExtensions<S>)>;
+export type Query<T = any> = {
+    _?: string;
+    $?: any;
+    _type?: { [K in keyof any]: never; };
+} | {
+    [K: string]: Query<T>;
+};
