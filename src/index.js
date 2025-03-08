@@ -22,11 +22,9 @@
  *   Default is `O['context'] extends undefined ? unknown: O['context']`
  * @template [_Extensions=O['extensions'] extends undefined ? {} : O['extensions']]
  *   Default is `O['extensions'] extends undefined ? {} : O['extensions']`
- * @template [TypeName=O['typeName'] extends string ? O['typeName'] : never]
+ * @template {string} [TypeName=O['typeName'] extends string ? O['typeName'] : never]
  *   Default is `O['typeName'] extends string ? O['typeName'] : never`
- * @typedef {{
- *   [K in TypeName extends string ? TypeName : never]: Type<Schema<O>, any>;
- * }} Schema
+ * @typedef {{ [K in TypeName]: Type<Schema<O>, any> }} Schema
  */
 
 /**

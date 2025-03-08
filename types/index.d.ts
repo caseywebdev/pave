@@ -18,7 +18,7 @@ export type SchemaOptions = {
     };
     typeName?: string;
 };
-export type Schema<O extends SchemaOptions = {}, _Context = O["context"] extends undefined ? unknown : O["context"], _Extensions = O["extensions"] extends undefined ? {} : O["extensions"], TypeName = O["typeName"] extends string ? O["typeName"] : never> = { [K in TypeName extends string ? TypeName : never]: Type<Schema<O>, any>; };
+export type Schema<O extends SchemaOptions = {}, _Context = O["context"] extends undefined ? unknown : O["context"], _Extensions = O["extensions"] extends undefined ? {} : O["extensions"], TypeName extends string = O["typeName"] extends string ? O["typeName"] : never> = { [K in TypeName]: Type<Schema<O>, any>; };
 export type SchemaContext<S extends Schema<any>> = S extends Schema<infer _, infer Context> ? Context : never;
 export type SchemaExtensions<S extends Schema<any>> = S extends Schema<infer _, infer __, infer Extensions> ? Extensions : never;
 export type SchemaTypeName<S extends Schema<any>> = S extends Schema<infer _, infer __, infer ___, infer TypeName> ? TypeName : never;
