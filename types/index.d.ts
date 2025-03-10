@@ -22,7 +22,7 @@ export type TypeOptions = {
     value?: any;
 };
 export type SubType<O extends TypeOptions> = Type<Pick<O, "context" | "extensions" | "typeName">>;
-export type Type<O extends TypeOptions = {}> = Recursive<Get<O["typeName"], never> | (({
+export type Type<O extends TypeOptions = {}> = Recursive<(O["typeName"] extends string ? O["typeName"] : never) | (({
     optional: SubType<O>;
 } | {
     nullable: SubType<O>;

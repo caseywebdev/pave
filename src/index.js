@@ -34,7 +34,7 @@
 /**
  * @template {TypeOptions} [O={}] Default is `{}`
  * @typedef {Recursive<
- *   | Get<O['typeName'], never>
+ *   | (O['typeName'] extends string ? O['typeName'] : never)
  *   | ((
  *       | { optional: SubType<O> }
  *       | { nullable: SubType<O> }
