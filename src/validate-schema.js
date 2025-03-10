@@ -7,10 +7,7 @@ const { Set } = globalThis;
 
 const { isArray } = Array;
 
-/**
- * @template {Schema<any>} S
- * @param {{ extensions?: { [K: string]: any }; schema: S }} options
- */
+/** @param {{ extensions?: { [K: string]: any }; schema: S }} options */
 export const validateSchema = ({ extensions, schema }) => {
   const positiveNumber = {
     resolve: ({ value }) => {

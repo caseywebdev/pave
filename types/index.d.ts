@@ -11,79 +11,85 @@ export { validateSchema } from "#types/validate-schema.js";
 export { validateValue } from "#types/validate-value.js";
 export type Recursive<T> = T | RecursiveArray<T>;
 export type RecursiveArray<T> = Recursive<T>[];
-export type SchemaOptions = {
+export type TypeOptions = {
     context?: any;
     extensions?: {
         [K: string]: any;
     };
-    typeName?: string;
-};
-export type Schema<O extends SchemaOptions = {}, _Context = O["context"] extends undefined ? unknown : O["context"], _Extensions = O["extensions"] extends undefined ? {} : O["extensions"], TypeName extends string = O["typeName"] extends string ? O["typeName"] : never> = { [K in TypeName]: Type<Schema<O>, any>; };
-export type SchemaContext<S extends Schema<any>> = S extends Schema<infer _, infer Context> ? Context : never;
-export type SchemaExtensions<S extends Schema<any>> = S extends Schema<infer _, infer __, infer Extensions> ? Extensions : never;
-export type SchemaTypeName<S extends Schema<any>> = S extends Schema<infer _, infer __, infer ___, infer TypeName> ? TypeName : never;
-export type TypeOptions = {
     input?: any;
     object?: any;
     resolvedValue?: {};
+    typeName?: string | unknown;
     value?: any;
 };
-export type Type<S extends Schema<any> = Schema<{}, unknown, unknown, never>, O extends TypeOptions = {}, Input = O["input"] extends undefined ? unknown : O["input"], Object = O["object"] extends undefined ? unknown : O["object"], ResolvedValue = O["resolvedValue"] extends undefined ? {} : O["resolvedValue"], Value = O["value"] extends undefined ? undefined : O["value"]> = Recursive<SchemaTypeName<S> | (({
-    optional: Type<S, any>;
+export type DefaultTypeOptions = {
+    context: unknown;
+    extensions: {};
+    input: unknown;
+    object: unknown;
+    resolvedValue: {};
+    typeName: unknown;
+    value: unknown;
+};
+export type GetTypeOption<Obj extends TypeOptions, Key extends keyof TypeOptions> = undefined extends Obj[Key] ? DefaultTypeOptions[Key] : Obj[Key];
+export type SharedTypeOptions<O extends TypeOptions> = Pick<O, "context" | "extensions" | "typeName">;
+export type Type<O extends TypeOptions = DefaultTypeOptions> = Recursive<GetTypeOption<O, "typeName"> | (({
+    optional: Type<SharedTypeOptions<O>>;
 } | {
-    nullable: Type<S, any>;
+    nullable: Type<SharedTypeOptions<O>>;
 } | {
-    arrayOf: Type<S, any>;
+    arrayOf: Type<SharedTypeOptions<O>>;
     minLength?: number;
     maxLength?: number;
 } | {
     oneOf: {
-        [K: string]: Type<S, any>;
+        [K: string]: Type<SharedTypeOptions<O>>;
     };
     resolveType: (value: {}) => string;
 } | {
     object: {
-        [K: string]: Type<S, any>;
+        [K: string]: Type<SharedTypeOptions<O>>;
     };
-    defaultType?: Type<S, any>;
+    defaultType?: Type<SharedTypeOptions<O>>;
 } | {
-    input?: Type<S, any>;
-    type?: Type<S, any>;
+    input?: Type<SharedTypeOptions<O>>;
+    type?: Type<SharedTypeOptions<O>>;
     typeInput?: any;
     resolve?: ((options: {
-        context: SchemaContext<S>;
-        input: Input;
-        object: Object;
+        context: GetTypeOption<O, "context">;
+        input: GetTypeOption<O, "input">;
+        object: GetTypeOption<O, "object">;
         path: string[];
         query: Query;
-        schema: S;
-        type: Type<S, any>;
-        value: Value;
+        schema: Schema<SharedTypeOptions<O>>;
+        type: Type<SharedTypeOptions<O>>;
+        value: GetTypeOption<O, "typeName">;
     }) => any) | {} | null;
 }) & {
     cost?: number | ((options: {
-        context: SchemaContext<S>;
+        context: GetTypeOption<O, "context">;
         cost: number;
-        input: Input;
-        object: Object;
+        input: GetTypeOption<O, "input">;
+        object: GetTypeOption<O, "object">;
         path: string[];
         query: Query;
-        schema: S;
-        type: Type<S, any>;
-        value: Value;
+        schema: Schema<SharedTypeOptions<O>>;
+        type: Type<SharedTypeOptions<O>>;
+        value: GetTypeOption<O, "typeName">;
     }) => number);
     defaultValue?: any;
     validate?: (options: {
-        context: SchemaContext<S>;
-        input: Input;
-        object: Object;
+        context: GetTypeOption<O, "context">;
+        input: GetTypeOption<O, "input">;
+        object: GetTypeOption<O, "object">;
         path: string[];
         query: Query;
-        schema: S;
-        type: Type<S, any>;
-        value: ResolvedValue;
+        schema: Schema<SharedTypeOptions<O>>;
+        type: Type<SharedTypeOptions<O>>;
+        value: GetTypeOption<O, "resolvedValue">;
     }) => any;
-} & SchemaExtensions<S>)>;
+} & GetTypeOption<O, "extensions">)>;
+export type Schema<O extends TypeOptions = DefaultTypeOptions> = GetTypeOption<O, "typeName"> extends string ? { [K in GetTypeOption<O, "typeName">]: Type<SharedTypeOptions<O>>; } : { [K in keyof any]: never; };
 export type Query<T = any> = {
     _?: string;
     $?: any;

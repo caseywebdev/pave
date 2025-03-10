@@ -1,10 +1,10 @@
-export function validateQuery<S extends Schema<any>>({ context, path, query, schema, type }: {
+export function validateQuery({ context, path, query, schema, type }: {
     context?: any;
     path?: string[];
     query: Query;
-    schema: S;
-    type: Type<S, any>;
+    schema: Schema<any>;
+    type: Type<any>;
 }): Query;
-import type { Schema } from '#types/index.js';
 import type { Query } from '#types/index.js';
+import type { Schema } from '#types/index.js';
 import type { Type } from '#types/index.js';

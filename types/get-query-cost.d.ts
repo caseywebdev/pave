@@ -1,11 +1,10 @@
-export function getQueryCost<S extends Schema<any>>({ context, path, query, schema, type }: {
-    context?: SchemaContext<S>;
+export function getQueryCost({ context, path, query, schema, type }: {
+    context?: any;
     path?: string[];
     query: Query;
-    schema: S;
-    type: Type<S, any>;
+    schema: Schema<any>;
+    type: Type<any>;
 }): any;
-import type { Schema } from '#types/index.js';
-import type { SchemaContext } from '#types/index.js';
 import type { Query } from '#types/index.js';
+import type { Schema } from '#types/index.js';
 import type { Type } from '#types/index.js';

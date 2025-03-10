@@ -9,13 +9,12 @@ const { isArray } = Array;
 const skipInput = {};
 
 /**
- * @template {Schema<any>} S
  * @param {{
  *   context?: any;
  *   path?: string[];
  *   query: Query;
- *   schema: S;
- *   type: Type<S, any>;
+ *   schema: Schema<any>;
+ *   type: Type<any>;
  * }} options
  * @returns {Query}
  */

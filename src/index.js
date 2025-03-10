@@ -12,76 +12,72 @@
  * @typedef {{
  *   context?: any;
  *   extensions?: { [K: string]: any };
- *   typeName?: string;
- * }} SchemaOptions
+ *   input?: any;
+ *   object?: any;
+ *   resolvedValue?: {};
+ *   typeName?: string | unknown;
+ *   value?: any;
+ * }} TypeOptions
  */
 
 /**
- * @template {SchemaOptions} [O={}] Default is `{}`
- * @template [_Context=O['context'] extends undefined ? unknown: O['context']]
- *   Default is `O['context'] extends undefined ? unknown: O['context']`
- * @template [_Extensions=O['extensions'] extends undefined ? {} : O['extensions']]
- *   Default is `O['extensions'] extends undefined ? {} : O['extensions']`
- * @template {string} [TypeName=O['typeName'] extends string ? O['typeName'] : never]
- *   Default is `O['typeName'] extends string ? O['typeName'] : never`
- * @typedef {{ [K in TypeName]: Type<Schema<O>, any> }} Schema
+ * @typedef {{
+ *   context: unknown;
+ *   extensions: {};
+ *   input: unknown;
+ *   object: unknown;
+ *   resolvedValue: {};
+ *   typeName: unknown;
+ *   value: unknown;
+ * }} DefaultTypeOptions
  */
 
 /**
- * @template {Schema<any>} S
- * @typedef {S extends Schema<infer _, infer Context> ? Context : never} SchemaContext
+ * @template {TypeOptions} Obj
+ * @template {keyof TypeOptions} Key
+ * @typedef {undefined extends Obj[Key] ? DefaultTypeOptions[Key] : Obj[Key]} GetTypeOption
  */
 
 /**
- * @template {Schema<any>} S
- * @typedef {S extends Schema<infer _, infer __, infer Extensions> ? Extensions : never} SchemaExtensions
+ * @template {TypeOptions} O
+ * @typedef {Pick<O, 'context' | 'extensions' | 'typeName'>} SharedTypeOptions
  */
 
 /**
- * @template {Schema<any>} S
- * @typedef {S extends Schema<infer _, infer __, infer ___, infer TypeName>
- *     ? TypeName
- *     : never} SchemaTypeName
- */
-
-/** @typedef {{ input?: any; object?: any; resolvedValue?: {}; value?: any }} TypeOptions */
-
-/**
- * @template {Schema<any>} [S=Schema] Default is `Schema`
- * @template {TypeOptions} [O={}] Default is `{}`
- * @template [Input=O['input'] extends undefined ? unknown : O['input']]
- *   Default is `O['input'] extends undefined ? unknown : O['input']`
- * @template [Object=O['object'] extends undefined ? unknown : O['object']]
- *   Default is `O['object'] extends undefined ? unknown : O['object']`
- * @template [ResolvedValue=O['resolvedValue'] extends undefined ? {} : O['resolvedValue']]
- *   Default is `O['resolvedValue'] extends undefined ? {} : O['resolvedValue']`
- * @template [Value=O['value'] extends undefined ? undefined : O['value']]
- *   Default is `O['value'] extends undefined ? undefined : O['value']`
+ * @template {TypeOptions} [O=DefaultTypeOptions] Default is
+ *   `DefaultTypeOptions`
  * @typedef {Recursive<
- *   | SchemaTypeName<S>
+ *   | GetTypeOption<O, 'typeName'>
  *   | ((
- *       | { optional: Type<S, any> }
- *       | { nullable: Type<S, any> }
- *       | { arrayOf: Type<S, any>; minLength?: number; maxLength?: number }
+ *       | { optional: Type<SharedTypeOptions<O>> }
+ *       | { nullable: Type<SharedTypeOptions<O>> }
  *       | {
- *           oneOf: { [K: string]: Type<S, any> };
+ *           arrayOf: Type<SharedTypeOptions<O>>;
+ *           minLength?: number;
+ *           maxLength?: number;
+ *         }
+ *       | {
+ *           oneOf: { [K: string]: Type<SharedTypeOptions<O>> };
  *           resolveType: (value: {}) => string;
  *         }
- *       | { object: { [K: string]: Type<S, any> }; defaultType?: Type<S, any> }
  *       | {
- *           input?: Type<S, any>;
- *           type?: Type<S, any>;
+ *           object: { [K: string]: Type<SharedTypeOptions<O>> };
+ *           defaultType?: Type<SharedTypeOptions<O>>;
+ *         }
+ *       | {
+ *           input?: Type<SharedTypeOptions<O>>;
+ *           type?: Type<SharedTypeOptions<O>>;
  *           typeInput?: any;
  *           resolve?:
  *             | ((options: {
- *                 context: SchemaContext<S>;
- *                 input: Input;
- *                 object: Object;
+ *                 context: GetTypeOption<O, 'context'>;
+ *                 input: GetTypeOption<O, 'input'>;
+ *                 object: GetTypeOption<O, 'object'>;
  *                 path: string[];
  *                 query: Query;
- *                 schema: S;
- *                 type: Type<S, any>;
- *                 value: Value;
+ *                 schema: Schema<SharedTypeOptions<O>>;
+ *                 type: Type<SharedTypeOptions<O>>;
+ *                 value: GetTypeOption<O, 'typeName'>;
  *               }) => any)
  *             | {}
  *             | null;
@@ -90,29 +86,37 @@
  *       cost?:
  *         | number
  *         | ((options: {
- *             context: SchemaContext<S>;
+ *             context: GetTypeOption<O, 'context'>;
  *             cost: number;
- *             input: Input;
- *             object: Object;
+ *             input: GetTypeOption<O, 'input'>;
+ *             object: GetTypeOption<O, 'object'>;
  *             path: string[];
  *             query: Query;
- *             schema: S;
- *             type: Type<S, any>;
- *             value: Value;
+ *             schema: Schema<SharedTypeOptions<O>>;
+ *             type: Type<SharedTypeOptions<O>>;
+ *             value: GetTypeOption<O, 'typeName'>;
  *           }) => number);
  *       defaultValue?: any;
  *       validate?: (options: {
- *         context: SchemaContext<S>;
- *         input: Input;
- *         object: Object;
+ *         context: GetTypeOption<O, 'context'>;
+ *         input: GetTypeOption<O, 'input'>;
+ *         object: GetTypeOption<O, 'object'>;
  *         path: string[];
  *         query: Query;
- *         schema: S;
- *         type: Type<S, any>;
- *         value: ResolvedValue;
+ *         schema: Schema<SharedTypeOptions<O>>;
+ *         type: Type<SharedTypeOptions<O>>;
+ *         value: GetTypeOption<O, 'resolvedValue'>;
  *       }) => any;
- *     } & SchemaExtensions<S>)
+ *     } & GetTypeOption<O, 'extensions'>)
  * >} Type
+ */
+
+/**
+ * @template {TypeOptions} [O=DefaultTypeOptions] Default is
+ *   `DefaultTypeOptions`
+ * @typedef {GetTypeOption<O, 'typeName'> extends string
+ *     ? { [K in GetTypeOption<O, 'typeName'>]: Type<SharedTypeOptions<O>> }
+ *     : { [K in keyof any]: never }} Schema
  */
 
 /**
