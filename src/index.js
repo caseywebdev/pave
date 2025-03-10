@@ -9,75 +9,55 @@
  */
 
 /**
+ * @template Value
+ * @template Fallback
+ * @typedef {undefined extends Value ? Fallback : Value} Get
+ */
+
+/**
  * @typedef {{
  *   context?: any;
- *   extensions?: { [K: string]: any };
+ *   extensions?: {};
  *   input?: any;
  *   object?: any;
  *   resolvedValue?: {};
- *   typeName?: string | unknown;
+ *   typeName?: string;
  *   value?: any;
  * }} TypeOptions
  */
 
 /**
- * @typedef {{
- *   context: unknown;
- *   extensions: {};
- *   input: unknown;
- *   object: unknown;
- *   resolvedValue: {};
- *   typeName: unknown;
- *   value: unknown;
- * }} DefaultTypeOptions
- */
-
-/**
- * @template {TypeOptions} Obj
- * @template {keyof TypeOptions} Key
- * @typedef {undefined extends Obj[Key] ? DefaultTypeOptions[Key] : Obj[Key]} GetTypeOption
- */
-
-/**
  * @template {TypeOptions} O
- * @typedef {Pick<O, 'context' | 'extensions' | 'typeName'>} SharedTypeOptions
+ * @typedef {Type<Pick<O, 'context' | 'extensions' | 'typeName'>>} SubType
  */
 
 /**
- * @template {TypeOptions} [O=DefaultTypeOptions] Default is
- *   `DefaultTypeOptions`
+ * @template {TypeOptions} [O={}] Default is `{}`
  * @typedef {Recursive<
- *   | GetTypeOption<O, 'typeName'>
+ *   | Get<O['typeName'], never>
  *   | ((
- *       | { optional: Type<SharedTypeOptions<O>> }
- *       | { nullable: Type<SharedTypeOptions<O>> }
+ *       | { optional: SubType<O> }
+ *       | { nullable: SubType<O> }
+ *       | { arrayOf: SubType<O>; minLength?: number; maxLength?: number }
  *       | {
- *           arrayOf: Type<SharedTypeOptions<O>>;
- *           minLength?: number;
- *           maxLength?: number;
- *         }
- *       | {
- *           oneOf: { [K: string]: Type<SharedTypeOptions<O>> };
+ *           oneOf: { [K: string]: SubType<O> };
  *           resolveType: (value: {}) => string;
  *         }
+ *       | { object: { [K: string]: SubType<O> }; defaultType?: SubType<O> }
  *       | {
- *           object: { [K: string]: Type<SharedTypeOptions<O>> };
- *           defaultType?: Type<SharedTypeOptions<O>>;
- *         }
- *       | {
- *           input?: Type<SharedTypeOptions<O>>;
- *           type?: Type<SharedTypeOptions<O>>;
+ *           input?: SubType<O>;
+ *           type?: SubType<O>;
  *           typeInput?: any;
  *           resolve?:
  *             | ((options: {
- *                 context: GetTypeOption<O, 'context'>;
- *                 input: GetTypeOption<O, 'input'>;
- *                 object: GetTypeOption<O, 'object'>;
+ *                 context: Get<O['context'], any>;
+ *                 input: Get<O['input'], any>;
+ *                 object: Get<O['object'], any>;
  *                 path: string[];
  *                 query: Query;
- *                 schema: Schema<SharedTypeOptions<O>>;
- *                 type: Type<SharedTypeOptions<O>>;
- *                 value: GetTypeOption<O, 'typeName'>;
+ *                 schema: Schema<O>;
+ *                 type: SubType<O>;
+ *                 value: Get<O['value'], any>;
  *               }) => any)
  *             | {}
  *             | null;
@@ -86,37 +66,36 @@
  *       cost?:
  *         | number
  *         | ((options: {
- *             context: GetTypeOption<O, 'context'>;
+ *             context: Get<O['context'], any>;
  *             cost: number;
- *             input: GetTypeOption<O, 'input'>;
- *             object: GetTypeOption<O, 'object'>;
+ *             input: Get<O['input'], any>;
+ *             object: Get<O['object'], any>;
  *             path: string[];
  *             query: Query;
- *             schema: Schema<SharedTypeOptions<O>>;
- *             type: Type<SharedTypeOptions<O>>;
- *             value: GetTypeOption<O, 'typeName'>;
+ *             schema: Schema<O>;
+ *             type: SubType<O>;
+ *             value: Get<O['value'], any>;
  *           }) => number);
  *       defaultValue?: any;
  *       validate?: (options: {
- *         context: GetTypeOption<O, 'context'>;
- *         input: GetTypeOption<O, 'input'>;
- *         object: GetTypeOption<O, 'object'>;
+ *         context: Get<O['context'], any>;
+ *         input: Get<O['input'], any>;
+ *         object: Get<O['object'], any>;
  *         path: string[];
  *         query: Query;
- *         schema: Schema<SharedTypeOptions<O>>;
- *         type: Type<SharedTypeOptions<O>>;
- *         value: GetTypeOption<O, 'resolvedValue'>;
+ *         schema: Schema<O>;
+ *         type: SubType<O>;
+ *         value: Get<O['resolvedValue'], any>;
  *       }) => any;
- *     } & GetTypeOption<O, 'extensions'>)
+ *     } & Get<O['extensions'], {}>)
  * >} Type
  */
 
 /**
- * @template {TypeOptions} [O=DefaultTypeOptions] Default is
- *   `DefaultTypeOptions`
- * @typedef {GetTypeOption<O, 'typeName'> extends string
- *     ? { [K in GetTypeOption<O, 'typeName'>]: Type<SharedTypeOptions<O>> }
- *     : { [K in keyof any]: never }} Schema
+ * @template {TypeOptions} [O={}] Default is `{}`
+ * @typedef {O['typeName'] extends string
+ *   ? { [K in O['typeName']]: SubType<O> }
+ *   : { [K in keyof any]: never }} Schema
  */
 
 /**
