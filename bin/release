@@ -1,8 +1,8 @@
 #!/bin/sh -e
 
-bin/build
+bumpit "${1:-???}"
 
-bumpit
+bin/build
 
 version=$(jq -r .version package.json)
 
