@@ -28,7 +28,11 @@
 
 /**
  * @template {TypeOptions} O
- * @typedef {Type<Pick<O, 'context' | 'extensions' | 'typeName'>>} SubType
+ * @typedef {Type<{
+ *   context: O['context'];
+ *   extensions: O['extensions'];
+ *   typeName: O['typeName'];
+ * }>} SubType
  */
 
 /**
