@@ -18,12 +18,12 @@
     }
   },
   "devDependencies": {
-    "@types/node": "22",
+    "@types/node": "24",
     "eslint-config-coderiety": "2",
     "eslint": "9",
     "kiss-test": "0.2",
     "typescript": "5",
-    "watchy": "0.10"
+    "watchy": "0.12"
   },
   "files": [
     "/src",
