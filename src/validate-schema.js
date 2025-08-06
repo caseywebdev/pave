@@ -7,7 +7,7 @@ const { Set } = globalThis;
 
 const { isArray } = Array;
 
-/** @param {{ extensions?: { [K: string]: any }; schema: S }} options */
+/** @param {{ extensions?: { [K: string]: any }; schema: Schema }} options */
 export const validateSchema = ({ extensions, schema }) => {
   const positiveNumber = {
     resolve: ({ value }) => {
@@ -77,29 +77,11 @@ export const validateSchema = ({ extensions, schema }) => {
           oneOf: {
             type: typeObject,
             validate: ({ path, value }) => {
-              if (!Object.keys(value).length) {
-                throw new Error(
-                  `Expected ${`"${path.join('"."')}"`} to define at least one type`
-                );
-              }
+              if (Object.keys(value).length) return value;
 
-              for (const key in value) {
-                const type = value[key];
-
-                if (typeof type === 'string') {
-                  if (key !== type) {
-                    throw new Error(
-                      `Expected "${key}" at ${`"${path.join('"."')}" to equal "${type}"`}`
-                    );
-                  }
-                } else if (key in schema) {
-                  throw new Error(
-                    `Expected "${key}" at ${`"${path.join('"."')}" to either equal "${key}" be renamed or to avoid ambiguity`}`
-                  );
-                }
-              }
-
-              return value;
+              throw new Error(
+                `Expected ${`"${path.join('"."')}"`} to define at least one type`
+              );
             }
           },
           resolveType: fn
