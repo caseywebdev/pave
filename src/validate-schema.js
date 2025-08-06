@@ -45,12 +45,12 @@ export const validateSchema = ({ extensions, schema }) => {
     oneOf: {
       recursive: {},
       string: {
-        resolve: ({ schema, value }) => {
+        resolve: ({ path, schema, value }) => {
           const keys = Object.keys(schema);
           if (typeof value === 'string' && keys.includes(value)) return value;
 
           throw new Error(
-            `Expected ${JSON.stringify(value)} to be one of ${keys.join(', ')}`
+            `Expected ${JSON.stringify(value)} at ${`"${path.join('"."')}"`} to be one of ${keys.join(', ')}`
           );
         }
       },
@@ -77,11 +77,29 @@ export const validateSchema = ({ extensions, schema }) => {
           oneOf: {
             type: typeObject,
             validate: ({ path, value }) => {
-              if (Object.keys(value).length) return value;
+              if (!Object.keys(value).length) {
+                throw new Error(
+                  `Expected ${`"${path.join('"."')}"`} to define at least one type`
+                );
+              }
 
-              throw new Error(
-                `Expected ${`"${path.join('"."')}"`} to define at least one type`
-              );
+              for (const key in value) {
+                const type = value[key];
+
+                if (typeof type === 'string') {
+                  if (key !== type) {
+                    throw new Error(
+                      `Expected "${key}" at ${`"${path.join('"."')}" to equal "${type}"`}`
+                    );
+                  }
+                } else if (key in schema) {
+                  throw new Error(
+                    `Expected "${key}" at ${`"${path.join('"."')}" to either equal "${key}" be renamed or to avoid ambiguity`}`
+                  );
+                }
+              }
+
+              return value;
             }
           },
           resolveType: fn

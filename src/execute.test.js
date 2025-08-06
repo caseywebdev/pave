@@ -53,8 +53,8 @@ export default async () => {
           things: {
             type: {
               arrayOf: {
-                oneOf: { b: 'Bar', f: 'Foo' },
-                resolveType: ({ id }) => (id ? 'f' : 'b')
+                oneOf: { Bar: 'Bar', Foo: 'Foo' },
+                resolveType: ({ id }) => (id ? 'Foo' : 'Bar')
               },
               minLength: 1,
               maxLength: 10
@@ -84,12 +84,12 @@ export default async () => {
             },
             type: {
               oneOf: {
-                String: { type: 'String', typeInput: { maxLength: 3 } },
+                str: { type: 'String', typeInput: { maxLength: 3 } },
                 ThingA,
                 ThingB
               },
               resolveType: val =>
-                typeof val === 'string' ? 'String' : val.a ? 'ThingA' : 'ThingB'
+                typeof val === 'string' ? 'str' : val.a ? 'ThingA' : 'ThingB'
             },
             resolve: ({ input: { thing } }) => thing
           },
@@ -100,8 +100,9 @@ export default async () => {
           nullableArrayOf: { nullable: { arrayOf: 'String' } },
           nullableOneOf: {
             nullable: {
-              oneOf: { string: 'String', number: 'Number' },
-              resolveType: value => typeof value
+              oneOf: { String: 'String', Number: 'Number' },
+              resolveType: value =>
+                typeof value === 'number' ? 'Number' : 'String'
             }
           },
           arrayOfStrings: {
@@ -140,8 +141,9 @@ export default async () => {
         object: {
           id: {
             type: {
-              oneOf: { number: 'Number', string: 'String' },
-              resolveType: value => typeof value
+              oneOf: { Number: 'Number', String: 'String' },
+              resolveType: value =>
+                typeof value === 'number' ? 'Number' : 'String'
             }
           },
           subFoo: {
@@ -227,13 +229,13 @@ export default async () => {
       nullableStringF: { _: 'nullableStringArgs', $: { string: '   ' } },
       selfLink: { selfLinkWithAddition: { addition: {} } },
       things: {
-        _on_f: {
+        _on_Foo: {
           _type: {},
           id: {},
           name: { $: { separator: ' ' } },
           sub: { _: 'subFoo', id: {}, subSub: { _: 'subFoo', id: {} } }
         },
-        _on_b: { _type: {}, color: {} }
+        _on_Bar: { _type: {}, color: {} }
       },
       oneOfArgsString: { _: 'oneOfArgs', $: { thing: 'str' } },
       oneOfArgsA: {
