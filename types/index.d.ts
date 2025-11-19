@@ -42,7 +42,7 @@ export type Type<O extends TypeOptions = {}> = Recursive<(O["typeName"] extends 
 } | {
     object: {
         [K: string]: SubType<O>;
-    };
+    } | SubType<O>[];
     defaultType?: SubType<O>;
 } | {
     input?: SubType<O>;
