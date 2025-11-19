@@ -47,7 +47,10 @@
  *           oneOf: { [K: string]: SubType<O> };
  *           resolveType: (value: {}) => string;
  *         }
- *       | { object: { [K: string]: SubType<O> }; defaultType?: SubType<O> }
+ *       | {
+ *           object: { [K: string]: SubType<O> } | SubType<O>[];
+ *           defaultType?: SubType<O>;
+ *         }
  *       | {
  *           input?: SubType<O>;
  *           type?: SubType<O>;
