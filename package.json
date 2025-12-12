@@ -18,7 +18,7 @@
     }
   },
   "devDependencies": {
-    "@types/node": "24",
+    "@types/node": "25",
     "eslint-config-coderiety": "2",
     "eslint": "9",
     "kiss-test": "0.2",
