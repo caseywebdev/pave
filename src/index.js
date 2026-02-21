@@ -106,9 +106,8 @@
  */
 
 /**
- * @template [T=any] Default is `any`
  * @typedef {{ _?: string; $?: any; _type?: { [K in keyof any]: never } }
- *   | { [K: string]: Query<T> }} Query
+ *   | { [K: string]: Query }} Query
  */
 
 export { Context } from '#src/context.js';

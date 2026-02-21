@@ -83,10 +83,10 @@ export type Type<O extends TypeOptions = {}> = Recursive<(O["typeName"] extends 
     }) => any;
 } & Get<O["extensions"], {}>)>;
 export type Schema<O extends TypeOptions = {}> = O["typeName"] extends string ? { [K in O["typeName"]]: SubType<O>; } : { [K in keyof any]: never; };
-export type Query<T = any> = {
+export type Query = {
     _?: string;
     $?: any;
     _type?: { [K in keyof any]: never; };
 } | {
-    [K: string]: Query<T>;
+    [K: string]: Query;
 };
