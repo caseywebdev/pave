@@ -20,7 +20,8 @@ export default () => {
                   return size * cost;
                 },
                 type: {
-                  object: { a: { cost: 1 }, b: { cost: 2 }, c: { cost: 3 } }
+                  object: { a: { cost: 1 }, b: { cost: 2 }, c: { cost: 3 } },
+                  defaultType: { cost: 4 }
                 }
               },
               oneOf: {
@@ -43,7 +44,13 @@ export default () => {
         foo: {}, // 5
         bar: {}, // 10
         bar2: { _: 'bar' }, // 10
-        baz: { $: { size: 10 }, a: {}, b: {}, c: {} }, // 60
+        baz: {
+          $: { size: 10 },
+          a: {}, // 1
+          b: {}, // 2
+          c: {}, // 3
+          d: {} // 4
+        }, // 10 * 10 = 100
         oneOf: {
           _on_SuperExpensive: { doot: {} },
           _on_MediumExpensive: { ding: {} }
@@ -53,8 +60,8 @@ export default () => {
           _on_MediumExpensive: { ding: {} },
           _on_Cheap: { dong: {} }
         } // 50
-      } // 235 * 3 = 705
+      } // 275 * 3 = 825
     }),
-    705
+    825
   );
 };

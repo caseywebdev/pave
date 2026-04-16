@@ -27,21 +27,24 @@ export const getQueryCost = ({ context, path = [], query, schema, type }) => {
     else if (type.arrayOf) nextType = type.arrayOf;
     else if (type.oneOf) {
       cost += Math.max(
-        ...Object.entries(type.oneOf).map(([name, type]) => {
-          const onField = `_on_${name}`;
-          return getQueryCost({
-            context,
-            path: [...path, onField],
-            query: query[onField] ?? {},
-            schema,
-            type
-          });
-        })
+        ...Object.entries(query).map(([alias, _query]) =>
+          alias.startsWith('_on_')
+            ? getQueryCost({
+                context,
+                path: [...path, alias],
+                query: _query,
+                schema,
+                type: type.oneOf[alias.slice(4)]
+              })
+            : 0
+        )
       );
     } else if (type.object) {
       for (const alias in query) {
+        if (alias === '$' || alias === '_') continue;
+
         const _query = query[alias];
-        const _type = type.object[_query._ ?? alias];
+        const _type = type.object[_query._ ?? alias] ?? type.defaultType;
         cost += getQueryCost({
           context,
           path: [...path, alias],
