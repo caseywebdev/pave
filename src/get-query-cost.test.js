@@ -51,11 +51,13 @@ export default () => {
           c: {}, // 3
           d: {} // 4
         }, // 10 * 10 = 100
-        oneOf: {
+        oneOf: {},
+        oneOf2: {
+          _: 'oneOf',
           _on_SuperExpensive: { doot: {} },
           _on_MediumExpensive: { ding: {} }
         }, // 100
-        oneOf2: {
+        oneOf3: {
           _: 'oneOf',
           _on_MediumExpensive: { ding: {} },
           _on_Cheap: { dong: {} }
